@@ -725,6 +725,8 @@
         </div>
         <div class="ng-sub" id="ng-sub-a">Portada frontal — 150×195 mm</div>
         <div class="ng-sub" id="ng-sub-b" style="display:none">Trasera (151×194 mm) + Lomo (37×195 mm)</div>
+        <div class="ng-sub" style="margin-top:6px;color:var(--txt3)">Arrastra la imagen en la vista previa para reposicionarla</div>
+        <button class="auto-btn" style="margin-top:7px" onclick="resetNgOffsets()">↺ Recentrar imagen</button>
       </div>
     </div>
 
@@ -892,6 +894,7 @@ const S = {
   imgRot: 0,
   neogeoMode: false,
   neogeoPage: 'A',
+  ngOff: { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} },
 
   set(key, val) {
     this[key] = val;
@@ -1563,6 +1566,7 @@ function loadImage(file) {
       S.img = img;
       S.imgRot = 0;
       _rotCache = null;
+      S.ngOff = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
       document.getElementById('rot-ccw').disabled = false;
       document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
@@ -1621,12 +1625,13 @@ async function exportPDF() {
         pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
         if (ri) {
           if (page === 'A') {
-            const a = NG_AREAS.A;
-            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX);
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX);
           } else {
-            const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
-            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX);
-            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX);
+            const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX);
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
@@ -1806,12 +1811,13 @@ async function exportPNG() {
         pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
         if (ri) {
           if (page === 'A') {
-            const a = NG_AREAS.A;
-            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX);
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX);
           } else {
-            const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
-            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX);
-            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX);
+            const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX);
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
@@ -2105,15 +2111,28 @@ async function _loadNgSvg(side) {
   } catch(e) { console.warn('NeoGeo template:', e); return null; }
 }
 
-function _ngCover(ctx, img, x, y, w, h) {
+function _ngCover(ctx, img, x, y, w, h, offX=0, offY=0) {
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
   const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
   ctx.drawImage(img,
-    x + (w - img.naturalWidth  * s) / 2,
-    y + (h - img.naturalHeight * s) / 2,
+    x + (w - img.naturalWidth  * s) / 2 + offX,
+    y + (h - img.naturalHeight * s) / 2 + offY,
     img.naturalWidth * s, img.naturalHeight * s);
   ctx.restore();
+}
+
+function _ngClampMM(img, zoneMM, offXmm, offYmm) {
+  const s    = Math.max(zoneMM.w / img.naturalWidth, zoneMM.h / img.naturalHeight);
+  const maxX = Math.max(0, (img.naturalWidth  * s - zoneMM.w) / 2);
+  const maxY = Math.max(0, (img.naturalHeight * s - zoneMM.h) / 2);
+  return { x: Math.max(-maxX, Math.min(maxX, offXmm)),
+           y: Math.max(-maxY, Math.min(maxY, offYmm)) };
+}
+
+function resetNgOffsets() {
+  S.ngOff = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+  renderNeoGeo();
 }
 
 function setNeoGeo(on) {
@@ -2131,6 +2150,11 @@ function setNeoGeo(on) {
       b.classList.toggle('on', b.dataset.ngp === 'A'));
     document.getElementById('ng-sub-a').style.display = 'block';
     document.getElementById('ng-sub-b').style.display = 'none';
+    // Preload both templates; re-render when each arrives
+    ['A','B'].forEach(side => {
+      if (!_ngCache[side])
+        _loadNgSvg(side).then(() => { if (S.neogeoMode) renderNeoGeo(); });
+    });
   }
   schedRender();
 }
@@ -2144,7 +2168,9 @@ function setNeoGeoPage(page) {
   schedRender();
 }
 
-async function renderNeoGeo() {
+let _ngSc = 1;   // canvas px per mm — updated on every renderNeoGeo call
+
+function renderNeoGeo() {
   const canvas = document.getElementById('pvc');
   const ctx    = canvas.getContext('2d');
   const badge  = document.getElementById('badge');
@@ -2156,6 +2182,7 @@ async function renderNeoGeo() {
   const maxW = wrap.clientWidth - 28;
   const maxH = Math.max(300, window.innerHeight - 290);
   const sc   = Math.min(maxW / PW, maxH / PH);
+  _ngSc = sc;
 
   canvas.width  = Math.round(PW * sc);
   canvas.height = Math.round(PH * sc);
@@ -2164,20 +2191,29 @@ async function renderNeoGeo() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const ri   = getRotImg();
-  const tmpl = await _loadNgSvg(page);
+  const tmpl = _ngCache[page];   // sync — already preloaded by setNeoGeo
 
   if (ri) {
     if (page === 'A') {
-      const a = NG_AREAS.A;
-      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc);
+      const a = NG_AREAS.A, off = S.ngOff.A;
+      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc, off.x*sc, off.y*sc);
     } else {
-      const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
-      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc);
-      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc);
+      const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+      const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc,  offB.x*sc,  offB.y*sc);
+      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc, offSp.x*sc, offSp.y*sc);
     }
   }
 
-  if (tmpl) ctx.drawImage(tmpl, 0, 0, canvas.width, canvas.height);
+  if (tmpl) {
+    ctx.drawImage(tmpl, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = 'rgba(124,106,247,.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#a78bfa'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Cargando plantilla…', canvas.width/2, canvas.height/2);
+  }
 
   ctx.strokeStyle = 'rgba(0,0,0,.06)';
   ctx.lineWidth = 1;
@@ -2192,6 +2228,73 @@ async function renderNeoGeo() {
 
   setExp(true);
 }
+
+// ── NeoGeo drag-to-reposition ─────────────────────────
+let _ngDrag = null; // { zone, startCX, startCY, startOffX, startOffY }
+
+function _ngHitZone(clientX, clientY) {
+  const canvas = document.getElementById('pvc');
+  const rect   = canvas.getBoundingClientRect();
+  const cx = (clientX - rect.left) * (canvas.width  / rect.width);
+  const cy = (clientY - rect.top)  * (canvas.height / rect.height);
+  const page = S.neogeoPage || 'A';
+  const hit = (a) => cx >= a.x*_ngSc && cx <= (a.x+a.w)*_ngSc &&
+                     cy >= a.y*_ngSc && cy <= (a.y+a.h)*_ngSc;
+  if (page === 'A')  return hit(NG_AREAS.A)       ? 'A'       : null;
+  if (hit(NG_AREAS.B_back))  return 'B_back';
+  if (hit(NG_AREAS.B_spine)) return 'B_spine';
+  return null;
+}
+
+(function() {
+  const canvas = document.getElementById('pvc');
+  const pos = (e) => e.touches
+    ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    : { x: e.clientX,            y: e.clientY };
+
+  function onStart(e) {
+    if (!S.neogeoMode || !getRotImg()) return;
+    const p = pos(e);
+    const zone = _ngHitZone(p.x, p.y);
+    if (!zone) return;
+    e.preventDefault();
+    _ngDrag = { zone, startCX: p.x, startCY: p.y,
+                startOffX: S.ngOff[zone].x, startOffY: S.ngOff[zone].y };
+    canvas.style.cursor = 'grabbing';
+  }
+
+  function onMove(e) {
+    if (_ngDrag) {
+      if (e.cancelable) e.preventDefault();
+      const p  = pos(e);
+      const dxMM = (p.x - _ngDrag.startCX) / _ngSc;
+      const dyMM = (p.y - _ngDrag.startCY) / _ngSc;
+      const ri   = getRotImg();
+      const zone = _ngDrag.zone;
+      const areaMM = NG_AREAS[zone] || NG_AREAS.A;
+      const raw  = { x: _ngDrag.startOffX + dxMM, y: _ngDrag.startOffY + dyMM };
+      S.ngOff[zone] = ri ? _ngClampMM(ri, areaMM, raw.x, raw.y) : raw;
+      renderNeoGeo();
+    } else if (S.neogeoMode && getRotImg()) {
+      const p = pos(e);
+      canvas.style.cursor = _ngHitZone(p.x, p.y) ? 'grab' : '';
+    }
+  }
+
+  function onEnd() {
+    if (!_ngDrag) return;
+    _ngDrag = null;
+    canvas.style.cursor = (S.neogeoMode && getRotImg()) ? 'grab' : '';
+  }
+
+  canvas.addEventListener('mousedown',  onStart);
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onEnd);
+  document.addEventListener('touchmove', (e) => { if (_ngDrag) onMove(e); }, { passive: false });
+  document.addEventListener('touchend',  onEnd);
+  canvas.addEventListener('mouseleave', () => { if (!_ngDrag) canvas.style.cursor = ''; });
+})();
 
 // ── Init ──────────────────────────────────────────────
 window.addEventListener('resize', () => {
