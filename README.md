@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/JFSAINTS/coverlabel/releases/latest"><img src="https://img.shields.io/github/v/release/JFSAINTS/coverlabel?label=Descargar&color=7c6af7" alt="Última versión"></a>
+  <a href="https://coverlabel.netlify.app"><img src="https://img.shields.io/badge/Web%20App-coverlabel.netlify.app-00C7B7?logo=netlify" alt="Netlify"></a>
   <img src="https://img.shields.io/badge/Plataforma-Windows%20%7C%20Android%20%7C%20Web-blue" alt="Plataformas">
   <img src="https://img.shields.io/badge/Sin%20instalaci%C3%B3n-Portátil-22c55e" alt="Portátil">
 </p>
