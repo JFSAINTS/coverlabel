@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoverLabel — Etiquetas y Portadas</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #f0effd;
+      --sfc:   #ffffff;
+      --sfc2:  #f8f7ff;
+      --brd:   #e2deff;
+      --ac:    #7c6af7;
+      --ac2:   #a78bfa;
+      --aclt:  #ede9fe;
+      --txt:   #1e1b3a;
+      --txt2:  #6b6893;
+      --txt3:  #9b97c2;
+      --red:   #ef4444;
+      --grn:   #22c55e;
+      --r:     12px;
+      --rs:    8px;
+      --sh:    0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(124,106,247,.09);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--sfc);
+      border-bottom: 1px solid var(--brd);
+      padding: 0 20px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .logo {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--ac), var(--ac2));
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    header h1 { font-size: .98rem; font-weight: 700; }
+    header .sub { font-size: .72rem; color: var(--txt3); margin-left: 2px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
+      padding: 16px;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+      align-items: start;
+    }
+
+    /* ── Settings ── */
+    .settings {
+      background: var(--sfc);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      box-shadow: var(--sh);
+      overflow: hidden;
+    }
+    .sec { padding: 12px 14px; border-bottom: 1px solid var(--brd); }
+    .sec:last-child { border-bottom: none; }
+    .sec-title {
+      font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+
+    /* Format selector */
+    .cat-select {
+      width: 100%;
+      padding: 7px 28px 7px 9px;
+      border: 1.5px solid var(--brd);
+      border-radius: var(--rs);
+      background-color: var(--sfc2);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%239b97c2' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      color: var(--txt);
+      font-family: inherit;
+      font-size: .86rem;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .cat-select:focus { outline: none; border-color: var(--ac); }
+    .cat-select optgroup { font-weight: 700; color: var(--txt2); }
+
+    .subfmt-row { margin-top: 7px; }
+    .subfmt-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .sfchip {
+      padding: 4px 9px;
+      border: 1.5px solid var(--brd);
+      border-radius: 20px;
+      background: var(--sfc2);
+      color: var(--txt2);
+      font-family: inherit;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .12s;
+      white-space: nowrap;
+    }
+    .sfchip.on { border-color: var(--ac); background: var(--aclt); color: var(--ac); }
+    .sfchip:hover:not(.on) { border-color: var(--ac2); }
+
+    .fmt-dim {
+      margin-top: 6px;
+      font-size: .72rem;
+      color: var(--txt2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .fmt-dim .dim-val { font-weight: 700; color: var(--ac); }
+    .fmt-dim .paper-hint {
+      background: var(--aclt);
+      color: var(--ac);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: .68rem;
+      font-weight: 700;
+    }
+
+    /* Upload */
+    #upload-drop {
+      border: 2px dashed var(--brd);
+      border-radius: var(--rs);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+      background: var(--sfc2);
+      user-select: none;
+    }
+    #upload-drop:hover, #upload-drop.dragover {
+      border-color: var(--ac);
+      background: var(--aclt);
+    }
+    #upload-drop .di { font-size: 1.6rem; margin-bottom: 4px; }
+    #upload-drop p { font-size: .78rem; color: var(--txt2); line-height: 1.5; }
+    #upload-drop strong { color: var(--ac); }
+
+    #upload-preview {
+      display: none;
+      position: relative;
+      border-radius: var(--rs);
+      overflow: hidden;
+      background: var(--sfc2);
+      border: 1px solid var(--brd);
+    }
+    #thumb { width: 100%; max-height: 110px; object-fit: contain; display: block; }
+    .change-btn {
+      position: absolute; top: 5px; right: 5px;
+      background: rgba(30,27,58,.72);
+      backdrop-filter: blur(4px);
+      color: #fff; border: none; border-radius: 5px;
+      padding: 2px 7px; font-size: .68rem; cursor: pointer; font-family: inherit;
+    }
+
+    /* Chips */
+    .chips { display: flex; gap: 5px; }
+    .chip {
+      flex: 1; padding: 6px 4px;
+      border: 1.5px solid var(--brd); border-radius: var(--rs);
+      background: var(--sfc2); color: var(--txt2);
+      font-family: inherit; font-size: .8rem; font-weight: 600;
+      cursor: pointer; transition: all .12s; text-align: center;
+    }
+    .chip.on { border-color: var(--ac); background: var(--aclt); color: var(--ac); }
+    .chip:hover:not(.on) { border-color: var(--ac2); }
+
+    /* Orientation */
+    .orient-row { display: flex; gap: 5px; margin-top: 6px; }
+    .oc {
+      flex: 1; padding: 7px 4px 5px;
+      border: 1.5px solid var(--brd); border-radius: var(--rs);
+      background: var(--sfc2); color: var(--txt2);
+      font-family: inherit; font-size: .75rem;
+      cursor: pointer; transition: all .12s;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+    }
+    .oc.on { border-color: var(--ac); background: var(--aclt); color: var(--ac); }
+    .pg { display: inline-block; border: 2px solid currentColor; border-radius: 1px; }
+    .pg.v { width: 12px; height: 17px; }
+    .pg.h { width: 17px; height: 12px; }
+
+    /* Inputs */
+    .dim-row { display: flex; gap: 7px; align-items: center; }
+    .dim-row .sep { color: var(--txt3); font-size: .8rem; flex-shrink: 0; padding-top: 14px; }
+    .field { flex: 1; }
+    .field label { display: block; font-size: .68rem; color: var(--txt2); margin-bottom: 3px; font-weight: 500; }
+    .field input[type=number] {
+      width: 100%; padding: 6px 8px;
+      border: 1.5px solid var(--brd); border-radius: var(--rs);
+      background: var(--sfc2); color: var(--txt);
+      font-family: inherit; font-size: .86rem;
+      transition: border-color .12s;
+      -moz-appearance: textfield;
+    }
+    .field input[type=number]::-webkit-inner-spin-button,
+    .field input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .field input[type=number]:focus { outline: none; border-color: var(--ac); }
+
+    /* Fit modes */
+    .fit-list { display: flex; flex-direction: column; gap: 4px; }
+    .fi {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px;
+      border: 1.5px solid var(--brd); border-radius: var(--rs);
+      cursor: pointer; transition: all .12s; user-select: none;
+    }
+    .fi.on { border-color: var(--ac); background: var(--aclt); }
+    .fi:hover:not(.on) { border-color: var(--ac2); }
+    .fi-thumb {
+      width: 34px; height: 24px;
+      border: 1.5px solid var(--brd); border-radius: 3px;
+      position: relative; overflow: hidden; flex-shrink: 0; background: #fff;
+    }
+    .fi.on .fi-thumb { border-color: var(--ac); }
+    .fi-thumb.cover::after {
+      content:''; position:absolute; inset:-3px;
+      background: linear-gradient(135deg, #c4b5fd, #7c6af7);
+    }
+    .fi-thumb.contain::after {
+      content:''; position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:75%; height:60%;
+      background: linear-gradient(135deg, #c4b5fd, #7c6af7);
+    }
+    .fi-thumb.fill::after {
+      content:''; position:absolute; inset:1px;
+      background: linear-gradient(135deg, #c4b5fd, #7c6af7);
+    }
+    .fi-txt strong { font-size: .77rem; font-weight: 600; display: block; }
+    .fi-txt span { font-size: .67rem; color: var(--txt2); }
+
+    /* Options */
+    .opt-row {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; user-select: none;
+    }
+    .opt-row input[type=checkbox] { accent-color: var(--ac); width: 13px; height: 13px; }
+    .opt-row span { font-size: .78rem; color: var(--txt2); }
+
+    /* ── Split ── */
+    .auto-btn {
+      width: 100%; margin-top: 7px;
+      padding: 7px 10px;
+      border: 1.5px solid var(--ac); border-radius: var(--rs);
+      background: var(--aclt); color: var(--ac);
+      font-family: inherit; font-size: .8rem; font-weight: 600;
+      cursor: pointer; transition: all .12s;
+    }
+    .auto-btn:hover { background: var(--ac); color: #fff; }
+    .split-hint {
+      margin-top: 7px; padding: 7px 9px;
+      background: #f0fdf4; border: 1px solid #a7f3d0;
+      border-radius: var(--rs); font-size: .72rem;
+      color: #065f46; line-height: 1.5;
+    }
+    .split-hint.warn {
+      background: #fef2f2; border-color: #fca5a5; color: #991b1b;
+    }
+
+    /* ── Poster ── */
+    .poster-chips { display: flex; gap: 5px; }
+    .ptchip {
+      flex: 1; padding: 8px 6px;
+      border: 1.5px solid var(--brd); border-radius: var(--rs);
+      background: var(--sfc2); color: var(--txt2);
+      font-family: inherit; font-size: .75rem; font-weight: 600;
+      cursor: pointer; transition: all .12s; text-align: center;
+      line-height: 1.4;
+    }
+    .ptchip.on  { border-color: var(--ac); background: var(--aclt); color: var(--ac); }
+    .ptchip:hover:not(.on) { border-color: var(--ac2); }
+    .poster-size-hint {
+      margin-top: 7px; padding: 5px 8px;
+      background: var(--aclt); border-radius: var(--rs);
+      font-size: .72rem; color: var(--ac); font-weight: 600;
+    }
+    .poster-off {
+      width: 100%; margin-top: 7px;
+      padding: 5px 10px;
+      border: 1px solid var(--brd); border-radius: var(--rs);
+      background: transparent; color: var(--txt3);
+      font-family: inherit; font-size: .73rem;
+      cursor: pointer; transition: all .12s;
+    }
+    .poster-off:hover { background: #fee2e2; color: var(--red); border-color: #fca5a5; }
+
+    /* ── Preview ── */
+    .preview-panel { display: flex; flex-direction: column; gap: 12px; }
+    .card {
+      background: var(--sfc); border: 1px solid var(--brd);
+      border-radius: var(--r); box-shadow: var(--sh); padding: 14px;
+    }
+    .pv-bar {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+    .pv-bar h2 { font-size: .8rem; color: var(--txt2); font-weight: 600; }
+    #badge {
+      background: var(--aclt); color: var(--ac);
+      padding: 3px 10px; border-radius: 20px;
+      font-size: .73rem; font-weight: 700;
+    }
+    #badge.err { background: #fee2e2; color: var(--red); }
+
+    .canvas-bg {
+      background: #cacad2; border-radius: var(--rs);
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px; min-height: 340px;
+    }
+    #pvc {
+      box-shadow: 0 3px 10px rgba(0,0,0,.2), 0 8px 28px rgba(0,0,0,.14);
+      border-radius: 1px; max-width: 100%; display: block;
+    }
+    .info-bar {
+      margin-top: 8px; display: flex; gap: 10px;
+      font-size: .7rem; color: var(--txt3); flex-wrap: wrap;
+    }
+
+    .export-row { display: flex; gap: 9px; }
+    .btn {
+      flex: 1; padding: 11px 12px; border: none; border-radius: var(--rs);
+      font-family: inherit; font-size: .86rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-pdf { background: linear-gradient(135deg,#e53e3e,#ed8936); color:#fff; }
+    .btn-pdf:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(229,62,62,.35); }
+    .btn-png { background: linear-gradient(135deg,var(--ac),var(--ac2)); color:#fff; }
+    .btn-png:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(124,106,247,.4); }
+    .btn:disabled { opacity:.42; cursor:not-allowed; transform:none!important; box-shadow:none!important; }
+
+    @media (max-width: 780px) {
+      main { grid-template-columns: 1fr; padding: 10px; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img src="icons/icon-48.png" alt="CoverLabel" style="width:30px;height:30px;object-fit:contain;"></div>
+  <div>
+    <h1>CoverLabel</h1>
+    <span class="sub">Etiquetas y portadas listas para imprimir</span>
+  </div>
+</header>
+
+<main>
+  <aside class="settings">
+
+    <!-- FORMATO -->
+    <div class="sec">
+      <div class="sec-title">Formato / Categoría</div>
+      <select id="cat-sel" class="cat-select" onchange="onCatChange(this.value)">
+        <option value="custom">✏️  Personalizado</option>
+        <optgroup label="──── Vídeo ────">
+          <option value="VHS">📼  VHS</option>
+          <option value="DVD">💿  DVD</option>
+          <option value="Blu-ray">🔵  Blu-ray</option>
+        </optgroup>
+        <optgroup label="──── Xbox ────">
+          <option value="Xbox">🟢  Xbox (original)</option>
+          <option value="Xbox 360">🎮  Xbox 360</option>
+          <option value="Xbox One">🎮  Xbox One / Series</option>
+        </optgroup>
+        <optgroup label="──── PlayStation ────">
+          <option value="PS1">🔵  PlayStation 1</option>
+          <option value="PS2">🔵  PlayStation 2</option>
+          <option value="PS3">🔵  PlayStation 3</option>
+          <option value="PS4">🔵  PlayStation 4</option>
+          <option value="PS5">🔵  PlayStation 5</option>
+          <option value="PSP">🔵  PSP</option>
+          <option value="PS Vita">🔵  PS Vita</option>
+        </optgroup>
+        <optgroup label="──── Nintendo (moderno) ────">
+          <option value="Switch">🔴  Nintendo Switch</option>
+          <option value="Wii U">🔴  Wii U</option>
+          <option value="Wii">🔴  Wii</option>
+          <option value="GameCube">🟣  GameCube</option>
+          <option value="3DS">🔴  Nintendo 3DS / 2DS</option>
+          <option value="DS">🔴  Nintendo DS / DSi</option>
+        </optgroup>
+        <optgroup label="──── Nintendo (retro cajas) ────">
+          <option value="NES">🔴  NES (caja US)</option>
+          <option value="Famicom">⬜  Famicom (caja JP)</option>
+          <option value="Super NES">🔴  Super NES (caja US)</option>
+          <option value="Super Famicom">⬜  Super Famicom (caja JP)</option>
+          <option value="N64">🔴  Nintendo 64</option>
+          <option value="Game Boy">⬜  Game Boy (caja)</option>
+          <option value="Game Boy Color">🟣  Game Boy Color (caja)</option>
+          <option value="GBA">🟣  Game Boy Advance (caja)</option>
+        </optgroup>
+        <optgroup label="──── Sega ────">
+          <option value="Dreamcast">🟠  Dreamcast</option>
+          <option value="Saturn">🟠  Saturn</option>
+          <option value="Mega Drive">🟠  Mega Drive / Genesis</option>
+          <option value="Master System">🟠  Master System</option>
+          <option value="Game Gear">🟠  Game Gear (caja)</option>
+        </optgroup>
+        <optgroup label="──── NeoGeo ────">
+          <option value="NeoGeo AES">🕹️  NeoGeo AES</option>
+          <option value="NeoGeo CD">🕹️  NeoGeo CD</option>
+        </optgroup>
+        <optgroup label="──── Atari ────">
+          <option value="Atari 2600">🕹️  Atari 2600</option>
+          <option value="Atari 7800">🕹️  Atari 7800</option>
+          <option value="Atari Lynx">🕹️  Atari Lynx (caja)</option>
+        </optgroup>
+        <optgroup label="──── SNK / TurboGrafx ────">
+          <option value="TurboGrafx-16">🕹️  TurboGrafx-16 / PC Engine</option>
+        </optgroup>
+      </select>
+      <div class="subfmt-row" id="subfmt-row" style="display:none">
+        <div class="subfmt-chips" id="subfmt-chips"></div>
+        <div class="fmt-dim" id="fmt-dim"></div>
+      </div>
+    </div>
+
+    <!-- IMAGEN -->
+    <div class="sec">
+      <div class="sec-title">Imagen</div>
+      <div id="upload-drop" onclick="triggerFile()">
+        <div class="di">🖼️</div>
+        <p><strong>Haz clic</strong> o arrastra la imagen aquí</p>
+        <p>PNG · JPG · WEBP · GIF</p>
+      </div>
+      <div id="upload-preview">
+        <img id="thumb" src="" alt="">
+        <button class="change-btn" onclick="triggerFile()">✎ Cambiar</button>
+      </div>
+      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="onFile(event)">
+    </div>
+
+    <!-- PAPEL -->
+    <div class="sec">
+      <div class="sec-title">Tamaño de papel</div>
+      <div class="chips" id="paper-chips">
+        <button class="chip" data-v="A3"  onclick="S.set('paper','A3')">A3</button>
+        <button class="chip on" data-v="A4" onclick="S.set('paper','A4')">A4</button>
+        <button class="chip" data-v="A5"  onclick="S.set('paper','A5')">A5</button>
+      </div>
+      <div class="orient-row">
+        <button class="oc on" id="oc-p" onclick="S.set('orient','portrait')">
+          <span class="pg v"></span>Vertical
+        </button>
+        <button class="oc" id="oc-l" onclick="S.set('orient','landscape')">
+          <span class="pg h"></span>Horizontal
+        </button>
+      </div>
+    </div>
+
+    <!-- TAMAÑO -->
+    <div class="sec">
+      <div class="sec-title">Tamaño (cm)</div>
+      <div class="dim-row">
+        <div class="field">
+          <label>Ancho</label>
+          <input type="number" id="lw" value="9.0" min="0.5" max="200" step="0.1"
+                 oninput="S.setN('lW',this.value)">
+        </div>
+        <span class="sep">×</span>
+        <div class="field">
+          <label>Alto</label>
+          <input type="number" id="lh" value="5.5" min="0.5" max="200" step="0.1"
+                 oninput="S.setN('lH',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- AJUSTE -->
+    <div class="sec">
+      <div class="sec-title">Ajuste de imagen</div>
+      <div class="fit-list">
+        <div class="fi on" data-fit="cover"   onclick="S.set('fit','cover')">
+          <div class="fi-thumb cover"></div>
+          <div class="fi-txt">
+            <strong>Recortar</strong>
+            <span>Rellena la etiqueta, recorta los bordes</span>
+          </div>
+        </div>
+        <div class="fi" data-fit="contain" onclick="S.set('fit','contain')">
+          <div class="fi-thumb contain"></div>
+          <div class="fi-txt">
+            <strong>Ajustar</strong>
+            <span>Imagen completa, con bordes blancos</span>
+          </div>
+        </div>
+        <div class="fi" data-fit="fill"    onclick="S.set('fit','fill')">
+          <div class="fi-thumb fill"></div>
+          <div class="fi-txt">
+            <strong>Estirar</strong>
+            <span>Rellena sin recortar (puede deformar)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESPACIADO -->
+    <div class="sec">
+      <div class="sec-title">Espaciado</div>
+      <div class="dim-row">
+        <div class="field">
+          <label>Entre elementos (mm)</label>
+          <input type="number" id="sp" value="0" min="0" max="30" step="0.5"
+                 oninput="S.setN('spacing',this.value)">
+        </div>
+        <span class="sep"></span>
+        <div class="field">
+          <label>Margen mínimo (mm)</label>
+          <input type="number" id="mg" value="3" min="0" max="40" step="0.5"
+                 oninput="S.setN('margin',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- PÓSTER -->
+    <div class="sec">
+      <div class="sec-title">Modo Póster</div>
+      <div class="poster-chips">
+        <button class="ptchip" id="pt-a3" onclick="setPoster('a3')">
+          🖨️ A3<br><span style="font-weight:400;font-size:.68rem">1 hoja</span>
+        </button>
+        <button class="ptchip" id="pt-a4x4" onclick="setPoster('a4x4')">
+          🗂️ 4×A4<br><span style="font-weight:400;font-size:.68rem">ensamblar</span>
+        </button>
+      </div>
+      <div id="poster-ctrl" style="display:none;margin-top:8px">
+        <div class="dim-row">
+          <div class="field">
+            <label>Margen por hoja (mm)</label>
+            <input type="number" id="poster-mg" value="5" min="0" max="30" step="1"
+                   oninput="S.setN('posterMargin',this.value)">
+          </div>
+        </div>
+        <div class="poster-size-hint" id="poster-size-hint"></div>
+        <button class="poster-off" onclick="clearPoster()">✕ Salir del modo póster</button>
+      </div>
+    </div>
+
+    <!-- DIVISIÓN -->
+    <div class="sec">
+      <div class="sec-title">Dividir en partes</div>
+      <label class="opt-row">
+        <input type="checkbox" id="split-on" onchange="setSplit(this.checked)">
+        <span>Imprimir en varias páginas</span>
+      </label>
+      <div id="split-ctrl" style="display:none;margin-top:8px">
+        <div class="dim-row">
+          <div class="field">
+            <label>Columnas</label>
+            <input type="number" id="scols" value="2" min="1" max="10"
+                   oninput="S.setN('splitCols',this.value)">
+          </div>
+          <span class="sep">×</span>
+          <div class="field">
+            <label>Filas</label>
+            <input type="number" id="srows" value="1" min="1" max="10"
+                   oninput="S.setN('splitRows',this.value)">
+          </div>
+        </div>
+        <button class="auto-btn" onclick="autoSplit()">⚡ Auto — calcular partes mínimas</button>
+        <div id="split-info" class="split-hint" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- OPCIONES -->
+    <div class="sec">
+      <div class="sec-title">Opciones</div>
+      <label class="opt-row">
+        <input type="checkbox" id="guides" onchange="S.set('guides',this.checked)">
+        <span>Guías de corte en las esquinas</span>
+      </label>
+    </div>
+
+  </aside>
+
+  <!-- PREVIEW -->
+  <div class="preview-panel">
+    <div class="card">
+      <div class="pv-bar">
+        <h2>Vista previa</h2>
+        <div id="badge">—</div>
+      </div>
+      <div class="canvas-bg" id="cvbg">
+        <canvas id="pvc"></canvas>
+      </div>
+      <div class="info-bar" id="info-bar">
+        <span>Selecciona un formato o sube una imagen para comenzar</span>
+      </div>
+    </div>
+    <div class="card export-row">
+      <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled>📄 Exportar PDF</button>
+      <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled>🖼️ Exportar PNG</button>
+    </div>
+  </div>
+</main>
+
+<script src="./lib/jspdf.min.js"></script>
+<script>
+// ── Format presets (dimensions in mm) ────────────────
+const FORMATS = {
+  custom:       [{ id:'custom',         name:'Personalizado',     w:0,   h:0   }],
+  VHS:          [{ id:'vhs_front',      name:'Portada frontal',   w:130, h:193 },
+                 { id:'vhs_wrap',       name:'Wrap completo',     w:280, h:193 }],
+  DVD:          [{ id:'dvd_front',      name:'Portada frontal',   w:130, h:183 },
+                 { id:'dvd_wrap',       name:'Wrap completo',     w:273, h:183 }],
+  'Blu-ray':    [{ id:'br_front',       name:'Portada frontal',   w:129, h:173 },
+                 { id:'br_wrap',        name:'Wrap completo',     w:272, h:173 }],
+  Xbox:         [{ id:'xbox_front',     name:'Portada frontal',   w:130, h:184 },
+                 { id:'xbox_wrap',      name:'Wrap completo',     w:274, h:184 }],
+  'Xbox 360':   [{ id:'x360_front',     name:'Portada frontal',   w:126, h:183 },
+                 { id:'x360_wrap',      name:'Wrap completo',     w:267, h:183 }],
+  'Xbox One':   [{ id:'x1_front',       name:'Portada frontal',   w:135, h:168 },
+                 { id:'x1_wrap',        name:'Wrap completo',     w:272, h:168 }],
+  PS1:          [{ id:'ps1_jewel',      name:'Jewel Case – Portada', w:120, h:120 },
+                 { id:'ps1_jwrap',      name:'Jewel Case – Wrap',    w:252, h:120 },
+                 { id:'ps1_longbox',    name:'Long Box (USA)',         w:190, h:267 }],
+  PS2:          [{ id:'ps2_front',      name:'Portada frontal',   w:130, h:183 },
+                 { id:'ps2_wrap',       name:'Wrap completo',     w:273, h:183 }],
+  PS3:          [{ id:'ps3_front',      name:'Portada frontal',   w:130, h:173 },
+                 { id:'ps3_wrap',       name:'Wrap completo',     w:272, h:173 }],
+  PS4:          [{ id:'ps4_front',      name:'Portada frontal',   w:135, h:168 },
+                 { id:'ps4_wrap',       name:'Wrap completo',     w:272, h:168 }],
+  PS5:          [{ id:'ps5_front',      name:'Portada frontal',   w:135, h:170 },
+                 { id:'ps5_wrap',       name:'Wrap completo',     w:272, h:170 }],
+  PSP:          [{ id:'psp_front',      name:'UMD – Portada',     w:65,  h:107 },
+                 { id:'psp_wrap',       name:'UMD – Wrap',        w:143, h:107 }],
+  'PS Vita':    [{ id:'vita_front',     name:'Portada frontal',   w:67,  h:103 },
+                 { id:'vita_wrap',      name:'Wrap completo',     w:148, h:103 }],
+  Switch:            [{ id:'sw_front',      name:'Portada frontal',  w:102, h:166 },
+                      { id:'sw_wrap',       name:'Wrap completo',    w:212, h:166 }],
+  'Wii U':           [{ id:'wiiu_front',    name:'Portada frontal',  w:130, h:168 },
+                      { id:'wiiu_wrap',     name:'Wrap completo',    w:272, h:168 }],
+  Wii:               [{ id:'wii_front',     name:'Portada frontal',  w:130, h:183 },
+                      { id:'wii_wrap',      name:'Wrap completo',    w:273, h:183 }],
+  GameCube:          [{ id:'gc_front',      name:'Portada frontal',  w:131, h:192 },
+                      { id:'gc_wrap',       name:'Wrap completo',    w:273, h:192 }],
+  '3DS':             [{ id:'3ds_front',     name:'Portada frontal',  w:55,  h:95  },
+                      { id:'3ds_wrap',      name:'Wrap completo',    w:126, h:95  }],
+  DS:                [{ id:'ds_front',      name:'Portada frontal',  w:65,  h:101 },
+                      { id:'ds_wrap',       name:'Wrap completo',    w:148, h:101 }],
+  // ── Cajas de cartón retro Nintendo ──
+  NES:               [{ id:'nes_front',     name:'Caja – Portada',   w:132, h:184 },
+                      { id:'nes_wrap',      name:'Caja – Wrap',      w:298, h:184 }],
+  Famicom:           [{ id:'fc_front',      name:'Caja – Portada',   w:90,  h:133 },
+                      { id:'fc_wrap',       name:'Caja – Wrap',      w:208, h:133 }],
+  'Super NES':       [{ id:'snes_front',    name:'Caja – Portada',   w:135, h:176 },
+                      { id:'snes_wrap',     name:'Caja – Wrap',      w:305, h:176 }],
+  'Super Famicom':   [{ id:'sfc_front',     name:'Caja – Portada',   w:105, h:150 },
+                      { id:'sfc_wrap',      name:'Caja – Wrap',      w:237, h:150 }],
+  N64:               [{ id:'n64_front',     name:'Caja – Portada',   w:137, h:171 },
+                      { id:'n64_wrap',      name:'Caja – Wrap',      w:312, h:171 }],
+  'Game Boy':        [{ id:'gb_front',      name:'Caja – Portada',   w:57,  h:103 },
+                      { id:'gb_wrap',       name:'Caja – Wrap',      w:137, h:103 }],
+  'Game Boy Color':  [{ id:'gbc_front',     name:'Caja – Portada',   w:57,  h:103 },
+                      { id:'gbc_wrap',      name:'Caja – Wrap',      w:137, h:103 }],
+  GBA:               [{ id:'gba_front',     name:'Caja – Portada',   w:57,  h:97  },
+                      { id:'gba_wrap',      name:'Caja – Wrap',      w:134, h:97  }],
+  // ── Sega ──
+  Dreamcast:         [{ id:'dc_front',      name:'Portada frontal',  w:129, h:173 },
+                      { id:'dc_wrap',       name:'Wrap completo',    w:272, h:173 }],
+  Saturn:            [{ id:'sat_front',     name:'Portada frontal',  w:130, h:183 },
+                      { id:'sat_wrap',      name:'Wrap completo',    w:273, h:183 }],
+  'Mega Drive':      [{ id:'md_front',      name:'Portada frontal',  w:130, h:183 },
+                      { id:'md_wrap',       name:'Wrap completo',    w:273, h:183 }],
+  'Master System':   [{ id:'sms_front',     name:'Caja – Portada',   w:135, h:190 },
+                      { id:'sms_wrap',      name:'Caja – Wrap',      w:305, h:190 }],
+  'Game Gear':       [{ id:'gg_front',      name:'Caja – Portada',   w:60,  h:100 },
+                      { id:'gg_wrap',       name:'Caja – Wrap',      w:140, h:100 }],
+  // ── NeoGeo ──
+  'NeoGeo AES':      [{ id:'ng_aes',        name:'Caja – Portada',   w:184, h:267 }],
+  'NeoGeo CD':       [{ id:'ng_cd_front',   name:'CD – Portada',     w:120, h:120 },
+                      { id:'ng_cd_wrap',    name:'CD – Wrap',        w:252, h:120 }],
+  // ── Atari ──
+  'Atari 2600':      [{ id:'a2600_front',   name:'Caja – Portada',   w:148, h:209 },
+                      { id:'a2600_wrap',    name:'Caja – Wrap',      w:318, h:209 }],
+  'Atari 7800':      [{ id:'a7800_front',   name:'Caja – Portada',   w:138, h:190 },
+                      { id:'a7800_wrap',    name:'Caja – Wrap',      w:306, h:190 }],
+  'Atari Lynx':      [{ id:'lynx_front',    name:'Caja – Portada',   w:57,  h:92  },
+                      { id:'lynx_wrap',     name:'Caja – Wrap',      w:132, h:92  }],
+  // ── TurboGrafx / PC Engine ──
+  'TurboGrafx-16':   [{ id:'tg16_front',    name:'Caja – Portada',   w:57,  h:95  },
+                      { id:'tg16_wrap',     name:'Caja – Wrap',      w:133, h:95  }],
+};
+
+// ── Paper dimensions (mm) ─────────────────────────────
+const PAPER = { A3:[297,420], A4:[210,297], A5:[148,210] };
+
+// ── State ─────────────────────────────────────────────
+const S = {
+  img: null,
+  paper: 'A4',
+  orient: 'portrait',
+  lW: 9.0,
+  lH: 5.5,
+  fit: 'cover',
+  spacing: 0,
+  margin: 3,
+  guides: false,
+  formatCat: null,   // null = custom
+  formatId: 'custom',
+  split: false,
+  splitCols: 2,
+  splitRows: 1,
+  posterActive: false,
+  posterType: 'a3',
+  posterMargin: 5,
+
+  set(key, val) {
+    this[key] = val;
+    if (key === 'paper') {
+      document.querySelectorAll('#paper-chips .chip').forEach(b =>
+        b.classList.toggle('on', b.dataset.v === val));
+    }
+    if (key === 'orient') {
+      document.getElementById('oc-p').classList.toggle('on', val === 'portrait');
+      document.getElementById('oc-l').classList.toggle('on', val === 'landscape');
+    }
+    if (key === 'fit') {
+      document.querySelectorAll('.fi').forEach(el =>
+        el.classList.toggle('on', el.dataset.fit === val));
+    }
+    schedRender();
+  },
+
+  setN(key, raw) {
+    const n = parseFloat(raw);
+    if (!isNaN(n) && n >= 0) this[key] = n;
+    // If user edits width/height manually, revert to custom mode
+    if (key === 'lW' || key === 'lH') {
+      this.formatCat = null;
+      this.formatId = 'custom';
+      document.getElementById('cat-sel').value = 'custom';
+      document.getElementById('subfmt-row').style.display = 'none';
+    }
+    schedRender();
+  }
+};
+
+// ── Suggest best paper for dimensions (mm) ────────────
+function suggestPaper(w, h) {
+  const mg = 16; // 8mm each side — comfortable for cutting
+  const fits = (pw, ph) => w <= pw - mg && h <= ph - mg;
+  if (fits(148,210)) return { paper:'A5', orient:'portrait'  };
+  if (fits(210,148)) return { paper:'A5', orient:'landscape' };
+  if (fits(210,297)) return { paper:'A4', orient:'portrait'  };
+  if (fits(297,210)) return { paper:'A4', orient:'landscape' };
+  if (fits(297,420)) return { paper:'A3', orient:'portrait'  };
+  return { paper:'A3', orient:'landscape' };
+}
+
+// ── Format selection ──────────────────────────────────
+function onCatChange(cat) {
+  S.formatCat = cat === 'custom' ? null : cat;
+  const row = document.getElementById('subfmt-row');
+  const chips = document.getElementById('subfmt-chips');
+
+  if (cat === 'custom') {
+    row.style.display = 'none';
+    return;
+  }
+
+  const fmts = FORMATS[cat] || [];
+  chips.innerHTML = fmts.map(f =>
+    `<button class="sfchip" data-id="${f.id}" onclick="applyPreset('${f.id}')">${f.name}</button>`
+  ).join('');
+  row.style.display = 'block';
+  // Auto-select first sub-format
+  applyPreset(fmts[0].id);
+}
+
+function applyPreset(id) {
+  // Find preset in all categories
+  let found = null;
+  for (const cat of Object.values(FORMATS)) {
+    found = cat.find(f => f.id === id);
+    if (found) break;
+  }
+  if (!found || !found.w) return;
+
+  S.formatId = id;
+
+  // Update dimension inputs
+  S.lW = +(found.w / 10).toFixed(2);
+  S.lH = +(found.h / 10).toFixed(2);
+  document.getElementById('lw').value = S.lW;
+  document.getElementById('lh').value = S.lH;
+
+  // Suggest paper + orientation
+  const { paper, orient } = suggestPaper(found.w, found.h);
+  S.paper = paper;
+  S.orient = orient;
+  document.querySelectorAll('#paper-chips .chip').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === paper));
+  document.getElementById('oc-p').classList.toggle('on', orient === 'portrait');
+  document.getElementById('oc-l').classList.toggle('on', orient === 'landscape');
+
+  // Highlight active chip
+  document.querySelectorAll('.sfchip').forEach(b =>
+    b.classList.toggle('on', b.dataset.id === id));
+
+  // Show dim info + paper hint
+  document.getElementById('fmt-dim').innerHTML =
+    `<span class="dim-val">${found.w} × ${found.h} mm</span>` +
+    `<span class="paper-hint">→ ${paper} ${orient === 'landscape' ? 'horizontal' : 'vertical'}</span>`;
+
+  schedRender();
+}
+
+// ── Grid calculation ──────────────────────────────────
+function pageMM() {
+  const [w,h] = PAPER[S.paper];
+  return S.orient === 'portrait' ? {w,h} : {w:h,h:w};
+}
+
+function calcGrid() {
+  const p = pageMM();
+  const lW = S.lW * 10;
+  const lH = S.lH * 10;
+  const sp = +S.spacing;
+  const mg = +S.margin;
+  if (lW <= 0 || lH <= 0) return null;
+  const usW = p.w - 2*mg;
+  const usH = p.h - 2*mg;
+  if (usW <= 0 || usH <= 0) return null;
+  const cols = Math.floor((usW + sp) / (lW + sp));
+  const rows = Math.floor((usH + sp) / (lH + sp));
+  if (cols < 1 || rows < 1) return null;
+  const totalW = cols*lW + (cols-1)*sp;
+  const totalH = rows*lH + (rows-1)*sp;
+  const ox = (p.w - totalW) / 2;
+  const oy = (p.h - totalH) / 2;
+  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg };
+}
+
+// ── Label drawing ─────────────────────────────────────
+function drawLabel(ctx, x, y, w, h, img) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(x, y, w, h);
+
+  if (img) {
+    const iW = img.naturalWidth, iH = img.naturalHeight;
+    if (S.fit === 'fill') {
+      ctx.drawImage(img, x, y, w, h);
+    } else if (S.fit === 'contain') {
+      const s = Math.min(w/iW, h/iH);
+      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
+    } else {
+      const s = Math.max(w/iW, h/iH);
+      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
+    }
+  } else {
+    ctx.fillStyle = '#ede9fe';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#c4b5fd';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, w-1, h-1);
+    ctx.fillStyle = '#a78bfa';
+    ctx.font = `${Math.max(8, Math.min(h*.16, 13))}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(S.formatCat || 'etiqueta', x+w/2, y+h/2);
+  }
+  ctx.restore();
+}
+
+function drawGuides(ctx, x, y, w, h, gLen) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,0,0,.28)';
+  ctx.lineWidth = .6;
+  const g = gLen;
+  ctx.beginPath();
+  ctx.moveTo(x-g,y);   ctx.lineTo(x,y);
+  ctx.moveTo(x,y-g);   ctx.lineTo(x,y);
+  ctx.moveTo(x+w,y);   ctx.lineTo(x+w+g,y);
+  ctx.moveTo(x+w,y-g); ctx.lineTo(x+w,y);
+  ctx.moveTo(x-g,y+h); ctx.lineTo(x,y+h);
+  ctx.moveTo(x,y+h);   ctx.lineTo(x,y+h+g);
+  ctx.moveTo(x+w,y+h); ctx.lineTo(x+w+g,y+h);
+  ctx.moveTo(x+w,y+h); ctx.lineTo(x+w,y+h+g);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── Split / poster mode ───────────────────────────────
+function setSplit(enabled) {
+  S.split = enabled;
+  document.getElementById('split-ctrl').style.display = enabled ? 'block' : 'none';
+  schedRender();
+}
+
+function autoSplit() {
+  const p = pageMM();
+  const mg = +S.margin;
+  const usW = p.w - 2*mg;
+  const usH = p.h - 2*mg;
+  const fullW = S.lW * 10;
+  const fullH = S.lH * 10;
+  const cols = Math.max(1, Math.ceil(fullW / usW));
+  const rows = Math.max(1, Math.ceil(fullH / usH));
+  S.splitCols = cols;
+  S.splitRows = rows;
+  document.getElementById('scols').value = cols;
+  document.getElementById('srows').value = rows;
+  schedRender();
+}
+
+function renderSplit() {
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const p      = pageMM();
+  const badge  = document.getElementById('badge');
+  const info   = document.getElementById('info-bar');
+
+  const cols = Math.max(1, Math.round(S.splitCols));
+  const rows = Math.max(1, Math.round(S.splitRows));
+  const totalPages = cols * rows;
+  const fullW  = S.lW * 10;           // mm
+  const fullH  = S.lH * 10;
+  const pieceW = fullW / cols;         // mm per piece
+  const pieceH = fullH / rows;
+  const mg     = +S.margin;
+  const usW    = p.w - 2*mg;
+  const usH    = p.h - 2*mg;
+  const fitSc  = Math.min(usW / pieceW, usH / pieceH);
+  const drawW  = pieceW * fitSc;       // mm on page
+  const drawH  = pieceH * fitSc;
+  const ox     = mg + (usW - drawW) / 2;
+  const oy     = mg + (usH - drawH) / 2;
+  const fits   = pieceW <= usW && pieceH <= usH;
+
+  // Update hint
+  const hintEl = document.getElementById('split-info');
+  if (hintEl) {
+    hintEl.style.display = 'block';
+    if (fits) {
+      hintEl.className = 'split-hint';
+      hintEl.innerHTML =
+        `Pieza: <strong>${pieceW.toFixed(1)} × ${pieceH.toFixed(1)} mm</strong><br>` +
+        `Espacio libre: ${(usW - drawW).toFixed(0)} × ${(usH - drawH).toFixed(0)} mm`;
+    } else {
+      hintEl.className = 'split-hint warn';
+      hintEl.textContent =
+        `⚠️ La pieza (${pieceW.toFixed(1)}×${pieceH.toFixed(1)} mm) ` +
+        `no cabe en el papel. Aumenta el número de divisiones.`;
+    }
+  }
+
+  // Thumbnail grid sizing
+  const wrap  = document.getElementById('cvbg');
+  const avW   = wrap.clientWidth - 28;
+  const gap   = 8;
+  const tW    = Math.max(60, Math.min(Math.floor((avW - gap*(cols+1)) / cols), 180));
+  const tH    = Math.round(tW * (p.h / p.w));
+  const sc    = tW / p.w;
+
+  canvas.width  = (tW + gap) * cols + gap;
+  canvas.height = (tH + gap) * rows + gap;
+
+  ctx.fillStyle = '#9a9ab0';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const iW = S.img ? S.img.naturalWidth  : 0;
+  const iH = S.img ? S.img.naturalHeight : 0;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const tx = gap + col * (tW + gap);
+      const ty = gap + row * (tH + gap);
+
+      // Page background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(tx, ty, tW, tH);
+
+      // Margin guide
+      if (mg > 0) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(239,68,68,.25)';
+        ctx.lineWidth = .6;
+        ctx.setLineDash([2,3]);
+        ctx.strokeRect(tx + mg*sc, ty + mg*sc, usW*sc, usH*sc);
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      // Image portion
+      if (S.img && fits) {
+        const srcX = col * (iW / cols);
+        const srcY = row * (iH / rows);
+        const srcW = iW / cols;
+        const srcH = iH / rows;
+        const dx = tx + ox*sc, dy = ty + oy*sc;
+        const dw = drawW*sc,   dh = drawH*sc;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(dx, dy, dw, dh);
+        ctx.clip();
+        ctx.drawImage(S.img, srcX, srcY, srcW, srcH, dx, dy, dw, dh);
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(124,106,247,.45)';
+        ctx.lineWidth = .8;
+        ctx.strokeRect(dx + .4, dy + .4, dw - .8, dh - .8);
+      } else if (!S.img) {
+        ctx.fillStyle = '#ede9fe';
+        ctx.fillRect(tx + ox*sc, ty + oy*sc, drawW*sc, drawH*sc);
+      }
+
+      // Page number badge
+      const pageNum = row * cols + col + 1;
+      const label   = String(pageNum);
+      const fs      = Math.max(8, Math.round(tW * .1));
+      ctx.font      = `bold ${fs}px sans-serif`;
+      ctx.textAlign = 'center';
+      const bw = ctx.measureText(label).width + 8;
+      const bh = fs + 4;
+      const bx = tx + tW - bw - 3;
+      const by = ty + tH - bh - 3;
+      ctx.fillStyle = fits ? 'rgba(124,106,247,.9)' : 'rgba(239,68,68,.85)';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, bx + bw/2, by + bh/2);
+
+      // Page border shadow
+      ctx.strokeStyle = 'rgba(0,0,0,.13)';
+      ctx.lineWidth = .8;
+      ctx.strokeRect(tx + .4, ty + .4, tW - .8, tH - .8);
+    }
+  }
+
+  badge.textContent = `${totalPages} página${totalPages > 1 ? 's' : ''} — ${cols}×${rows}`;
+  badge.className   = fits ? '' : 'err';
+
+  info.innerHTML =
+    `<span>📐 ${p.w}×${p.h} mm/pág</span>` +
+    `<span>✂️ Pieza: ${pieceW.toFixed(1)}×${pieceH.toFixed(1)} mm</span>` +
+    `<span>🖨️ ${totalPages} páginas a imprimir y pegar</span>` +
+    (!S.img ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+
+  setExp(!!S.img && fits);
+}
+
+// ── Poster mode ──────────────────────────────────────
+function setPoster(type) {
+  S.posterActive = true;
+  S.posterType   = type;
+  // Deactivate split if on
+  if (S.split) {
+    S.split = false;
+    document.getElementById('split-on').checked = false;
+    document.getElementById('split-ctrl').style.display = 'none';
+  }
+  document.getElementById('pt-a3').classList.toggle('on', type === 'a3');
+  document.getElementById('pt-a4x4').classList.toggle('on', type === 'a4x4');
+  document.getElementById('poster-ctrl').style.display = 'block';
+  // Auto-set paper
+  const paper = type === 'a3' ? 'A3' : 'A4';
+  S.paper  = paper;
+  S.orient = 'portrait';
+  document.querySelectorAll('#paper-chips .chip').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === paper));
+  document.getElementById('oc-p').classList.toggle('on', true);
+  document.getElementById('oc-l').classList.toggle('on', false);
+  schedRender();
+}
+
+function clearPoster() {
+  S.posterActive = false;
+  document.getElementById('pt-a3').classList.remove('on');
+  document.getElementById('pt-a4x4').classList.remove('on');
+  document.getElementById('poster-ctrl').style.display = 'none';
+  schedRender();
+}
+
+function updatePosterHint() {
+  const hint = document.getElementById('poster-size-hint');
+  if (!hint) return;
+  const mg = +S.posterMargin;
+  if (S.posterType === 'a3') {
+    hint.textContent = `Área útil: ${297-2*mg} × ${420-2*mg} mm`;
+  } else {
+    const uw = ((2*(210-2*mg))/10).toFixed(0);
+    const uh = ((2*(297-2*mg))/10).toFixed(0);
+    hint.textContent = `Póster ensamblado: ~${uw} × ${uh} cm`;
+  }
+}
+
+function renderPoster() {
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const badge  = document.getElementById('badge');
+  const info   = document.getElementById('info-bar');
+  const mg     = +S.posterMargin;
+
+  updatePosterHint();
+
+  if (S.posterType === 'a3') {
+    // ─── Single A3 page ──────────────────────────────
+    const pw = 297, ph = 420;
+    const usW = pw - 2*mg, usH = ph - 2*mg;
+    const wrap = document.getElementById('cvbg');
+    const maxW = wrap.clientWidth - 28;
+    const maxH = Math.max(300, window.innerHeight - 290);
+    const sc = Math.min(maxW / pw, maxH / ph);
+
+    canvas.width  = Math.round(pw * sc);
+    canvas.height = Math.round(ph * sc);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (mg > 0) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(239,68,68,.22)'; ctx.lineWidth = .7;
+      ctx.setLineDash([3,4]);
+      ctx.strokeRect(mg*sc, mg*sc, usW*sc, usH*sc);
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    if (S.img) {
+      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+      const fitSc = Math.min(usW/iW, usH/iH);
+      const dw = iW*fitSc, dh = iH*fitSc;
+      ctx.drawImage(S.img,
+        (mg + (usW-dw)/2)*sc, (mg + (usH-dh)/2)*sc, dw*sc, dh*sc);
+    } else {
+      ctx.fillStyle = '#ede9fe';
+      ctx.fillRect(mg*sc, mg*sc, usW*sc, usH*sc);
+      ctx.fillStyle = '#a78bfa'; ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Sube una imagen', canvas.width/2, canvas.height/2);
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,.06)'; ctx.lineWidth = 1;
+    ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+    badge.textContent = 'Póster A3 — 1 hoja';
+    badge.className   = '';
+    info.innerHTML =
+      `<span>📐 A3: 297×420 mm</span>` +
+      `<span>🖼️ Área útil: ${usW}×${usH} mm</span>` +
+      (!S.img ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+    setExp(!!S.img);
+
+  } else {
+    // ─── 4×A4 (2×2 grid) ─────────────────────────────
+    const pw = 210, ph = 297;
+    const usW = pw - 2*mg, usH = ph - 2*mg;
+    const aW  = usW * 2,   aH  = usH * 2;   // assembled printable area (mm)
+
+    const wrap = document.getElementById('cvbg');
+    const avW  = wrap.clientWidth - 28;
+    const gap = 10, cols = 2, rows = 2;
+    const tW  = Math.max(70, Math.min(Math.floor((avW - gap*(cols+1)) / cols), 210));
+    const tH  = Math.round(tW * (ph / pw));
+    const sc  = tW / pw;
+
+    canvas.width  = (tW + gap) * cols + gap;
+    canvas.height = (tH + gap) * rows + gap;
+    ctx.fillStyle = '#9a9ab0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const iW = S.img ? S.img.naturalWidth  : 0;
+    const iH = S.img ? S.img.naturalHeight : 0;
+    // Scale image to fit assembled area (contain)
+    const fitSc = S.img ? Math.min(aW/iW, aH/iH) : 1;
+    const fW = iW * fitSc, fH = iH * fitSc;
+    const imgX = (aW - fW) / 2, imgY = (aH - fH) / 2;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const tx = gap + col * (tW + gap);
+        const ty = gap + row * (tH + gap);
+
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(tx, ty, tW, tH);
+
+        if (mg > 0) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(239,68,68,.22)'; ctx.lineWidth = .5;
+          ctx.setLineDash([2,3]);
+          ctx.strokeRect(tx+mg*sc, ty+mg*sc, usW*sc, usH*sc);
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+
+        if (S.img) {
+          // Image offset relative to this piece's print area origin
+          const imgRelX = (imgX - col*usW) * sc;
+          const imgRelY = (imgY - row*usH) * sc;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(tx+mg*sc, ty+mg*sc, usW*sc, usH*sc);
+          ctx.clip();
+          ctx.drawImage(S.img,
+            tx+mg*sc + imgRelX, ty+mg*sc + imgRelY, fW*sc, fH*sc);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#ede9fe';
+          ctx.fillRect(tx+mg*sc, ty+mg*sc, usW*sc, usH*sc);
+        }
+
+        // Page number badge
+        const num = row*cols + col + 1;
+        const fs  = Math.max(8, Math.round(tW*.1));
+        ctx.font  = `bold ${fs}px sans-serif`;
+        ctx.fillStyle = 'rgba(124,106,247,.92)';
+        const bw = ctx.measureText(String(num)).width + 8, bh = fs + 4;
+        const bx = tx + tW - bw - 3, by = ty + tH - bh - 3;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(num), bx+bw/2, by+bh/2);
+
+        ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = .8;
+        ctx.strokeRect(tx+.4, ty+.4, tW-.8, tH-.8);
+      }
+    }
+
+    badge.textContent = 'Póster 4×A4 — 4 hojas';
+    badge.className   = '';
+    info.innerHTML =
+      `<span>📐 4 × A4</span>` +
+      `<span>🖼️ Ensamblado: ~${(aW/10).toFixed(0)}×${(aH/10).toFixed(0)} cm</span>` +
+      (!S.img ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+    setExp(!!S.img);
+  }
+}
+
+// ── Preview render ────────────────────────────────────
+let renderTimer = null;
+function schedRender() {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 55);
+}
+
+function render() {
+  if (S.posterActive) { renderPoster(); return; }
+  if (S.split)        { renderSplit();  return; }
+  const canvas = document.getElementById('pvc');
+  const ctx = canvas.getContext('2d');
+  const p = pageMM();
+  const g = calcGrid();
+  const badge = document.getElementById('badge');
+  const info  = document.getElementById('info-bar');
+
+  const wrap = document.getElementById('cvbg');
+  const maxW = wrap.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc = Math.min(maxW / p.w, maxH / p.h);
+
+  canvas.width  = Math.round(p.w * sc);
+  canvas.height = Math.round(p.h * sc);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (!g) {
+    badge.textContent = 'No cabe en el papel';
+    badge.className = 'err';
+    ctx.fillStyle = '#fef2f2';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#dc2626';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('El tamaño no cabe en el papel seleccionado', canvas.width/2, canvas.height/2);
+    setExp(false);
+    info.innerHTML = '';
+    return;
+  }
+
+  // Labels / covers
+  const gLenPx = Math.min(g.sp > 0 ? g.sp*sc*.45 : 5*sc*.4, 9);
+  for (let r = 0; r < g.rows; r++) {
+    for (let c = 0; c < g.cols; c++) {
+      const x = (g.ox + c*(g.lW+g.sp)) * sc;
+      const y = (g.oy + r*(g.lH+g.sp)) * sc;
+      const w = g.lW * sc;
+      const h = g.lH * sc;
+      drawLabel(ctx, x, y, w, h, S.img);
+      if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
+    }
+  }
+
+  // Min-margin boundary (dashed red line)
+  if (g.mg > 0) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(239,68,68,.22)';
+    ctx.lineWidth = .7;
+    ctx.setLineDash([3,4]);
+    ctx.strokeRect(g.mg*sc, g.mg*sc, (p.w-2*g.mg)*sc, (p.h-2*g.mg)*sc);
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  ctx.strokeStyle = 'rgba(0,0,0,.05)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  // Badge: "portada/s" for presets, "etiqueta/s" for custom
+  const noun = S.formatCat
+    ? (g.total === 1 ? 'portada' : 'portadas')
+    : (g.total === 1 ? 'etiqueta' : 'etiquetas');
+  badge.textContent = `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
+  badge.className = '';
+
+  info.innerHTML =
+    `<span>📐 ${p.w}×${p.h} mm</span>` +
+    `<span>📏 ${S.lW}×${S.lH} cm</span>` +
+    `<span>↔ Margen real: ${g.ox.toFixed(1)} × ${g.oy.toFixed(1)} mm</span>` +
+    (!S.img ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+
+  setExp(!!S.img);
+}
+
+function setExp(en) {
+  document.getElementById('btn-pdf').disabled = !en;
+  document.getElementById('btn-png').disabled = !en;
+}
+
+// ── File upload ───────────────────────────────────────
+function triggerFile() { document.getElementById('file-input').click(); }
+
+function onFile(e) {
+  const f = e.target.files[0];
+  if (f) loadImage(f);
+  e.target.value = '';
+}
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      S.img = img;
+      document.getElementById('thumb').src = ev.target.result;
+      document.getElementById('upload-drop').style.display = 'none';
+      document.getElementById('upload-preview').style.display = 'block';
+      render();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+const dropZone = document.getElementById('upload-drop');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+document.getElementById('upload-preview').addEventListener('dragover', e => e.preventDefault());
+document.getElementById('upload-preview').addEventListener('drop', e => {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+
+// ── PDF Export ────────────────────────────────────────
+async function exportPDF() {
+  if (!S.img) return;
+  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+
+  const btn = document.getElementById('btn-pdf');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generando PDF…';
+  btn.disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    if (!window.jspdf) throw new Error('jsPDF no cargado — comprueba la conexión');
+    const { jsPDF } = window.jspdf;
+    const p   = pageMM();
+    const ori = S.orient === 'portrait' ? 'portrait' : 'landscape';
+
+    if (S.posterActive) {
+      // ─── Poster export ───────────────────────────────
+      const mg  = +S.posterMargin;
+      const PX  = 200 / 25.4;
+      const cat  = S.formatCat || 'poster';
+      const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+
+      if (S.posterType === 'a3') {
+        const pw = 297, ph = 420;
+        const usW = pw-2*mg, usH = ph-2*mg;
+        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const fitSc = Math.min(usW/iW, usH/iH);
+        const dw = iW*fitSc, dh = iH*fitSc;
+        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
+        const pc = document.createElement('canvas');
+        pc.width  = Math.round(usW*PX); pc.height = Math.round(usH*PX);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
+        pctx.drawImage(S.img, dx*PX, dy*PX, dw*PX, dh*PX);
+        pdf.addImage(pc.toDataURL('image/jpeg',0.93),'JPEG',mg,mg,usW,usH,undefined,'FAST');
+        await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-poster-a3.pdf`, 'application/pdf');
+
+      } else {
+        const pw = 210, ph = 297;
+        const usW = pw-2*mg, usH = ph-2*mg;
+        const aW = usW*2, aH = usH*2;
+        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const fitSc = Math.min(aW/iW, aH/iH);
+        const fW = iW*fitSc, fH = iH*fitSc;
+        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
+        let first = true;
+        for (let row = 0; row < 2; row++) {
+          for (let col = 0; col < 2; col++) {
+            if (!first) pdf.addPage([pw,ph],'portrait');
+            first = false;
+            const pc = document.createElement('canvas');
+            pc.width = Math.round(usW*PX); pc.height = Math.round(usH*PX);
+            const pctx = pc.getContext('2d');
+            pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
+            pctx.drawImage(S.img,
+              (imgX - col*usW)*PX, (imgY - row*usH)*PX, fW*PX, fH*PX);
+            pdf.addImage(pc.toDataURL('image/jpeg',0.93),'JPEG',mg,mg,usW,usH,undefined,'FAST');
+          }
+        }
+        await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-poster-4xa4.pdf`, 'application/pdf');
+      }
+
+    } else if (S.split) {
+      // ─── Split — one page per piece ──────────────────
+      const cols   = Math.max(1, Math.round(S.splitCols));
+      const rows   = Math.max(1, Math.round(S.splitRows));
+      const fullW  = S.lW * 10, fullH = S.lH * 10;
+      const pieceW = fullW / cols, pieceH = fullH / rows;
+      const mg     = +S.margin;
+      const usW    = p.w - 2*mg, usH = p.h - 2*mg;
+      const fitSc  = Math.min(usW / pieceW, usH / pieceH);
+      const drawW  = pieceW * fitSc, drawH = pieceH * fitSc;
+      const ox     = mg + (usW - drawW) / 2, oy = mg + (usH - drawH) / 2;
+      const PX_MM  = 200 / 25.4;
+      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+
+      const pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [p.w, p.h] });
+      let first = true;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (!first) pdf.addPage([p.w, p.h], ori);
+          first = false;
+          const pc = document.createElement('canvas');
+          pc.width  = Math.round(drawW * PX_MM);
+          pc.height = Math.round(drawH * PX_MM);
+          const pctx = pc.getContext('2d');
+          pctx.fillStyle = '#fff';
+          pctx.fillRect(0, 0, pc.width, pc.height);
+          pctx.drawImage(S.img,
+            col * (iW / cols), row * (iH / rows), iW / cols, iH / rows,
+            0, 0, pc.width, pc.height);
+          pdf.addImage(pc.toDataURL('image/jpeg', 0.93), 'JPEG',
+            ox, oy, drawW, drawH, undefined, 'FAST');
+        }
+      }
+      const cat  = S.formatCat || 'portada';
+      const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+      await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-dividido-${cols}x${rows}.pdf`, 'application/pdf');
+
+    } else {
+      // ─── Normal tiled export ─────────────────────────
+      const g = calcGrid();
+      if (!g) throw new Error('No cabe en el papel');
+
+      const pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [p.w, p.h] });
+      const PX_MM = 200 / 25.4;
+      const lc = document.createElement('canvas');
+      lc.width = Math.round(g.lW * PX_MM); lc.height = Math.round(g.lH * PX_MM);
+      const lctx = lc.getContext('2d');
+      lctx.fillStyle = '#fff';
+      lctx.fillRect(0, 0, lc.width, lc.height);
+      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img);
+      const imgData = lc.toDataURL('image/jpeg', 0.93);
+
+      for (let r = 0; r < g.rows; r++)
+        for (let c = 0; c < g.cols; c++)
+          pdf.addImage(imgData, 'JPEG',
+            g.ox + c*(g.lW+g.sp), g.oy + r*(g.lH+g.sp),
+            g.lW, g.lH, undefined, 'FAST');
+
+      if (S.guides) {
+        pdf.setDrawColor(160,160,160); pdf.setLineWidth(0.1);
+        const GL = Math.min(g.sp > 0 ? g.sp*.45 : 2, 3);
+        for (let r = 0; r < g.rows; r++) {
+          for (let c = 0; c < g.cols; c++) {
+            const x = g.ox + c*(g.lW+g.sp), y = g.oy + r*(g.lH+g.sp);
+            const w = g.lW, h = g.lH;
+            pdf.line(x-GL,y,x,y);   pdf.line(x,y-GL,x,y);
+            pdf.line(x+w,y,x+w+GL,y); pdf.line(x+w,y-GL,x+w,y);
+            pdf.line(x-GL,y+h,x,y+h); pdf.line(x,y+h,x,y+h+GL);
+            pdf.line(x+w,y+h,x+w+GL,y+h); pdf.line(x+w,y+h,x+w,y+h+GL);
+          }
+        }
+      }
+      const cat  = S.formatCat || 'etiqueta';
+      const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+      await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-${g.cols}x${g.rows}.pdf`, 'application/pdf');
+    }
+
+  } catch(err) {
+    alert('Error al generar PDF:\n' + err.message);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+    setExp(!!S.img);
+  }
+}
+
+// ── PNG Export ────────────────────────────────────────
+async function exportPNG() {
+  if (!S.img) return;
+  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+
+  const btn = document.getElementById('btn-png');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generando PNG…';
+  btn.disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    const PX_MM = 150 / 25.4;
+    const p    = pageMM();
+    const cat  = S.formatCat || 'etiqueta';
+    const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+
+    if (S.posterActive) {
+      // ─── Poster PNG export ───────────────────────────
+      const mg   = +S.posterMargin;
+      const cat  = S.formatCat || 'poster';
+      const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+
+      if (S.posterType === 'a3') {
+        const pw = 297, ph = 420;
+        const usW = pw-2*mg, usH = ph-2*mg;
+        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const fitSc = Math.min(usW/iW, usH/iH);
+        const dw = iW*fitSc, dh = iH*fitSc;
+        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+
+        const pc = document.createElement('canvas');
+        pc.width  = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
+        pctx.drawImage(S.img, (mg+dx)*PX_MM, (mg+dy)*PX_MM, dw*PX_MM, dh*PX_MM);
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-poster-a3.png`, 'image/png');
+
+      } else {
+        const pw = 210, ph = 297;
+        const usW = pw-2*mg, usH = ph-2*mg;
+        const aW = usW*2, aH = usH*2;
+        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const fitSc = Math.min(aW/iW, aH/iH);
+        const fW = iW*fitSc, fH = iH*fitSc;
+        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+        let pageNum = 0;
+        for (let row = 0; row < 2; row++) {
+          for (let col = 0; col < 2; col++) {
+            pageNum++;
+            const pc = document.createElement('canvas');
+            pc.width = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
+            const pctx = pc.getContext('2d');
+            pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
+            pctx.drawImage(S.img,
+              (mg + imgX - col*usW)*PX_MM, (mg + imgY - row*usH)*PX_MM,
+              fW*PX_MM, fH*PX_MM);
+            await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-poster-pag${String(pageNum).padStart(2,'0')}.png`, 'image/png');
+            await new Promise(r => setTimeout(r, 80));
+          }
+        }
+      }
+
+    } else if (S.split) {
+      // ─── Split PNG export — one PNG per page ─────────
+      const cols   = Math.max(1, Math.round(S.splitCols));
+      const rows   = Math.max(1, Math.round(S.splitRows));
+      const fullW  = S.lW * 10, fullH = S.lH * 10;
+      const pieceW = fullW / cols, pieceH = fullH / rows;
+      const mg     = +S.margin;
+      const usW    = p.w - 2*mg, usH = p.h - 2*mg;
+      const fitSc  = Math.min(usW / pieceW, usH / pieceH);
+      const drawW  = pieceW * fitSc, drawH = pieceH * fitSc;
+      const ox     = mg + (usW - drawW) / 2, oy = mg + (usH - drawH) / 2;
+      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+      const pW = Math.round(p.w * PX_MM), pH = Math.round(p.h * PX_MM);
+      let pageNum = 0;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          pageNum++;
+          const pc = document.createElement('canvas');
+          pc.width = pW; pc.height = pH;
+          const pctx = pc.getContext('2d');
+          pctx.fillStyle = '#fff';
+          pctx.fillRect(0, 0, pW, pH);
+          pctx.drawImage(S.img,
+            col * (iW / cols), row * (iH / rows), iW / cols, iH / rows,
+            Math.round(ox * PX_MM), Math.round(oy * PX_MM),
+            Math.round(drawW * PX_MM), Math.round(drawH * PX_MM));
+          await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-pag${String(pageNum).padStart(2,'0')}.png`, 'image/png');
+          await new Promise(r => setTimeout(r, 80));
+        }
+      }
+
+    } else {
+      // ─── Normal tiled export ─────────────────────────
+      const g = calcGrid();
+      if (!g) return;
+      const pc = document.createElement('canvas');
+      pc.width  = Math.round(p.w * PX_MM);
+      pc.height = Math.round(p.h * PX_MM);
+      const pctx = pc.getContext('2d');
+      pctx.fillStyle = '#fff';
+      pctx.fillRect(0, 0, pc.width, pc.height);
+      const gLenPx = Math.round(Math.min(g.sp > 0 ? g.sp*PX_MM*.45 : 2*PX_MM, 3*PX_MM));
+      for (let r = 0; r < g.rows; r++) {
+        for (let c = 0; c < g.cols; c++) {
+          const x = Math.round((g.ox + c*(g.lW+g.sp)) * PX_MM);
+          const y = Math.round((g.oy + r*(g.lH+g.sp)) * PX_MM);
+          const w = Math.round(g.lW * PX_MM);
+          const h = Math.round(g.lH * PX_MM);
+          drawLabel(pctx, x, y, w, h, S.img);
+          if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
+        }
+      }
+      await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-${g.cols}x${g.rows}.png`, 'image/png');
+    }
+
+  } catch(err) {
+    alert('Error al generar PNG:\n' + err.message);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+    setExp(!!S.img);
+  }
+}
+
+// ── Download / Share helper ───────────────────────────
+// On Android/iOS (Capacitor) uses Web Share API; on desktop creates download link.
+async function downloadOrShare(data, filename, mimeType) {
+  const blob = data instanceof Blob ? data : await (await fetch(data)).blob();
+  if (window.Capacitor?.isNativePlatform?.() && navigator.canShare) {
+    const file = new File([blob], filename, { type: mimeType });
+    if (navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: filename }); return; }
+      catch(e) { if (e.name === 'AbortError') return; }
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.download = filename; a.href = url; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 80);
+});
+render();
+</script>
+</body>
+</html>

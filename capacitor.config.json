@@ -1,0 +1,9 @@
+{
+  "appId": "com.jfsaints.coverlabel",
+  "appName": "CoverLabel",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {}
+}

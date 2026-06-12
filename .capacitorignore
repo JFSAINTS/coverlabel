@@ -1,0 +1,10 @@
+node_modules
+dist
+android
+.git
+electron-main.js
+package.json
+package-lock.json
+capacitor.config.json
+.capacitorignore
+*.md
