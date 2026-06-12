@@ -460,6 +460,9 @@
     }
     .repro-apply:hover { opacity: .85; }
 
+    .ng-info { font-size:.73rem; color:var(--txt2); line-height:1.55; }
+    .ng-sub  { font-size:.7rem;  color:var(--txt3); margin-top:5px; }
+
     .repro-toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: var(--ac); color: #fff; padding: 9px 20px;
@@ -707,6 +710,24 @@
       </div>
     </div>
 
+    <!-- NEO GEO A4 -->
+    <div class="sec">
+      <div class="sec-title">Neo Geo AES — Caja en A4</div>
+      <label class="opt-row">
+        <input type="checkbox" id="neogeo-on" onchange="setNeoGeo(this.checked)">
+        <span>Imprimir caja NeoGeo en A4</span>
+      </label>
+      <div id="neogeo-ctrl" style="display:none;margin-top:8px">
+        <div class="ng-info">Genera 2 páginas A4 con la plantilla oficial: recórtalas y móntalas en una caja AES.</div>
+        <div class="chips" id="ng-page-chips" style="margin-top:8px">
+          <button class="chip on" data-ngp="A" onclick="setNeoGeoPage('A')">Lado A</button>
+          <button class="chip"    data-ngp="B" onclick="setNeoGeoPage('B')">Lado B</button>
+        </div>
+        <div class="ng-sub" id="ng-sub-a">Portada frontal — 150×195 mm</div>
+        <div class="ng-sub" id="ng-sub-b" style="display:none">Trasera (151×194 mm) + Lomo (37×195 mm)</div>
+      </div>
+    </div>
+
     <!-- OPCIONES -->
     <div class="sec">
       <div class="sec-title">Opciones</div>
@@ -869,6 +890,8 @@ const S = {
   posterType: 'a3',
   posterMargin: 5,
   imgRot: 0,
+  neogeoMode: false,
+  neogeoPage: 'A',
 
   set(key, val) {
     this[key] = val;
@@ -1078,6 +1101,11 @@ function drawGuides(ctx, x, y, w, h, gLen) {
 // ── Split / poster mode ───────────────────────────────
 function setSplit(enabled) {
   S.split = enabled;
+  if (enabled && S.neogeoMode) {
+    S.neogeoMode = false;
+    document.getElementById('neogeo-on').checked = false;
+    document.getElementById('neogeo-ctrl').style.display = 'none';
+  }
   document.getElementById('split-ctrl').style.display = enabled ? 'block' : 'none';
   schedRender();
 }
@@ -1238,11 +1266,15 @@ function renderSplit() {
 function setPoster(type) {
   S.posterActive = true;
   S.posterType   = type;
-  // Deactivate split if on
   if (S.split) {
     S.split = false;
     document.getElementById('split-on').checked = false;
     document.getElementById('split-ctrl').style.display = 'none';
+  }
+  if (S.neogeoMode) {
+    S.neogeoMode = false;
+    document.getElementById('neogeo-on').checked = false;
+    document.getElementById('neogeo-ctrl').style.display = 'none';
   }
   document.getElementById('pt-a3').classList.toggle('on', type === 'a3');
   document.getElementById('pt-a4x4').classList.toggle('on', type === 'a4x4');
@@ -1429,6 +1461,7 @@ function schedRender() {
 }
 
 function render() {
+  if (S.neogeoMode)   { renderNeoGeo(); return; }
   if (S.posterActive) { renderPoster(); return; }
   if (S.split)        { renderSplit();  return; }
   const canvas = document.getElementById('pvc');
@@ -1560,8 +1593,8 @@ document.getElementById('upload-preview').addEventListener('drop', e => {
 
 // ── PDF Export ────────────────────────────────────────
 async function exportPDF() {
-  if (!S.img) return;
-  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-pdf');
   const orig = btn.innerHTML;
@@ -1575,7 +1608,35 @@ async function exportPDF() {
     const p   = pageMM();
     const ori = S.orient === 'portrait' ? 'portrait' : 'landscape';
 
-    if (S.posterActive) {
+    if (S.neogeoMode) {
+      // ─── NeoGeo AES A4: Lado A + Lado B ──────────────
+      const PX = 200 / 25.4, PW = 210, PH = 297;
+      const ri = getRotImg();
+      for (const page of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(page);
+        const pc   = document.createElement('canvas');
+        pc.width   = Math.round(PW * PX);
+        pc.height  = Math.round(PH * PX);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (page === 'A') {
+            const a = NG_AREAS.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX);
+          } else {
+            const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX);
+          }
+        }
+        if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[PW, PH] });
+        pdf.addImage(pc.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, PW, PH, undefined, 'FAST');
+        await downloadOrShare(pdf.output('blob'), `coverlabel-neogeo-lado${page}.pdf`, 'application/pdf');
+        if (page === 'A') await new Promise(r => setTimeout(r, 300));
+      }
+
+    } else if (S.posterActive) {
       // ─── Poster export ───────────────────────────────
       const mg  = +S.posterMargin;
       const PX  = 200 / 25.4;
@@ -1717,8 +1778,8 @@ async function exportPDF() {
 
 // ── PNG Export ────────────────────────────────────────
 async function exportPNG() {
-  if (!S.img) return;
-  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-png');
   const orig = btn.innerHTML;
@@ -1732,7 +1793,33 @@ async function exportPNG() {
     const cat  = S.formatCat || 'etiqueta';
     const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
 
-    if (S.posterActive) {
+    if (S.neogeoMode) {
+      // ─── NeoGeo PNG: Lado A + Lado B ─────────────────
+      const PX = 150 / 25.4, PW = 210, PH = 297;
+      const ri = getRotImg();
+      for (const page of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(page);
+        const pc   = document.createElement('canvas');
+        pc.width   = Math.round(PW * PX);
+        pc.height  = Math.round(PH * PX);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (page === 'A') {
+            const a = NG_AREAS.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX);
+          } else {
+            const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX);
+          }
+        }
+        if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-neogeo-lado${page}.png`, 'image/png');
+        if (page === 'A') await new Promise(r => setTimeout(r, 200));
+      }
+
+    } else if (S.posterActive) {
       // ─── Poster PNG export ───────────────────────────
       const mg   = +S.posterMargin;
       const cat  = S.formatCat || 'poster';
@@ -1976,6 +2063,134 @@ function showToast(msg) {
   el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2100);
+}
+
+// ── NeoGeo AES A4 caja templates ─────────────────────
+const NG_AREAS = {
+  A:       { x:10.66, y:40.15, w:150.50, h:195.64 },
+  B_back:  { x:17.35, y:65.22, w:151.05, h:194.68 },
+  B_spine: { x:167.83,y:64.98, w:37.84,  h:194.97 },
+};
+const _ngCache = {};
+
+function _preprocessNgSvg(svgText) {
+  const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+  for (const el of doc.querySelectorAll('*')) {
+    const style = el.getAttribute('style') || '';
+    if (/fill:\s*#(?:fff(?:fff)?|ffffff)/i.test(style))
+      el.setAttribute('style', style.replace(/fill:[^;]+/i, 'fill:none'));
+    const fill = el.getAttribute('fill') || '';
+    if (/^#(?:fff(?:fff)?|ffffff)$/i.test(fill))
+      el.setAttribute('fill', 'none');
+  }
+  return new XMLSerializer().serializeToString(doc.documentElement);
+}
+
+async function _loadNgSvg(side) {
+  if (_ngCache[side]) return _ngCache[side];
+  try {
+    const resp = await fetch(`templates/neogeo-${side.toLowerCase()}.svg`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const processed = _preprocessNgSvg(await resp.text());
+    const img = await new Promise((res, rej) => {
+      const blob = new Blob([processed], { type:'image/svg+xml' });
+      const url  = URL.createObjectURL(blob);
+      const im   = new Image();
+      im.onload  = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('SVG load')); };
+      im.src = url;
+    });
+    _ngCache[side] = img;
+    return img;
+  } catch(e) { console.warn('NeoGeo template:', e); return null; }
+}
+
+function _ngCover(ctx, img, x, y, w, h) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+  ctx.drawImage(img,
+    x + (w - img.naturalWidth  * s) / 2,
+    y + (h - img.naturalHeight * s) / 2,
+    img.naturalWidth * s, img.naturalHeight * s);
+  ctx.restore();
+}
+
+function setNeoGeo(on) {
+  S.neogeoMode = on;
+  document.getElementById('neogeo-ctrl').style.display = on ? 'block' : 'none';
+  if (on) {
+    if (S.posterActive) clearPoster();
+    if (S.split) {
+      S.split = false;
+      document.getElementById('split-on').checked = false;
+      document.getElementById('split-ctrl').style.display = 'none';
+    }
+    S.neogeoPage = 'A';
+    document.querySelectorAll('#ng-page-chips .chip').forEach(b =>
+      b.classList.toggle('on', b.dataset.ngp === 'A'));
+    document.getElementById('ng-sub-a').style.display = 'block';
+    document.getElementById('ng-sub-b').style.display = 'none';
+  }
+  schedRender();
+}
+
+function setNeoGeoPage(page) {
+  S.neogeoPage = page;
+  document.querySelectorAll('#ng-page-chips .chip').forEach(b =>
+    b.classList.toggle('on', b.dataset.ngp === page));
+  document.getElementById('ng-sub-a').style.display = page === 'A' ? 'block' : 'none';
+  document.getElementById('ng-sub-b').style.display = page === 'B' ? 'block' : 'none';
+  schedRender();
+}
+
+async function renderNeoGeo() {
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const badge  = document.getElementById('badge');
+  const info   = document.getElementById('info-bar');
+  const page   = S.neogeoPage || 'A';
+
+  const PW = 210, PH = 297;
+  const wrap = document.getElementById('cvbg');
+  const maxW = wrap.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc   = Math.min(maxW / PW, maxH / PH);
+
+  canvas.width  = Math.round(PW * sc);
+  canvas.height = Math.round(PH * sc);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const ri   = getRotImg();
+  const tmpl = await _loadNgSvg(page);
+
+  if (ri) {
+    if (page === 'A') {
+      const a = NG_AREAS.A;
+      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc);
+    } else {
+      const b = NG_AREAS.B_back, sp = NG_AREAS.B_spine;
+      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc);
+      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc);
+    }
+  }
+
+  if (tmpl) ctx.drawImage(tmpl, 0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = 'rgba(0,0,0,.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = `Neo Geo AES — Lado ${page}`;
+  badge.className   = '';
+  info.innerHTML =
+    `<span>📐 A4: 210×297 mm</span>` +
+    `<span>📦 ${page === 'A' ? 'Portada — 150×195 mm' : 'Trasera + Lomo — 2 zonas'}</span>` +
+    (!ri ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+
+  setExp(true);
 }
 
 // ── Init ──────────────────────────────────────────────
