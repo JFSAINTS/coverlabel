@@ -172,6 +172,18 @@
       border: 1px solid var(--brd);
     }
     #thumb { width: 100%; max-height: 110px; object-fit: contain; display: block; }
+    .rot-row {
+      display: flex; gap: 6px; margin-top: 6px;
+    }
+    .rot-btn {
+      flex: 1; background: var(--aclt); color: var(--ac);
+      border: 1px solid var(--brd); border-radius: var(--rs);
+      padding: 5px 0; font-size: .82rem; cursor: pointer;
+      transition: background .15s;
+    }
+    .rot-btn:hover { background: var(--brd); }
+    .rot-btn:disabled { opacity: .35; cursor: default; }
+
     .change-btn {
       position: absolute; top: 5px; right: 5px;
       background: rgba(30,27,58,.72);
@@ -361,6 +373,105 @@
     @media (max-width: 780px) {
       main { grid-template-columns: 1fr; padding: 10px; gap: 12px; }
     }
+
+    /* ── Cajas Repro modal ────────────────────────────── */
+    .repro-btn {
+      margin-left: auto;
+      background: linear-gradient(135deg,var(--ac),var(--ac2));
+      color: #fff; border: none; border-radius: var(--rs);
+      padding: 7px 14px; font-family: inherit; font-size: .82rem;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: opacity .15s;
+    }
+    .repro-btn:hover { opacity: .88; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 16px;
+    }
+    .modal-box {
+      background: var(--sfc); border-radius: 16px;
+      width: 100%; max-width: 760px; max-height: 88vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    }
+    .modal-head {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--brd);
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .modal-head h3 { font-size: 1.05rem; margin: 0; }
+    .modal-head .credit {
+      font-size: .73rem; color: var(--txt2); margin-left: 4px;
+    }
+    .modal-head .credit a { color: var(--ac); text-decoration: none; }
+    .modal-head .credit a:hover { text-decoration: underline; }
+    .modal-close {
+      margin-left: auto; background: var(--bg3); border: none;
+      color: var(--txt2); width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; font-size: 1rem; line-height: 1;
+    }
+    .modal-close:hover { color: var(--txt); }
+    .modal-intro {
+      padding: 12px 22px 0; font-size: .78rem; color: var(--txt2);
+      line-height: 1.55;
+    }
+    .modal-intro a { color: var(--ac); }
+    .modal-body { overflow-y: auto; padding: 14px 22px 22px; }
+
+    .repro-group { margin-bottom: 18px; }
+    .repro-group-title {
+      font-size: .7rem; font-weight: 700; color: var(--txt3);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .repro-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+    }
+    .repro-card {
+      background: var(--sfc2); border: 1px solid var(--brd);
+      border-radius: var(--rs); padding: 10px 10px 8px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .repro-card-top { display: flex; align-items: center; gap: 5px; }
+    .repro-name { font-size: .82rem; font-weight: 700; }
+    .repro-dims { font-size: .68rem; color: var(--txt3); }
+    .repro-tpl-badge {
+      display: inline-block; font-size: .62rem; font-weight: 700;
+      background: #d1fae5; color: #065f46;
+      border-radius: 4px; padding: 1px 5px; margin-top: 2px;
+    }
+    .repro-actions { display: flex; gap: 5px; margin-top: 6px; }
+    .repro-dl {
+      flex: 1; font-size: .68rem; text-align: center;
+      padding: 4px 0; border-radius: 6px;
+      background: var(--bg3); color: var(--txt2);
+      text-decoration: none; border: 1px solid var(--brd);
+      transition: color .12s;
+    }
+    .repro-dl:hover { color: var(--ac); border-color: var(--ac); }
+    .repro-apply {
+      flex: 1; font-size: .68rem; padding: 4px 0; border-radius: 6px;
+      background: var(--ac); color: #fff; border: none; cursor: pointer;
+      font-family: inherit; font-weight: 600; transition: opacity .12s;
+    }
+    .repro-apply:hover { opacity: .85; }
+
+    .repro-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--ac); color: #fff; padding: 9px 20px;
+      border-radius: 20px; font-size: .82rem; font-weight: 600;
+      z-index: 200; pointer-events: none;
+      animation: fadeInUp .25s ease, fadeOut .3s ease 1.7s forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateX(-50%) translateY(10px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    @keyframes fadeOut { to { opacity:0; } }
   </style>
 </head>
 <body>
@@ -371,6 +482,7 @@
     <h1>CoverLabel</h1>
     <span class="sub">Etiquetas y portadas listas para imprimir</span>
   </div>
+  <button class="repro-btn" onclick="openReproModal()">🎮 Cajas Repro</button>
 </header>
 
 <main>
@@ -455,6 +567,10 @@
       <div id="upload-preview">
         <img id="thumb" src="" alt="">
         <button class="change-btn" onclick="triggerFile()">✎ Cambiar</button>
+      </div>
+      <div class="rot-row">
+        <button class="rot-btn" id="rot-ccw" onclick="rotateImg(-90)" title="Girar 90° izquierda" disabled>↺ −90°</button>
+        <button class="rot-btn" id="rot-cw"  onclick="rotateImg(90)"  title="Girar 90° derecha"   disabled>↻ +90°</button>
       </div>
       <input type="file" id="file-input" accept="image/*" style="display:none" onchange="onFile(event)">
     </div>
@@ -623,6 +739,25 @@
   </div>
 </main>
 
+<!-- ── Cajas Repro Modal ──────────────────────────────── -->
+<div id="repro-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeReproModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span style="font-size:1.3rem">🎮</span>
+      <h3>Cajas Repro</h3>
+      <span class="credit">Plantillas: <a href="https://elcuartodetoby.blogspot.com/p/cajas-custom.html" target="_blank">El Cuarto de Toby ↗</a></span>
+      <button class="modal-close" onclick="closeReproModal()">✕</button>
+    </div>
+    <p class="modal-intro">
+      Descarga la plantilla PSD, personalízala en Photoshop / GIMP /
+      <a href="https://www.photopea.com" target="_blank">Photopea</a> (online gratis),
+      exporta como PNG y cárgala en CoverLabel. Pulsa <strong>Aplicar</strong> para
+      preconfigurar las dimensiones exactas del formato seleccionado.
+    </p>
+    <div class="modal-body" id="repro-body"></div>
+  </div>
+</div>
+
 <script src="./lib/jspdf.min.js"></script>
 <script>
 // ── Format presets (dimensions in mm) ────────────────
@@ -733,6 +868,7 @@ const S = {
   posterActive: false,
   posterType: 'a3',
   posterMargin: 5,
+  imgRot: 0,
 
   set(key, val) {
     this[key] = val;
@@ -764,6 +900,31 @@ const S = {
     schedRender();
   }
 };
+
+// ── Image rotation ────────────────────────────────────
+let _rotCache = null;
+function getRotImg() {
+  if (!S.img) return null;
+  if (S.imgRot === 0) return S.img;
+  if (_rotCache && _rotCache.rot === S.imgRot && _rotCache.src === S.img) return _rotCache.canvas;
+  const swap = S.imgRot === 90 || S.imgRot === 270;
+  const cw = swap ? S.img.naturalHeight : S.img.naturalWidth;
+  const ch = swap ? S.img.naturalWidth  : S.img.naturalHeight;
+  const oc = document.createElement('canvas');
+  oc.width = cw; oc.height = ch;
+  const octx = oc.getContext('2d');
+  octx.translate(cw / 2, ch / 2);
+  octx.rotate(S.imgRot * Math.PI / 180);
+  octx.drawImage(S.img, -S.img.naturalWidth / 2, -S.img.naturalHeight / 2);
+  oc.naturalWidth = cw; oc.naturalHeight = ch;
+  _rotCache = { rot: S.imgRot, src: S.img, canvas: oc };
+  return oc;
+}
+function rotateImg(delta) {
+  S.imgRot = ((S.imgRot + delta) + 360) % 360;
+  _rotCache = null;
+  schedRender();
+}
 
 // ── Suggest best paper for dimensions (mm) ────────────
 function suggestPaper(w, h) {
@@ -992,8 +1153,9 @@ function renderSplit() {
   ctx.fillStyle = '#9a9ab0';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const iW = S.img ? S.img.naturalWidth  : 0;
-  const iH = S.img ? S.img.naturalHeight : 0;
+  const ri = getRotImg();
+  const iW = ri ? ri.naturalWidth  : 0;
+  const iH = ri ? ri.naturalHeight : 0;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -1016,7 +1178,7 @@ function renderSplit() {
       }
 
       // Image portion
-      if (S.img && fits) {
+      if (ri && fits) {
         const srcX = col * (iW / cols);
         const srcY = row * (iH / rows);
         const srcW = iW / cols;
@@ -1027,12 +1189,12 @@ function renderSplit() {
         ctx.beginPath();
         ctx.rect(dx, dy, dw, dh);
         ctx.clip();
-        ctx.drawImage(S.img, srcX, srcY, srcW, srcH, dx, dy, dw, dh);
+        ctx.drawImage(ri, srcX, srcY, srcW, srcH, dx, dy, dw, dh);
         ctx.restore();
         ctx.strokeStyle = 'rgba(124,106,247,.45)';
         ctx.lineWidth = .8;
         ctx.strokeRect(dx + .4, dy + .4, dw - .8, dh - .8);
-      } else if (!S.img) {
+      } else if (!ri) {
         ctx.fillStyle = '#ede9fe';
         ctx.fillRect(tx + ox*sc, ty + oy*sc, drawW*sc, drawH*sc);
       }
@@ -1149,11 +1311,12 @@ function renderPoster() {
       ctx.restore();
     }
 
-    if (S.img) {
-      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+    const ri = getRotImg();
+    if (ri) {
+      const iW = ri.naturalWidth, iH = ri.naturalHeight;
       const fitSc = Math.min(usW/iW, usH/iH);
       const dw = iW*fitSc, dh = iH*fitSc;
-      ctx.drawImage(S.img,
+      ctx.drawImage(ri,
         (mg + (usW-dw)/2)*sc, (mg + (usH-dh)/2)*sc, dw*sc, dh*sc);
     } else {
       ctx.fillStyle = '#ede9fe';
@@ -1191,10 +1354,11 @@ function renderPoster() {
     ctx.fillStyle = '#9a9ab0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const iW = S.img ? S.img.naturalWidth  : 0;
-    const iH = S.img ? S.img.naturalHeight : 0;
+    const ri4 = getRotImg();
+    const iW = ri4 ? ri4.naturalWidth  : 0;
+    const iH = ri4 ? ri4.naturalHeight : 0;
     // Scale image to fit assembled area (contain)
-    const fitSc = S.img ? Math.min(aW/iW, aH/iH) : 1;
+    const fitSc = ri4 ? Math.min(aW/iW, aH/iH) : 1;
     const fW = iW * fitSc, fH = iH * fitSc;
     const imgX = (aW - fW) / 2, imgY = (aH - fH) / 2;
 
@@ -1215,7 +1379,7 @@ function renderPoster() {
           ctx.restore();
         }
 
-        if (S.img) {
+        if (ri4) {
           // Image offset relative to this piece's print area origin
           const imgRelX = (imgX - col*usW) * sc;
           const imgRelY = (imgY - row*usH) * sc;
@@ -1223,7 +1387,7 @@ function renderPoster() {
           ctx.beginPath();
           ctx.rect(tx+mg*sc, ty+mg*sc, usW*sc, usH*sc);
           ctx.clip();
-          ctx.drawImage(S.img,
+          ctx.drawImage(ri4,
             tx+mg*sc + imgRelX, ty+mg*sc + imgRelY, fW*sc, fH*sc);
           ctx.restore();
         } else {
@@ -1308,7 +1472,7 @@ function render() {
       const y = (g.oy + r*(g.lH+g.sp)) * sc;
       const w = g.lW * sc;
       const h = g.lH * sc;
-      drawLabel(ctx, x, y, w, h, S.img);
+      drawLabel(ctx, x, y, w, h, getRotImg());
       if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
     }
   }
@@ -1364,6 +1528,10 @@ function loadImage(file) {
     const img = new Image();
     img.onload = () => {
       S.img = img;
+      S.imgRot = 0;
+      _rotCache = null;
+      document.getElementById('rot-ccw').disabled = false;
+      document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
       document.getElementById('upload-drop').style.display = 'none';
       document.getElementById('upload-preview').style.display = 'block';
@@ -1417,7 +1585,8 @@ async function exportPDF() {
       if (S.posterType === 'a3') {
         const pw = 297, ph = 420;
         const usW = pw-2*mg, usH = ph-2*mg;
-        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const ri = getRotImg();
+        const iW = ri.naturalWidth, iH = ri.naturalHeight;
         const fitSc = Math.min(usW/iW, usH/iH);
         const dw = iW*fitSc, dh = iH*fitSc;
         const dx = (usW-dw)/2, dy = (usH-dh)/2;
@@ -1427,7 +1596,7 @@ async function exportPDF() {
         pc.width  = Math.round(usW*PX); pc.height = Math.round(usH*PX);
         const pctx = pc.getContext('2d');
         pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
-        pctx.drawImage(S.img, dx*PX, dy*PX, dw*PX, dh*PX);
+        pctx.drawImage(ri, dx*PX, dy*PX, dw*PX, dh*PX);
         pdf.addImage(pc.toDataURL('image/jpeg',0.93),'JPEG',mg,mg,usW,usH,undefined,'FAST');
         await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-poster-a3.pdf`, 'application/pdf');
 
@@ -1435,7 +1604,8 @@ async function exportPDF() {
         const pw = 210, ph = 297;
         const usW = pw-2*mg, usH = ph-2*mg;
         const aW = usW*2, aH = usH*2;
-        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const ri4x4 = getRotImg();
+        const iW = ri4x4.naturalWidth, iH = ri4x4.naturalHeight;
         const fitSc = Math.min(aW/iW, aH/iH);
         const fW = iW*fitSc, fH = iH*fitSc;
         const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
@@ -1450,7 +1620,7 @@ async function exportPDF() {
             pc.width = Math.round(usW*PX); pc.height = Math.round(usH*PX);
             const pctx = pc.getContext('2d');
             pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
-            pctx.drawImage(S.img,
+            pctx.drawImage(ri4x4,
               (imgX - col*usW)*PX, (imgY - row*usH)*PX, fW*PX, fH*PX);
             pdf.addImage(pc.toDataURL('image/jpeg',0.93),'JPEG',mg,mg,usW,usH,undefined,'FAST');
           }
@@ -1470,7 +1640,8 @@ async function exportPDF() {
       const drawW  = pieceW * fitSc, drawH = pieceH * fitSc;
       const ox     = mg + (usW - drawW) / 2, oy = mg + (usH - drawH) / 2;
       const PX_MM  = 200 / 25.4;
-      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+      const riSpl = getRotImg();
+      const iW = riSpl.naturalWidth, iH = riSpl.naturalHeight;
 
       const pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [p.w, p.h] });
       let first = true;
@@ -1484,7 +1655,7 @@ async function exportPDF() {
           const pctx = pc.getContext('2d');
           pctx.fillStyle = '#fff';
           pctx.fillRect(0, 0, pc.width, pc.height);
-          pctx.drawImage(S.img,
+          pctx.drawImage(riSpl,
             col * (iW / cols), row * (iH / rows), iW / cols, iH / rows,
             0, 0, pc.width, pc.height);
           pdf.addImage(pc.toDataURL('image/jpeg', 0.93), 'JPEG',
@@ -1570,7 +1741,8 @@ async function exportPNG() {
       if (S.posterType === 'a3') {
         const pw = 297, ph = 420;
         const usW = pw-2*mg, usH = ph-2*mg;
-        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const riA3 = getRotImg();
+        const iW = riA3.naturalWidth, iH = riA3.naturalHeight;
         const fitSc = Math.min(usW/iW, usH/iH);
         const dw = iW*fitSc, dh = iH*fitSc;
         const dx = (usW-dw)/2, dy = (usH-dh)/2;
@@ -1579,14 +1751,15 @@ async function exportPNG() {
         pc.width  = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
         const pctx = pc.getContext('2d');
         pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
-        pctx.drawImage(S.img, (mg+dx)*PX_MM, (mg+dy)*PX_MM, dw*PX_MM, dh*PX_MM);
+        pctx.drawImage(riA3, (mg+dx)*PX_MM, (mg+dy)*PX_MM, dw*PX_MM, dh*PX_MM);
         await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-poster-a3.png`, 'image/png');
 
       } else {
         const pw = 210, ph = 297;
         const usW = pw-2*mg, usH = ph-2*mg;
         const aW = usW*2, aH = usH*2;
-        const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+        const riPng4 = getRotImg();
+        const iW = riPng4.naturalWidth, iH = riPng4.naturalHeight;
         const fitSc = Math.min(aW/iW, aH/iH);
         const fW = iW*fitSc, fH = iH*fitSc;
         const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
@@ -1598,7 +1771,7 @@ async function exportPNG() {
             pc.width = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
             const pctx = pc.getContext('2d');
             pctx.fillStyle = '#fff'; pctx.fillRect(0,0,pc.width,pc.height);
-            pctx.drawImage(S.img,
+            pctx.drawImage(riPng4,
               (mg + imgX - col*usW)*PX_MM, (mg + imgY - row*usH)*PX_MM,
               fW*PX_MM, fH*PX_MM);
             await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-poster-pag${String(pageNum).padStart(2,'0')}.png`, 'image/png');
@@ -1618,7 +1791,8 @@ async function exportPNG() {
       const fitSc  = Math.min(usW / pieceW, usH / pieceH);
       const drawW  = pieceW * fitSc, drawH = pieceH * fitSc;
       const ox     = mg + (usW - drawW) / 2, oy = mg + (usH - drawH) / 2;
-      const iW = S.img.naturalWidth, iH = S.img.naturalHeight;
+      const riPngSpl = getRotImg();
+      const iW = riPngSpl.naturalWidth, iH = riPngSpl.naturalHeight;
       const pW = Math.round(p.w * PX_MM), pH = Math.round(p.h * PX_MM);
       let pageNum = 0;
       for (let row = 0; row < rows; row++) {
@@ -1629,7 +1803,7 @@ async function exportPNG() {
           const pctx = pc.getContext('2d');
           pctx.fillStyle = '#fff';
           pctx.fillRect(0, 0, pW, pH);
-          pctx.drawImage(S.img,
+          pctx.drawImage(riPngSpl,
             col * (iW / cols), row * (iH / rows), iW / cols, iH / rows,
             Math.round(ox * PX_MM), Math.round(oy * PX_MM),
             Math.round(drawW * PX_MM), Math.round(drawH * PX_MM));
@@ -1686,6 +1860,122 @@ async function downloadOrShare(data, filename, mimeType) {
   const a = document.createElement('a');
   a.download = filename; a.href = url; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+// ── Cajas Repro ───────────────────────────────────────
+const REPRO_BLOG = 'https://elcuartodetoby.blogspot.com/p/cajas-custom.html';
+
+const REPRO_CATALOG = [
+  { group: '🔴 Nintendo — Retro', items: [
+    { name:'NES',            emoji:'🔴', cat:'NES',             hasTpl:true  },
+    { name:'Famicom',        emoji:'⬜', cat:'Famicom',         hasTpl:false },
+    { name:'Super NES',      emoji:'🔴', cat:'Super NES',       hasTpl:true  },
+    { name:'Super Famicom',  emoji:'⬜', cat:'Super Famicom',   hasTpl:false },
+    { name:'Nintendo 64',    emoji:'🔴', cat:'N64',             hasTpl:true  },
+    { name:'GameCube',       emoji:'🟣', cat:'GameCube',        hasTpl:false },
+    { name:'Game Boy',       emoji:'⬜', cat:'Game Boy',        hasTpl:true  },
+    { name:'Game Boy Color', emoji:'🟣', cat:'Game Boy Color',  hasTpl:true  },
+    { name:'Game Boy Advance',emoji:'🟣',cat:'GBA',             hasTpl:true  },
+  ]},
+  { group: '🔴 Nintendo — Moderno', items: [
+    { name:'Nintendo Switch',emoji:'🔴', cat:'Switch',          hasTpl:false },
+    { name:'Wii',            emoji:'🔴', cat:'Wii',             hasTpl:false },
+    { name:'Wii U',          emoji:'🔴', cat:'Wii U',           hasTpl:false },
+    { name:'Nintendo DS',    emoji:'🔴', cat:'DS',              hasTpl:false },
+    { name:'Nintendo 3DS',   emoji:'🔴', cat:'3DS',             hasTpl:false },
+  ]},
+  { group: '🔵 PlayStation', items: [
+    { name:'PlayStation 1',  emoji:'🔵', cat:'PS1',             hasTpl:false },
+    { name:'PlayStation 2',  emoji:'🔵', cat:'PS2',             hasTpl:false },
+    { name:'PlayStation 3',  emoji:'🔵', cat:'PS3',             hasTpl:false },
+    { name:'PlayStation 4',  emoji:'🔵', cat:'PS4',             hasTpl:false },
+    { name:'PlayStation 5',  emoji:'🔵', cat:'PS5',             hasTpl:false },
+    { name:'PSP',            emoji:'🔵', cat:'PSP',             hasTpl:false },
+    { name:'PS Vita',        emoji:'🔵', cat:'PS Vita',         hasTpl:false },
+  ]},
+  { group: '🟢 Xbox', items: [
+    { name:'Xbox',           emoji:'🟢', cat:'Xbox',            hasTpl:false },
+    { name:'Xbox 360',       emoji:'🟢', cat:'Xbox 360',        hasTpl:false },
+    { name:'Xbox One/Series',emoji:'🟢', cat:'Xbox One',        hasTpl:false },
+  ]},
+  { group: '🟠 Sega', items: [
+    { name:'Mega Drive',     emoji:'🟠', cat:'Mega Drive',      hasTpl:false },
+    { name:'Saturn',         emoji:'🟠', cat:'Saturn',          hasTpl:false },
+    { name:'Dreamcast',      emoji:'🟠', cat:'Dreamcast',       hasTpl:false },
+    { name:'Master System',  emoji:'🟠', cat:'Master System',   hasTpl:false },
+    { name:'Game Gear',      emoji:'🟠', cat:'Game Gear',       hasTpl:false },
+  ]},
+  { group: '🕹️ NeoGeo / Atari / Otros', items: [
+    { name:'NeoGeo AES',     emoji:'🕹️', cat:'NeoGeo AES',      hasTpl:false },
+    { name:'NeoGeo CD',      emoji:'🕹️', cat:'NeoGeo CD',       hasTpl:false },
+    { name:'Atari 2600',     emoji:'🕹️', cat:'Atari 2600',      hasTpl:false },
+    { name:'Atari 7800',     emoji:'🕹️', cat:'Atari 7800',      hasTpl:false },
+    { name:'Atari Lynx',     emoji:'🕹️', cat:'Atari Lynx',      hasTpl:false },
+    { name:'TurboGrafx-16',  emoji:'🕹️', cat:'TurboGrafx-16',   hasTpl:false },
+  ]},
+  { group: '💿 Vídeo / Música', items: [
+    { name:'DVD',            emoji:'💿', cat:'DVD',             hasTpl:false },
+    { name:'Blu-ray',        emoji:'🔵', cat:'Blu-ray',         hasTpl:false },
+    { name:'VHS',            emoji:'📼', cat:'VHS',             hasTpl:false },
+  ]},
+];
+
+function buildReproModal() {
+  const body = document.getElementById('repro-body');
+  if (body.childElementCount) return; // ya construido
+  body.innerHTML = REPRO_CATALOG.map(group => {
+    const cards = group.items.map(item => {
+      const fmts = FORMATS[item.cat] || [];
+      const main = fmts[0];
+      const dims = main ? `${main.w} × ${main.h} mm` : '';
+      const badge = item.hasTpl
+        ? `<span class="repro-tpl-badge">✓ Plantilla PSD</span>`
+        : '';
+      const dlBtn = item.hasTpl
+        ? `<a class="repro-dl" href="${REPRO_BLOG}" target="_blank">📥 PSD</a>`
+        : `<a class="repro-dl" href="${REPRO_BLOG}" target="_blank">🔍 Blog</a>`;
+      return `
+        <div class="repro-card">
+          <div class="repro-card-top">
+            <span>${item.emoji}</span>
+            <span class="repro-name">${item.name}</span>
+          </div>
+          <div class="repro-dims">${dims}</div>
+          ${badge}
+          <div class="repro-actions">
+            ${dlBtn}
+            <button class="repro-apply" onclick="applyReproFormat('${item.cat}')">✓ Aplicar</button>
+          </div>
+        </div>`;
+    }).join('');
+    return `<div class="repro-group">
+      <div class="repro-group-title">${group.group}</div>
+      <div class="repro-grid">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function openReproModal() {
+  buildReproModal();
+  document.getElementById('repro-modal').style.display = 'flex';
+}
+function closeReproModal() {
+  document.getElementById('repro-modal').style.display = 'none';
+}
+
+function applyReproFormat(cat) {
+  document.getElementById('cat-sel').value = cat;
+  onCatChange(cat);
+  closeReproModal();
+  showToast(`✓ Formato aplicado: ${cat}`);
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'repro-toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2100);
 }
 
 // ── Init ──────────────────────────────────────────────
