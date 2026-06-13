@@ -675,6 +675,16 @@
           </div>
         </div>
       </div>
+      <div id="img-pos-ctrl" style="margin-top:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <span class="ng-sub">Escala imagen</span>
+          <span class="ng-sub" id="img-scale-val" style="font-weight:700;color:var(--ac)">100%</span>
+        </div>
+        <input type="range" id="img-scale-sl" min="20" max="400" step="1" value="100"
+               style="width:100%;accent-color:var(--ac)" oninput="setImgScale(+this.value/100)">
+        <button class="auto-btn" style="margin-top:6px" onclick="resetImgOffset()">↺ Recentrar y escala 100%</button>
+        <div class="ng-sub" style="margin-top:5px;color:var(--txt3)">Arrastra en el preview · rueda = zoom</div>
+      </div>
     </div>
 
     <!-- ESPACIADO -->
@@ -940,6 +950,8 @@ const S = {
   neogeoPage: 'A',
   ngOff:   { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} },
   ngScale: { A:1,         B_back:1,          B_spine:1          },
+  imgOff:   { x: 0, y: 0 },
+  imgScale: 1,
 
   set(key, val) {
     this[key] = val;
@@ -1094,7 +1106,7 @@ function calcGrid() {
 }
 
 // ── Label drawing ─────────────────────────────────────
-function drawLabel(ctx, x, y, w, h, img) {
+function drawLabel(ctx, x, y, w, h, img, offX=0, offY=0, zoom=1) {
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -1104,14 +1116,11 @@ function drawLabel(ctx, x, y, w, h, img) {
 
   if (img) {
     const iW = img.naturalWidth, iH = img.naturalHeight;
-    if (S.fit === 'fill') {
+    if (S.fit === 'fill' && offX === 0 && offY === 0 && zoom === 1) {
       ctx.drawImage(img, x, y, w, h);
-    } else if (S.fit === 'contain') {
-      const s = Math.min(w/iW, h/iH);
-      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
     } else {
-      const s = Math.max(w/iW, h/iH);
-      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
+      const s = (S.fit === 'contain' ? Math.min(w/iW, h/iH) : Math.max(w/iW, h/iH)) * zoom;
+      ctx.drawImage(img, x + (w-iW*s)/2 + offX, y + (h-iH*s)/2 + offY, iW*s, iH*s);
     }
   } else {
     ctx.fillStyle = '#ede9fe';
@@ -1376,6 +1385,7 @@ function renderPoster() {
     const maxW = wrap.clientWidth - 28;
     const maxH = Math.max(300, window.innerHeight - 290);
     const sc = Math.min(maxW / pw, maxH / ph);
+    _mainSc = sc;
 
     canvas.width  = Math.round(pw * sc);
     canvas.height = Math.round(ph * sc);
@@ -1394,10 +1404,13 @@ function renderPoster() {
     const ri = getRotImg();
     if (ri) {
       const iW = ri.naturalWidth, iH = ri.naturalHeight;
-      const fitSc = Math.min(usW/iW, usH/iH);
+      const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
       const dw = iW*fitSc, dh = iH*fitSc;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(mg*sc, mg*sc, usW*sc, usH*sc); ctx.clip();
       ctx.drawImage(ri,
-        (mg + (usW-dw)/2)*sc, (mg + (usH-dh)/2)*sc, dw*sc, dh*sc);
+        (mg + (usW-dw)/2 + S.imgOff.x)*sc, (mg + (usH-dh)/2 + S.imgOff.y)*sc, dw*sc, dh*sc);
+      ctx.restore();
     } else {
       ctx.fillStyle = '#ede9fe';
       ctx.fillRect(mg*sc, mg*sc, usW*sc, usH*sc);
@@ -1428,6 +1441,7 @@ function renderPoster() {
     const tW  = Math.max(70, Math.min(Math.floor((avW - gap*(cols+1)) / cols), 210));
     const tH  = Math.round(tW * (ph / pw));
     const sc  = tW / pw;
+    _mainSc = sc;
 
     canvas.width  = (tW + gap) * cols + gap;
     canvas.height = (tH + gap) * rows + gap;
@@ -1437,10 +1451,10 @@ function renderPoster() {
     const ri4 = getRotImg();
     const iW = ri4 ? ri4.naturalWidth  : 0;
     const iH = ri4 ? ri4.naturalHeight : 0;
-    // Scale image to fit assembled area (contain)
-    const fitSc = ri4 ? Math.min(aW/iW, aH/iH) : 1;
+    // Scale image to fit assembled area (contain), then apply user zoom
+    const fitSc = ri4 ? Math.min(aW/iW, aH/iH) * S.imgScale : 1;
     const fW = iW * fitSc, fH = iH * fitSc;
-    const imgX = (aW - fW) / 2, imgY = (aH - fH) / 2;
+    const imgX = (aW - fW) / 2 + S.imgOff.x, imgY = (aH - fH) / 2 + S.imgOff.y;
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
@@ -1523,6 +1537,7 @@ function render() {
   const maxW = wrap.clientWidth - 28;
   const maxH = Math.max(300, window.innerHeight - 290);
   const sc = Math.min(maxW / p.w, maxH / p.h);
+  _mainSc = sc;
 
   canvas.width  = Math.round(p.w * sc);
   canvas.height = Math.round(p.h * sc);
@@ -1553,7 +1568,7 @@ function render() {
       const y = (g.oy + r*(g.lH+g.sp)) * sc;
       const w = g.lW * sc;
       const h = g.lH * sc;
-      drawLabel(ctx, x, y, w, h, getRotImg());
+      drawLabel(ctx, x, y, w, h, getRotImg(), S.imgOff.x*sc, S.imgOff.y*sc, S.imgScale);
       if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
     }
   }
@@ -1614,6 +1629,9 @@ function loadImage(file) {
       _rotCache = null;
       S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
       S.ngScale = { A:1,         B_back:1,          B_spine:1          };
+      S.imgOff   = { x:0, y:0 };
+      S.imgScale = 1;
+      _updateImgScaleUI();
       document.getElementById('rot-ccw').disabled = false;
       document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
@@ -1700,9 +1718,9 @@ async function exportPDF() {
         const usW = pw-2*mg, usH = ph-2*mg;
         const ri = getRotImg();
         const iW = ri.naturalWidth, iH = ri.naturalHeight;
-        const fitSc = Math.min(usW/iW, usH/iH);
+        const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
         const dw = iW*fitSc, dh = iH*fitSc;
-        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+        const dx = (usW-dw)/2 + S.imgOff.x, dy = (usH-dh)/2 + S.imgOff.y;
 
         const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
         const pc = document.createElement('canvas');
@@ -1719,9 +1737,9 @@ async function exportPDF() {
         const aW = usW*2, aH = usH*2;
         const ri4x4 = getRotImg();
         const iW = ri4x4.naturalWidth, iH = ri4x4.naturalHeight;
-        const fitSc = Math.min(aW/iW, aH/iH);
+        const fitSc = Math.min(aW/iW, aH/iH) * S.imgScale;
         const fW = iW*fitSc, fH = iH*fitSc;
-        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+        const imgX = (aW-fW)/2 + S.imgOff.x, imgY = (aH-fH)/2 + S.imgOff.y;
 
         const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
         let first = true;
@@ -1791,7 +1809,7 @@ async function exportPDF() {
       const lctx = lc.getContext('2d');
       lctx.fillStyle = '#fff';
       lctx.fillRect(0, 0, lc.width, lc.height);
-      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img);
+      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
       const imgData = lc.toDataURL('image/jpeg', 0.93);
 
       for (let r = 0; r < g.rows; r++)
@@ -1883,9 +1901,9 @@ async function exportPNG() {
         const usW = pw-2*mg, usH = ph-2*mg;
         const riA3 = getRotImg();
         const iW = riA3.naturalWidth, iH = riA3.naturalHeight;
-        const fitSc = Math.min(usW/iW, usH/iH);
+        const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
         const dw = iW*fitSc, dh = iH*fitSc;
-        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+        const dx = (usW-dw)/2 + S.imgOff.x, dy = (usH-dh)/2 + S.imgOff.y;
 
         const pc = document.createElement('canvas');
         pc.width  = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
@@ -1900,9 +1918,9 @@ async function exportPNG() {
         const aW = usW*2, aH = usH*2;
         const riPng4 = getRotImg();
         const iW = riPng4.naturalWidth, iH = riPng4.naturalHeight;
-        const fitSc = Math.min(aW/iW, aH/iH);
+        const fitSc = Math.min(aW/iW, aH/iH) * S.imgScale;
         const fW = iW*fitSc, fH = iH*fitSc;
-        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+        const imgX = (aW-fW)/2 + S.imgOff.x, imgY = (aH-fH)/2 + S.imgOff.y;
         let pageNum = 0;
         for (let row = 0; row < 2; row++) {
           for (let col = 0; col < 2; col++) {
@@ -1969,7 +1987,7 @@ async function exportPNG() {
           const y = Math.round((g.oy + r*(g.lH+g.sp)) * PX_MM);
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
-          drawLabel(pctx, x, y, w, h, S.img);
+          drawLabel(pctx, x, y, w, h, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
           if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
         }
       }
@@ -2196,6 +2214,7 @@ function resetNgOffsets() {
 function setNeoGeo(on) {
   S.neogeoMode = on;
   document.getElementById('neogeo-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display = on ? 'none' : 'block';
   if (on) {
     if (S.posterActive) clearPoster();
     if (S.split) {
@@ -2227,7 +2246,27 @@ function setNeoGeoPage(page) {
   schedRender();
 }
 
-let _ngSc = 1;   // canvas px per mm — updated on every renderNeoGeo call
+let _ngSc   = 1;   // canvas px per mm — updated on every renderNeoGeo call
+let _mainSc = 1;   // canvas px per mm — updated on every render/renderPoster call
+
+function _updateImgScaleUI() {
+  const pct = Math.round(S.imgScale * 100);
+  const sl  = document.getElementById('img-scale-sl');
+  const lbl = document.getElementById('img-scale-val');
+  if (sl)  sl.value = pct;
+  if (lbl) lbl.textContent = pct + '%';
+}
+function setImgScale(v) {
+  S.imgScale = Math.max(0.2, Math.min(4, v));
+  _updateImgScaleUI();
+  render();
+}
+function resetImgOffset() {
+  S.imgOff   = { x:0, y:0 };
+  S.imgScale = 1;
+  _updateImgScaleUI();
+  render();
+}
 
 function renderNeoGeo() {
   const canvas = document.getElementById('pvc');
@@ -2288,8 +2327,9 @@ function renderNeoGeo() {
   setExp(true);
 }
 
-// ── NeoGeo drag-to-reposition ─────────────────────────
-let _ngDrag = null; // { zone, startCX, startCY, startOffX, startOffY }
+// ── Drag-to-reposition (NeoGeo + all other modes) ─────
+let _ngDrag  = null; // { zone, startCX, startCY, startOffX, startOffY }
+let _imgDrag = null; // { startCX, startCY, startOffX, startOffY }
 
 function _ngHitZone(clientX, clientY) {
   const canvas = document.getElementById('pvc');
@@ -2312,73 +2352,102 @@ function _ngHitZone(clientX, clientY) {
     : { x: e.clientX,            y: e.clientY };
 
   function onStart(e) {
-    if (!S.neogeoMode || !getRotImg()) return;
     const p = pos(e);
-    const zone = _ngHitZone(p.x, p.y);
-    if (!zone) return;
-    e.preventDefault();
-    _ngDrag = { zone, startCX: p.x, startCY: p.y,
-                startOffX: S.ngOff[zone].x, startOffY: S.ngOff[zone].y };
-    _updateNgScaleUI(zone);
-    canvas.style.cursor = 'grabbing';
+    if (S.neogeoMode && getRotImg()) {
+      const zone = _ngHitZone(p.x, p.y);
+      if (!zone) return;
+      e.preventDefault();
+      _ngDrag = { zone, startCX: p.x, startCY: p.y,
+                  startOffX: S.ngOff[zone].x, startOffY: S.ngOff[zone].y };
+      _updateNgScaleUI(zone);
+      canvas.style.cursor = 'grabbing';
+    } else if (!S.neogeoMode && !S.split && getRotImg()) {
+      e.preventDefault();
+      _imgDrag = { startCX: p.x, startCY: p.y,
+                   startOffX: S.imgOff.x, startOffY: S.imgOff.y };
+      canvas.style.cursor = 'grabbing';
+    }
   }
 
   function onMove(e) {
+    const p = pos(e);
     if (_ngDrag) {
       if (e.cancelable) e.preventDefault();
-      const p  = pos(e);
       const dxMM = (p.x - _ngDrag.startCX) / _ngSc;
       const dyMM = (p.y - _ngDrag.startCY) / _ngSc;
-      const ri   = getRotImg();
       const zone = _ngDrag.zone;
-      const areaMM = NG_AREAS[zone] || NG_AREAS.A;
       S.ngOff[zone] = { x: _ngDrag.startOffX + dxMM, y: _ngDrag.startOffY + dyMM };
       renderNeoGeo();
+    } else if (_imgDrag) {
+      if (e.cancelable) e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const dxMM = (p.x - _imgDrag.startCX) * (canvas.width  / rect.width)  / _mainSc;
+      const dyMM = (p.y - _imgDrag.startCY) * (canvas.height / rect.height) / _mainSc;
+      S.imgOff.x = _imgDrag.startOffX + dxMM;
+      S.imgOff.y = _imgDrag.startOffY + dyMM;
+      canvas.style.cursor = 'grabbing';
+      render();
     } else if (S.neogeoMode && getRotImg()) {
-      const p = pos(e);
       canvas.style.cursor = _ngHitZone(p.x, p.y) ? 'grab' : '';
+    } else if (!S.neogeoMode && !S.split && getRotImg()) {
+      canvas.style.cursor = 'grab';
     }
   }
 
   function onEnd() {
-    if (!_ngDrag) return;
     _ngDrag = null;
-    canvas.style.cursor = (S.neogeoMode && getRotImg()) ? 'grab' : '';
+    _imgDrag = null;
+    if      (S.neogeoMode              && getRotImg()) canvas.style.cursor = 'grab';
+    else if (!S.neogeoMode && !S.split && getRotImg()) canvas.style.cursor = 'grab';
+    else canvas.style.cursor = '';
   }
 
   canvas.addEventListener('mousedown',  onStart);
   canvas.addEventListener('touchstart', onStart, { passive: false });
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup',   onEnd);
-  document.addEventListener('touchmove', (e) => { if (_ngDrag) onMove(e); }, { passive: false });
+  document.addEventListener('touchmove', (e) => { if (_ngDrag || _imgDrag) onMove(e); }, { passive: false });
   document.addEventListener('touchend',  onEnd);
-  canvas.addEventListener('mouseleave', () => { if (!_ngDrag) canvas.style.cursor = ''; });
+  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_imgDrag) canvas.style.cursor = ''; });
 
-  // Wheel-to-zoom — zooms towards cursor position within the zone
+  // Wheel-to-zoom — zooms towards cursor position
   canvas.addEventListener('wheel', (e) => {
-    if (!S.neogeoMode) return;
-    const zone = _ngHitZone(e.clientX, e.clientY);
-    if (!zone) return;
-    e.preventDefault();
-    const oldZoom = S.ngScale[zone] || 1;
-    const factor  = e.deltaY > 0 ? 0.92 : 1.08;
-    const newZoom = Math.max(0.2, Math.min(4, oldZoom * factor));
-
-    // Zoom towards cursor: keep the image pixel under the cursor fixed
-    const rect = canvas.getBoundingClientRect();
-    const cx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
-    const cy   = (e.clientY - rect.top)  * (canvas.height / rect.height);
-    const areaMM  = NG_AREAS[zone];
-    const cxRelMM = (cx - (areaMM.x + areaMM.w / 2) * _ngSc) / _ngSc;
-    const cyRelMM = (cy - (areaMM.y + areaMM.h / 2) * _ngSc) / _ngSc;
-    const off = S.ngOff[zone];
-    S.ngOff[zone] = {
-      x: cxRelMM - (cxRelMM - off.x) * newZoom / oldZoom,
-      y: cyRelMM - (cyRelMM - off.y) * newZoom / oldZoom,
-    };
-    S.ngScale[zone] = newZoom;
-    _updateNgScaleUI(zone);
-    renderNeoGeo();
+    if (S.neogeoMode) {
+      const zone = _ngHitZone(e.clientX, e.clientY);
+      if (!zone) return;
+      e.preventDefault();
+      const oldZoom = S.ngScale[zone] || 1;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      const rect = canvas.getBoundingClientRect();
+      const cx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cy   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const areaMM  = NG_AREAS[zone];
+      const cxRelMM = (cx - (areaMM.x + areaMM.w / 2) * _ngSc) / _ngSc;
+      const cyRelMM = (cy - (areaMM.y + areaMM.h / 2) * _ngSc) / _ngSc;
+      const off = S.ngOff[zone];
+      S.ngOff[zone] = {
+        x: cxRelMM - (cxRelMM - off.x) * newZoom / oldZoom,
+        y: cyRelMM - (cyRelMM - off.y) * newZoom / oldZoom,
+      };
+      S.ngScale[zone] = newZoom;
+      _updateNgScaleUI(zone);
+      renderNeoGeo();
+    } else if (!S.split && getRotImg()) {
+      e.preventDefault();
+      const oldZoom = S.imgScale;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      // Zoom towards cursor (canvas center ≈ zone center for centered layouts)
+      const rect = canvas.getBoundingClientRect();
+      const cxPx = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cyPx = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const cxMM = (cxPx - canvas.width  / 2) / _mainSc;
+      const cyMM = (cyPx - canvas.height / 2) / _mainSc;
+      S.imgOff.x = cxMM - (cxMM - S.imgOff.x) * newZoom / oldZoom;
+      S.imgOff.y = cyMM - (cyMM - S.imgOff.y) * newZoom / oldZoom;
+      S.imgScale = newZoom;
+      _updateImgScaleUI();
+      render();
+    }
   }, { passive: false });
 })();
 
@@ -2422,18 +2491,18 @@ async function printDirect() {
       if (S.posterType === 'a3') {
         const pw=297, ph=420, usW=pw-2*mg, usH=ph-2*mg;
         const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
-        const fitSc=Math.min(usW/iW,usH/iH), dw=iW*fitSc, dh=iH*fitSc;
+        const fitSc=Math.min(usW/iW,usH/iH)*S.imgScale, dw=iW*fitSc, dh=iH*fitSc;
         const pc=document.createElement('canvas');
         pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
         const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
-        cx.drawImage(ri,(mg+(usW-dw)/2)*PX,(mg+(usH-dh)/2)*PX,dw*PX,dh*PX);
+        cx.drawImage(ri,(mg+(usW-dw)/2+S.imgOff.x)*PX,(mg+(usH-dh)/2+S.imgOff.y)*PX,dw*PX,dh*PX);
         pages.push({ url: pc.toDataURL('image/jpeg',.95), w: pw, h: ph });
       } else {
         const pw=210, ph=297, usW=pw-2*mg, usH=ph-2*mg;
         const aW=usW*2, aH=usH*2;
         const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
-        const fitSc=Math.min(aW/iW,aH/iH), fW=iW*fitSc, fH=iH*fitSc;
-        const imgX=(aW-fW)/2, imgY=(aH-fH)/2;
+        const fitSc=Math.min(aW/iW,aH/iH)*S.imgScale, fW=iW*fitSc, fH=iH*fitSc;
+        const imgX=(aW-fW)/2+S.imgOff.x, imgY=(aH-fH)/2+S.imgOff.y;
         for (let row=0; row<2; row++) for (let col=0; col<2; col++) {
           const pc=document.createElement('canvas');
           pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
@@ -2467,7 +2536,7 @@ async function printDirect() {
       const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
       for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
         const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
-        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.img);
+        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.img, S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
         if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
       }
       pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
