@@ -62,6 +62,11 @@ A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dim
 ### PWA / Sin conexión
 Funciona completamente offline después de la primera carga. Instálala desde el navegador como app.
 
+### Plantillas de la comunidad
+La pestaña **Comunidad** en el modal de Cajas Repro permite explorar, votar y usar plantillas SVG creadas por otros usuarios. Las plantillas incluidas inicialmente son cortesía del blog [**el cuarto de Toby**](https://elcuartodetoby.blogspot.com/p/cajas-custom.html).
+
+¿Tienes una plantilla propia? ¡Súbela y ayuda a crecer esta biblioteca entre todos! Las mejores plantillas suben en el ranking por votación de la comunidad.
+
 ---
 
 ## Descargas
@@ -110,3 +115,9 @@ Toda la app corre **100% en local**. Las imágenes que cargas no se envían a ni
 ## Licencia
 
 MIT — libre para uso personal y comercial.
+
+---
+
+## Contacto
+
+Desarrollado por [@_SAINTS_](https://x.com/_SAINTS_) en X / Twitter.
