@@ -45,6 +45,7 @@ Funciona **sin servidor**, **sin cuenta** y **sin conexión** una vez cargada.
 - **Cuadrícula automática** — ajusta múltiples copias de la imagen por página, aprovechando al máximo el papel
 - **Modo División** — divide portadas grandes (p. ej. Neo Geo AES 184×267 mm) en varios trozos para imprimir en A4 y ensamblarlas
 - **Modo Póster** — imprime a tamaño A3 completo, o distribuye la imagen en 4 hojas A4 para montar un póster
+- **Cajas Repro Neo Geo AES** — plantillas A4 listas para recortar y montar, cortesía de [TipitoChen](https://www.youtube.com/@tipitochen) en YouTube
 
 ### Tamaños de papel
 A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dimensiones introducidas
