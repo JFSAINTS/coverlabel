@@ -4,3 +4,5 @@ android/app/build/
 android/.gradle/
 android/build/
 *.apk
+*.keystore
+*.jks

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoverLabel — Etiquetas y Portadas</title>
+  <title>CoverLabel by JFSAINTS — Tu útil de covers, etiquetas y cajas</title>
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
@@ -413,6 +413,49 @@
       cursor: pointer; font-size: 1rem; line-height: 1;
     }
     .modal-close:hover { color: var(--txt); }
+
+    /* Grid manual chips */
+    .gm-chip {
+      background: var(--bg3); border: 1px solid var(--brd); border-radius: 6px;
+      color: var(--txt2); padding: 3px 9px; cursor: pointer;
+      font-size: .7rem; font-family: inherit;
+      transition: color .12s, border-color .12s, background .12s;
+    }
+    .gm-chip.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+
+    /* Print button */
+    .btn-print { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
+    .btn-print:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,.35); }
+
+    /* Info header button */
+    .info-hdr-btn {
+      background: none; border: 1px solid var(--brd); border-radius: 8px;
+      color: var(--txt2); padding: 5px 11px; cursor: pointer;
+      font-size: .73rem; white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .info-hdr-btn:hover { color: var(--txt); border-color: var(--ac); }
+
+    /* Info modal */
+    .info-modal-box { max-width: 620px; }
+    .info-body { overflow-y: auto; padding: 16px 22px 22px; font-size: .82rem; line-height: 1.6; }
+    .info-body h4 { font-size: .73rem; font-weight: 700; color: var(--txt3); text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+    .info-body p { color: var(--txt2); margin-bottom: 10px; }
+    .info-body strong { color: var(--txt); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px; }
+    .info-card { background: var(--bg3); border-radius: 8px; padding: 9px 11px; color: var(--txt2); font-size: .78rem; }
+    .info-card strong { display: block; color: var(--txt); margin-bottom: 2px; }
+    .info-body ul { padding-left: 18px; color: var(--txt2); margin-bottom: 10px; }
+    .info-body ul li { margin-bottom: 4px; }
+    .info-steps { list-style: none; padding: 0; counter-reset: step; }
+    .info-steps li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 7px; color: var(--txt2); }
+    .info-steps li::before { counter-increment: step; content: counter(step); background: var(--ac); color: #fff; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+    .info-dl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .info-dl-btn { padding: 7px 14px; background: var(--bg3); border: 1px solid var(--brd); border-radius: 8px; color: var(--txt); text-decoration: none; font-size: .77rem; transition: border-color .15s, color .15s; }
+    .info-dl-btn:hover { border-color: var(--ac); color: var(--ac); }
+    .info-privacy { font-size: .72rem; color: var(--txt3); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--brd); }
+    @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+
     .modal-intro {
       padding: 12px 22px 0; font-size: .78rem; color: var(--txt2);
       line-height: 1.55;
@@ -460,6 +503,72 @@
     }
     .repro-apply:hover { opacity: .85; }
 
+    /* ── Repro modal tabs ───────────────────────────────── */
+    .repro-tabs { display:flex; gap:5px; padding:10px 20px 0; border-bottom:1px solid var(--brd); }
+    .repro-tab { flex:1; padding:7px 0; background:var(--bg3); border:1px solid var(--brd); border-radius:8px 8px 0 0; color:var(--txt2); font-size:.74rem; font-weight:700; cursor:pointer; font-family:inherit; transition:background .12s,color .12s,border-color .12s; border-bottom:none; }
+    .repro-tab.on { background:var(--ac); border-color:var(--ac); color:#fff; }
+
+    /* ── Community gallery ──────────────────────────────── */
+    .ctpl-toolbar { display:flex; gap:7px; align-items:center; padding:10px 0 8px; flex-wrap:wrap; }
+    .ctpl-toolbar select { background:var(--bg3); border:1px solid var(--brd); border-radius:6px; color:var(--txt); padding:5px 8px; font-size:.72rem; font-family:inherit; outline:none; cursor:pointer; }
+    .ctpl-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:9px; }
+    .ctpl-card { background:var(--bg3); border:1px solid var(--brd); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column; }
+    .ctpl-card-preview { aspect-ratio:3/4; background:var(--bg4); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .ctpl-card-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+    .ctpl-card-placeholder { font-size:2rem; }
+    .ctpl-card-pages { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,.6); color:#fff; font-size:.62rem; padding:1px 5px; border-radius:4px; }
+    .ctpl-card-body { padding:7px 9px 0; }
+    .ctpl-card-name { font-size:.72rem; font-weight:700; color:var(--txt); line-height:1.25; margin-bottom:2px; }
+    .ctpl-card-meta { font-size:.63rem; color:var(--txt2); }
+    .ctpl-card-votes { display:flex; gap:4px; padding:6px 9px 5px; }
+    .ctpl-vote { flex:1; padding:3px 0; font-size:.68rem; background:var(--bg4); border:1px solid var(--brd); border-radius:5px; color:var(--txt2); cursor:pointer; font-family:inherit; transition:background .1s,color .1s,border-color .1s; }
+    .ctpl-vote.voted-up   { background:rgba(34,197,94,.15); border-color:#22c55e; color:#22c55e; }
+    .ctpl-vote.voted-down { background:rgba(239,68,68,.15); border-color:#ef4444; color:#ef4444; }
+    .ctpl-vote:hover:not(.voted-up):not(.voted-down) { background:var(--bg); }
+    .ctpl-use { margin:0 9px 9px; padding:6px 0; background:var(--ac); color:#fff; border:none; border-radius:6px; font-size:.71rem; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .12s; width:calc(100% - 18px); display:block; }
+    .ctpl-use:hover { opacity:.85; }
+    .ctpl-upload-btn { background:linear-gradient(135deg,var(--ac),#a78bfa); color:#fff; border:none; border-radius:7px; padding:7px 13px; font-size:.74rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .12s; }
+    .ctpl-upload-btn:hover { opacity:.85; }
+
+    /* ── Upload modal ───────────────────────────────────── */
+    .upload-modal-box { max-width:540px; }
+    .upload-body { overflow-y:auto; padding:12px 20px 20px; }
+    .ufield { margin-bottom:11px; }
+    .ufield label { display:block; font-size:.71rem; color:var(--txt2); font-weight:700; margin-bottom:3px; }
+    .ufield input[type=text], .ufield textarea { width:100%; background:var(--bg3); border:1px solid var(--brd); border-radius:7px; color:var(--txt); padding:6px 9px; font-size:.77rem; font-family:inherit; outline:none; box-sizing:border-box; }
+    .ufield input[type=text]:focus, .ufield textarea:focus { border-color:var(--ac); }
+    .ufield textarea { resize:vertical; min-height:52px; }
+    .upage-block { background:var(--bg4); border:1px solid var(--brd); border-radius:8px; padding:10px 11px; margin-bottom:9px; }
+    .upage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .upage-header span { font-size:.72rem; font-weight:700; color:var(--ac); }
+    .upage-del { background:none; border:1px solid var(--brd); border-radius:5px; color:var(--txt3); font-size:.67rem; padding:2px 8px; cursor:pointer; font-family:inherit; }
+    .upage-del:hover { border-color:var(--danger); color:var(--danger); }
+    .upage-label-row input[type=text] { width:100%; background:var(--bg3); border:1px solid var(--brd); border-radius:6px; color:var(--txt); padding:5px 8px; font-size:.74rem; font-family:inherit; outline:none; box-sizing:border-box; margin-bottom:7px; }
+    .ufile-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .ufile-row label { font-size:.69rem; color:var(--txt3); white-space:nowrap; flex-shrink:0; }
+    .ufile-row input[type=file] { font-size:.69rem; color:var(--txt2); min-width:0; flex:1; }
+    .uzone-label-row { display:flex; align-items:center; justify-content:space-between; margin:8px 0 3px; }
+    .uzone-label-row span { font-size:.67rem; color:var(--txt3); text-transform:uppercase; letter-spacing:.04em; }
+    .uzone-add-btn { background:none; border:none; color:var(--ac); font-size:.72rem; cursor:pointer; font-family:inherit; }
+    .uzone-hint { font-size:.61rem; color:var(--txt3); margin-bottom:5px; }
+    .uzone-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1.5fr auto; gap:3px; margin-bottom:3px; }
+    .uzone-row input { background:var(--bg3); border:1px solid var(--brd); border-radius:5px; color:var(--txt); padding:4px 5px; font-size:.69rem; font-family:inherit; outline:none; width:100%; box-sizing:border-box; }
+    .uzone-row input:focus { border-color:var(--ac); }
+    .uzone-del { background:none; border:1px solid var(--brd); border-radius:5px; color:var(--txt3); font-size:.65rem; padding:2px 5px; cursor:pointer; font-family:inherit; }
+    .uzone-del:hover { border-color:var(--danger); color:var(--danger); }
+    .uadd-page-btn { background:none; border:1px dashed var(--border2); border-radius:7px; color:var(--txt2); font-size:.72rem; padding:7px 0; cursor:pointer; font-family:inherit; width:100%; margin:4px 0 8px; }
+    .uadd-page-btn:hover { border-color:var(--ac); color:var(--ac); }
+    .upload-submit-btn { width:100%; background:linear-gradient(135deg,var(--ac),#a78bfa); color:#fff; border:none; border-radius:8px; padding:10px; font-size:.81rem; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; transition:opacity .12s; }
+    .upload-submit-btn:hover:not(:disabled) { opacity:.85; }
+    .upload-submit-btn:disabled { opacity:.5; cursor:default; }
+    .upload-status { font-size:.74rem; color:var(--txt2); text-align:center; margin-top:5px; min-height:18px; }
+
+    /* ── Ctpl sidebar controls ──────────────────────────── */
+    .ctpl-page-chips { display:flex; gap:4px; flex-wrap:wrap; margin:6px 0; }
+
+    .ng-info { font-size:.73rem; color:var(--txt2); line-height:1.55; }
+    .ng-sub  { font-size:.7rem;  color:var(--txt3); margin-top:5px; }
+
     .repro-toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: var(--ac); color: #fff; padding: 9px 20px;
@@ -479,10 +588,11 @@
 <header>
   <div class="logo"><img src="icons/icon-48.png" alt="CoverLabel" style="width:30px;height:30px;object-fit:contain;"></div>
   <div>
-    <h1>CoverLabel</h1>
-    <span class="sub">Etiquetas y portadas listas para imprimir</span>
+    <h1>CoverLabel <span style="font-weight:400;color:var(--txt3);font-size:.78rem">by JFSAINTS</span></h1>
+    <span class="sub">Tu útil de covers, etiquetas y cajas</span>
   </div>
   <button class="repro-btn" onclick="openReproModal()">🎮 Cajas Repro</button>
+  <button class="info-hdr-btn" onclick="openInfoModal()">ℹ️ Qué es</button>
 </header>
 
 <main>
@@ -637,6 +747,16 @@
           </div>
         </div>
       </div>
+      <div id="img-pos-ctrl" style="margin-top:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <span class="ng-sub">Escala imagen</span>
+          <span class="ng-sub" id="img-scale-val" style="font-weight:700;color:var(--ac)">100%</span>
+        </div>
+        <input type="range" id="img-scale-sl" min="20" max="400" step="1" value="100"
+               style="width:100%;accent-color:var(--ac)" oninput="setImgScale(+this.value/100)">
+        <button class="auto-btn" style="margin-top:6px" onclick="resetImgOffset()">↺ Recentrar y escala 100%</button>
+        <div class="ng-sub" style="margin-top:5px;color:var(--txt3)">Arrastra en el preview · rueda = zoom</div>
+      </div>
     </div>
 
     <!-- ESPACIADO -->
@@ -653,6 +773,30 @@
           <label>Margen mínimo (mm)</label>
           <input type="number" id="mg" value="3" min="0" max="40" step="0.5"
                  oninput="S.setN('margin',this.value)">
+        </div>
+      </div>
+      <div style="margin-top:9px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:.73rem;color:var(--txt2)">Cuadrícula</span>
+          <div style="display:flex;gap:4px">
+            <button class="gm-chip on" id="gm-auto"   onclick="setGridManual(false)">Auto</button>
+            <button class="gm-chip"    id="gm-manual" onclick="setGridManual(true)">Manual</button>
+          </div>
+        </div>
+        <div id="grid-manual-ctrl" style="display:none">
+          <div class="dim-row">
+            <div class="field">
+              <label>Columnas</label>
+              <input type="number" id="grid-cols" value="2" min="1" max="20" step="1"
+                     oninput="S.setN('gridCols',this.value)">
+            </div>
+            <span class="sep">×</span>
+            <div class="field">
+              <label>Filas</label>
+              <input type="number" id="grid-rows" value="2" min="1" max="20" step="1"
+                     oninput="S.setN('gridRows',this.value)">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -707,6 +851,56 @@
       </div>
     </div>
 
+    <!-- NEO GEO A4 -->
+    <div class="sec">
+      <div class="sec-title">Neo Geo AES — Caja en A4</div>
+      <label class="opt-row">
+        <input type="checkbox" id="neogeo-on" onchange="setNeoGeo(this.checked)">
+        <span>Imprimir caja NeoGeo en A4</span>
+      </label>
+      <div id="neogeo-ctrl" style="display:none;margin-top:8px">
+        <div class="ng-info">Genera 2 páginas A4 con la plantilla oficial: recórtalas y móntalas en una caja AES.</div>
+        <div class="chips" id="ng-page-chips" style="margin-top:8px">
+          <button class="chip on" data-ngp="A" onclick="setNeoGeoPage('A')">Lado A</button>
+          <button class="chip"    data-ngp="B" onclick="setNeoGeoPage('B')">Lado B</button>
+        </div>
+        <div class="ng-sub" id="ng-sub-a">Portada frontal — 150×195 mm</div>
+        <div class="ng-sub" id="ng-sub-b" style="display:none">Trasera (151×194 mm) + Lomo (37×195 mm)</div>
+        <div class="ng-sub" style="margin-top:6px;color:var(--txt3)">Arrastra la imagen en el preview · rueda = zoom</div>
+        <div style="margin-top:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <span class="ng-sub">Escala imagen</span>
+            <span class="ng-sub" id="ng-scale-val" style="font-weight:700;color:var(--ac)">100%</span>
+          </div>
+          <input type="range" id="ng-scale" min="20" max="400" step="1" value="100"
+                 style="width:100%;accent-color:var(--ac)" oninput="setNgScale(+this.value/100)">
+        </div>
+        <button class="auto-btn" style="margin-top:7px" onclick="resetNgOffsets()">↺ Recentrar y escala 100%</button>
+      </div>
+    </div>
+
+    <!-- COMUNIDAD CTPL CTRL -->
+    <div class="sec" id="ctpl-ctrl" style="display:none">
+      <div class="sec-title">Plantilla comunidad</div>
+      <div style="font-size:.7rem;color:var(--txt2);margin-bottom:4px">
+        <span id="ctpl-name-badge" style="color:var(--ac);font-weight:700"></span>
+      </div>
+      <div class="ctpl-page-chips" id="ctpl-page-chips" style="display:none"></div>
+      <div class="ng-sub" id="ctpl-page-sub"></div>
+      <div class="ng-sub" style="margin-top:4px;color:var(--txt3)">Arrastra zona · rueda = zoom</div>
+      <div style="margin-top:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <span class="ng-sub" id="ctpl-zone-label">Escala zona</span>
+          <span class="ng-sub" id="ctpl-scale-val" style="font-weight:700;color:var(--ac)">100%</span>
+        </div>
+        <input type="range" id="ctpl-scale-sl" min="20" max="400" step="1" value="100"
+               style="width:100%;accent-color:var(--ac)" oninput="setCtplScale(+this.value/100)">
+        <button class="auto-btn" style="margin-top:6px" onclick="resetCtplOffsets()">↺ Recentrar zonas</button>
+      </div>
+      <button class="auto-btn" style="margin-top:10px;color:var(--txt3);font-size:.67rem"
+              onclick="setCtpl(false)">✕ Cerrar plantilla</button>
+    </div>
+
     <!-- OPCIONES -->
     <div class="sec">
       <div class="sec-title">Opciones</div>
@@ -735,6 +929,7 @@
     <div class="card export-row">
       <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled>📄 Exportar PDF</button>
       <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled>🖼️ Exportar PNG</button>
+      <button class="btn btn-print" id="btn-print" onclick="printDirect()" disabled>🖨️ Imprimir</button>
     </div>
   </div>
 </main>
@@ -745,16 +940,43 @@
     <div class="modal-head">
       <span style="font-size:1.3rem">🎮</span>
       <h3>Cajas Repro</h3>
-      <span class="credit">Plantillas: <a href="https://elcuartodetoby.blogspot.com/p/cajas-custom.html" target="_blank">El Cuarto de Toby ↗</a></span>
       <button class="modal-close" onclick="closeReproModal()">✕</button>
     </div>
-    <p class="modal-intro">
-      Descarga la plantilla PSD, personalízala en Photoshop / GIMP /
-      <a href="https://www.photopea.com" target="_blank">Photopea</a> (online gratis),
-      exporta como PNG y cárgala en CoverLabel. Pulsa <strong>Aplicar</strong> para
-      preconfigurar las dimensiones exactas del formato seleccionado.
-    </p>
-    <div class="modal-body" id="repro-body"></div>
+    <!-- Tabs -->
+    <div class="repro-tabs">
+      <button class="repro-tab on" id="tab-incluidas" onclick="switchReproTab('incluidas')">📁 Incluidas</button>
+      <button class="repro-tab"    id="tab-comunidad" onclick="switchReproTab('comunidad')">🌐 Comunidad</button>
+    </div>
+    <!-- Pestaña: Incluidas -->
+    <div id="repro-tab-incluidas">
+      <p class="modal-intro">
+        Descarga la plantilla PSD, personalízala en Photoshop / GIMP /
+        <a href="https://www.photopea.com" target="_blank">Photopea</a> (online gratis),
+        exporta como PNG y cárgala en CoverLabel. Pulsa <strong>Aplicar</strong> para
+        preconfigurar las dimensiones exactas del formato seleccionado.<br>
+        <span style="font-size:.72rem;color:var(--txt3)">Plantillas Neo Geo AES A4 por <a href="https://www.youtube.com/@tipitochen" target="_blank" style="color:var(--ac)">TipitoChen</a> en YouTube.</span>
+      </p>
+      <div class="modal-body" id="repro-body"></div>
+    </div>
+    <!-- Pestaña: Comunidad -->
+    <div id="repro-tab-comunidad" style="display:none">
+      <div class="modal-body" style="padding-top:4px">
+        <div class="ctpl-toolbar">
+          <button class="ctpl-upload-btn" onclick="openUploadModal()">⬆ Subir plantilla</button>
+          <select id="ctpl-sort" onchange="sortCtplGallery(this.value)">
+            <option value="best">Mejor valoradas</option>
+            <option value="new">Más recientes</option>
+          </select>
+          <select id="ctpl-console-filter" onchange="filterCtplGallery(this.value)">
+            <option value="">Todas las consolas</option>
+          </select>
+        </div>
+        <p style="font-size:.71rem;color:var(--txt2);margin:0 0 8px;line-height:1.5">Plantillas iniciales cortesía de <a href="https://elcuartodetoby.blogspot.com/p/cajas-custom.html" target="_blank" style="color:var(--ac);text-decoration:none;font-weight:700">el cuarto de Toby</a>. ¿Tienes una plantilla propia? ¡Súbela y ayuda a crecer esta biblioteca entre todos!</p>
+        <div id="ctpl-gallery" class="ctpl-gallery"></div>
+        <div id="ctpl-empty"   style="display:none;text-align:center;padding:30px;color:var(--txt2);font-size:.82rem"></div>
+        <div id="ctpl-loading" style="display:none;text-align:center;padding:30px;color:var(--txt2);font-size:.8rem">Cargando plantillas…</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -869,6 +1091,20 @@ const S = {
   posterType: 'a3',
   posterMargin: 5,
   imgRot: 0,
+  neogeoMode: false,
+  neogeoPage: 'A',
+  ngOff:   { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} },
+  ngScale: { A:1,         B_back:1,          B_spine:1          },
+  imgOff:   { x: 0, y: 0 },
+  imgScale: 1,
+  gridManual: false,
+  gridCols:   2,
+  gridRows:   2,
+  ctplMode:   false,
+  ctplData:   null,
+  ctplPage:   0,
+  ctplOff:    {},
+  ctplScale:  {},
 
   set(key, val) {
     this[key] = val;
@@ -1012,18 +1248,29 @@ function calcGrid() {
   const usW = p.w - 2*mg;
   const usH = p.h - 2*mg;
   if (usW <= 0 || usH <= 0) return null;
-  const cols = Math.floor((usW + sp) / (lW + sp));
-  const rows = Math.floor((usH + sp) / (lH + sp));
-  if (cols < 1 || rows < 1) return null;
+
+  let cols, rows, overflow = false;
+  if (S.gridManual) {
+    cols = Math.max(1, Math.round(S.gridCols));
+    rows = Math.max(1, Math.round(S.gridRows));
+    const totalW = cols*lW + (cols-1)*sp;
+    const totalH = rows*lH + (rows-1)*sp;
+    overflow = totalW > usW + 0.01 || totalH > usH + 0.01;
+  } else {
+    cols = Math.floor((usW + sp) / (lW + sp));
+    rows = Math.floor((usH + sp) / (lH + sp));
+    if (cols < 1 || rows < 1) return null;
+  }
+
   const totalW = cols*lW + (cols-1)*sp;
   const totalH = rows*lH + (rows-1)*sp;
   const ox = (p.w - totalW) / 2;
   const oy = (p.h - totalH) / 2;
-  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg };
+  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg, overflow };
 }
 
 // ── Label drawing ─────────────────────────────────────
-function drawLabel(ctx, x, y, w, h, img) {
+function drawLabel(ctx, x, y, w, h, img, offX=0, offY=0, zoom=1) {
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -1033,14 +1280,11 @@ function drawLabel(ctx, x, y, w, h, img) {
 
   if (img) {
     const iW = img.naturalWidth, iH = img.naturalHeight;
-    if (S.fit === 'fill') {
+    if (S.fit === 'fill' && offX === 0 && offY === 0 && zoom === 1) {
       ctx.drawImage(img, x, y, w, h);
-    } else if (S.fit === 'contain') {
-      const s = Math.min(w/iW, h/iH);
-      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
     } else {
-      const s = Math.max(w/iW, h/iH);
-      ctx.drawImage(img, x+(w-iW*s)/2, y+(h-iH*s)/2, iW*s, iH*s);
+      const s = (S.fit === 'contain' ? Math.min(w/iW, h/iH) : Math.max(w/iW, h/iH)) * zoom;
+      ctx.drawImage(img, x + (w-iW*s)/2 + offX, y + (h-iH*s)/2 + offY, iW*s, iH*s);
     }
   } else {
     ctx.fillStyle = '#ede9fe';
@@ -1076,8 +1320,21 @@ function drawGuides(ctx, x, y, w, h, gLen) {
 }
 
 // ── Split / poster mode ───────────────────────────────
+function setGridManual(on) {
+  S.gridManual = on;
+  document.getElementById('gm-auto').classList.toggle('on', !on);
+  document.getElementById('gm-manual').classList.toggle('on', on);
+  document.getElementById('grid-manual-ctrl').style.display = on ? 'block' : 'none';
+  schedRender();
+}
+
 function setSplit(enabled) {
   S.split = enabled;
+  if (enabled && S.neogeoMode) {
+    S.neogeoMode = false;
+    document.getElementById('neogeo-on').checked = false;
+    document.getElementById('neogeo-ctrl').style.display = 'none';
+  }
   document.getElementById('split-ctrl').style.display = enabled ? 'block' : 'none';
   schedRender();
 }
@@ -1238,11 +1495,15 @@ function renderSplit() {
 function setPoster(type) {
   S.posterActive = true;
   S.posterType   = type;
-  // Deactivate split if on
   if (S.split) {
     S.split = false;
     document.getElementById('split-on').checked = false;
     document.getElementById('split-ctrl').style.display = 'none';
+  }
+  if (S.neogeoMode) {
+    S.neogeoMode = false;
+    document.getElementById('neogeo-on').checked = false;
+    document.getElementById('neogeo-ctrl').style.display = 'none';
   }
   document.getElementById('pt-a3').classList.toggle('on', type === 'a3');
   document.getElementById('pt-a4x4').classList.toggle('on', type === 'a4x4');
@@ -1296,6 +1557,7 @@ function renderPoster() {
     const maxW = wrap.clientWidth - 28;
     const maxH = Math.max(300, window.innerHeight - 290);
     const sc = Math.min(maxW / pw, maxH / ph);
+    _mainSc = sc;
 
     canvas.width  = Math.round(pw * sc);
     canvas.height = Math.round(ph * sc);
@@ -1314,10 +1576,13 @@ function renderPoster() {
     const ri = getRotImg();
     if (ri) {
       const iW = ri.naturalWidth, iH = ri.naturalHeight;
-      const fitSc = Math.min(usW/iW, usH/iH);
+      const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
       const dw = iW*fitSc, dh = iH*fitSc;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(mg*sc, mg*sc, usW*sc, usH*sc); ctx.clip();
       ctx.drawImage(ri,
-        (mg + (usW-dw)/2)*sc, (mg + (usH-dh)/2)*sc, dw*sc, dh*sc);
+        (mg + (usW-dw)/2 + S.imgOff.x)*sc, (mg + (usH-dh)/2 + S.imgOff.y)*sc, dw*sc, dh*sc);
+      ctx.restore();
     } else {
       ctx.fillStyle = '#ede9fe';
       ctx.fillRect(mg*sc, mg*sc, usW*sc, usH*sc);
@@ -1348,6 +1613,7 @@ function renderPoster() {
     const tW  = Math.max(70, Math.min(Math.floor((avW - gap*(cols+1)) / cols), 210));
     const tH  = Math.round(tW * (ph / pw));
     const sc  = tW / pw;
+    _mainSc = sc;
 
     canvas.width  = (tW + gap) * cols + gap;
     canvas.height = (tH + gap) * rows + gap;
@@ -1357,10 +1623,10 @@ function renderPoster() {
     const ri4 = getRotImg();
     const iW = ri4 ? ri4.naturalWidth  : 0;
     const iH = ri4 ? ri4.naturalHeight : 0;
-    // Scale image to fit assembled area (contain)
-    const fitSc = ri4 ? Math.min(aW/iW, aH/iH) : 1;
+    // Scale image to fit assembled area (contain), then apply user zoom
+    const fitSc = ri4 ? Math.min(aW/iW, aH/iH) * S.imgScale : 1;
     const fW = iW * fitSc, fH = iH * fitSc;
-    const imgX = (aW - fW) / 2, imgY = (aH - fH) / 2;
+    const imgX = (aW - fW) / 2 + S.imgOff.x, imgY = (aH - fH) / 2 + S.imgOff.y;
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
@@ -1429,6 +1695,8 @@ function schedRender() {
 }
 
 function render() {
+  if (S.ctplMode)     { renderCtpl();   return; }
+  if (S.neogeoMode)   { renderNeoGeo(); return; }
   if (S.posterActive) { renderPoster(); return; }
   if (S.split)        { renderSplit();  return; }
   const canvas = document.getElementById('pvc');
@@ -1442,6 +1710,7 @@ function render() {
   const maxW = wrap.clientWidth - 28;
   const maxH = Math.max(300, window.innerHeight - 290);
   const sc = Math.min(maxW / p.w, maxH / p.h);
+  _mainSc = sc;
 
   canvas.width  = Math.round(p.w * sc);
   canvas.height = Math.round(p.h * sc);
@@ -1472,7 +1741,7 @@ function render() {
       const y = (g.oy + r*(g.lH+g.sp)) * sc;
       const w = g.lW * sc;
       const h = g.lH * sc;
-      drawLabel(ctx, x, y, w, h, getRotImg());
+      drawLabel(ctx, x, y, w, h, getRotImg(), S.imgOff.x*sc, S.imgOff.y*sc, S.imgScale);
       if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
     }
   }
@@ -1496,8 +1765,10 @@ function render() {
   const noun = S.formatCat
     ? (g.total === 1 ? 'portada' : 'portadas')
     : (g.total === 1 ? 'etiqueta' : 'etiquetas');
-  badge.textContent = `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
-  badge.className = '';
+  badge.textContent = g.overflow
+    ? `⚠️ ${g.total} ${noun}  (${g.cols}×${g.rows}) — excede el papel`
+    : `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
+  badge.className = g.overflow ? 'warn' : '';
 
   info.innerHTML =
     `<span>📐 ${p.w}×${p.h} mm</span>` +
@@ -1511,6 +1782,7 @@ function render() {
 function setExp(en) {
   document.getElementById('btn-pdf').disabled = !en;
   document.getElementById('btn-png').disabled = !en;
+  document.getElementById('btn-print').disabled = !en;
 }
 
 // ── File upload ───────────────────────────────────────
@@ -1530,6 +1802,11 @@ function loadImage(file) {
       S.img = img;
       S.imgRot = 0;
       _rotCache = null;
+      S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+      S.ngScale = { A:1,         B_back:1,          B_spine:1          };
+      S.imgOff   = { x:0, y:0 };
+      S.imgScale = 1;
+      _updateImgScaleUI();
       document.getElementById('rot-ccw').disabled = false;
       document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
@@ -1560,8 +1837,8 @@ document.getElementById('upload-preview').addEventListener('drop', e => {
 
 // ── PDF Export ────────────────────────────────────────
 async function exportPDF() {
-  if (!S.img) return;
-  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode && !S.ctplMode) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-pdf');
   const orig = btn.innerHTML;
@@ -1575,7 +1852,65 @@ async function exportPDF() {
     const p   = pageMM();
     const ori = S.orient === 'portrait' ? 'portrait' : 'landscape';
 
-    if (S.posterActive) {
+    if (S.ctplMode && S.ctplData) {
+      // ─── Community template: one PDF per page ────────
+      const PX = 200 / 25.4, PW = 210, PH = 297;
+      const ri   = getRotImg();
+      const safe = S.ctplData.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').slice(0,30);
+      for (let pi = 0; pi < S.ctplData.pages.length; pi++) {
+        const page   = S.ctplData.pages[pi];
+        const svgImg = await _loadCtplSvg(page.svgUrl);
+        const pc     = document.createElement('canvas');
+        pc.width = Math.round(PW*PX); pc.height = Math.round(PH*PX);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        if (ri && page.zones) {
+          for (let zi = 0; zi < page.zones.length; zi++) {
+            const z   = page.zones[zi];
+            const key = ctplKey(pi, zi);
+            const off = S.ctplOff[key] || {x:0,y:0};
+            const zm  = S.ctplScale[key] || 1;
+            _ngCover(cx, ri, z.x*PX, z.y*PX, z.w*PX, z.h*PX, off.x*PX, off.y*PX, zm);
+          }
+        }
+        if (svgImg) cx.drawImage(svgImg, 0, 0, pc.width, pc.height);
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[PW,PH] });
+        pdf.addImage(pc.toDataURL('image/jpeg',0.93),'JPEG',0,0,PW,PH,undefined,'FAST');
+        const pgLabel = (page.label||`p${pi+1}`).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+        await downloadOrShare(pdf.output('blob'), `coverlabel-${safe}-${pgLabel}.pdf`, 'application/pdf');
+        if (pi < S.ctplData.pages.length-1) await new Promise(r => setTimeout(r,300));
+      }
+
+    } else if (S.neogeoMode) {
+      // ─── NeoGeo AES A4: Lado A + Lado B ──────────────
+      const PX = 200 / 25.4, PW = 210, PH = 297;
+      const ri = getRotImg();
+      for (const page of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(page);
+        const pc   = document.createElement('canvas');
+        pc.width   = Math.round(PW * PX);
+        pc.height  = Math.round(PH * PX);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (page === 'A') {
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
+          } else {
+            const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX,  S.ngScale.B_back);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
+          }
+        }
+        if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[PW, PH] });
+        pdf.addImage(pc.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, PW, PH, undefined, 'FAST');
+        await downloadOrShare(pdf.output('blob'), `coverlabel-neogeo-lado${page}.pdf`, 'application/pdf');
+        if (page === 'A') await new Promise(r => setTimeout(r, 300));
+      }
+
+    } else if (S.posterActive) {
       // ─── Poster export ───────────────────────────────
       const mg  = +S.posterMargin;
       const PX  = 200 / 25.4;
@@ -1587,9 +1922,9 @@ async function exportPDF() {
         const usW = pw-2*mg, usH = ph-2*mg;
         const ri = getRotImg();
         const iW = ri.naturalWidth, iH = ri.naturalHeight;
-        const fitSc = Math.min(usW/iW, usH/iH);
+        const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
         const dw = iW*fitSc, dh = iH*fitSc;
-        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+        const dx = (usW-dw)/2 + S.imgOff.x, dy = (usH-dh)/2 + S.imgOff.y;
 
         const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
         const pc = document.createElement('canvas');
@@ -1606,9 +1941,9 @@ async function exportPDF() {
         const aW = usW*2, aH = usH*2;
         const ri4x4 = getRotImg();
         const iW = ri4x4.naturalWidth, iH = ri4x4.naturalHeight;
-        const fitSc = Math.min(aW/iW, aH/iH);
+        const fitSc = Math.min(aW/iW, aH/iH) * S.imgScale;
         const fW = iW*fitSc, fH = iH*fitSc;
-        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+        const imgX = (aW-fW)/2 + S.imgOff.x, imgY = (aH-fH)/2 + S.imgOff.y;
 
         const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pw,ph] });
         let first = true;
@@ -1678,7 +2013,7 @@ async function exportPDF() {
       const lctx = lc.getContext('2d');
       lctx.fillStyle = '#fff';
       lctx.fillRect(0, 0, lc.width, lc.height);
-      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img);
+      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
       const imgData = lc.toDataURL('image/jpeg', 0.93);
 
       for (let r = 0; r < g.rows; r++)
@@ -1711,14 +2046,14 @@ async function exportPDF() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode);
   }
 }
 
 // ── PNG Export ────────────────────────────────────────
 async function exportPNG() {
-  if (!S.img) return;
-  if (!S.posterActive && !S.split) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode && !S.ctplMode) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-png');
   const orig = btn.innerHTML;
@@ -1732,7 +2067,61 @@ async function exportPNG() {
     const cat  = S.formatCat || 'etiqueta';
     const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
 
-    if (S.posterActive) {
+    if (S.ctplMode && S.ctplData) {
+      // ─── Community template PNG: one per page ────────
+      const PX = 150 / 25.4, PW = 210, PH = 297;
+      const ri   = getRotImg();
+      const safe = S.ctplData.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').slice(0,30);
+      for (let pi = 0; pi < S.ctplData.pages.length; pi++) {
+        const page   = S.ctplData.pages[pi];
+        const svgImg = await _loadCtplSvg(page.svgUrl);
+        const pc     = document.createElement('canvas');
+        pc.width = Math.round(PW*PX); pc.height = Math.round(PH*PX);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        if (ri && page.zones) {
+          for (let zi = 0; zi < page.zones.length; zi++) {
+            const z   = page.zones[zi];
+            const key = ctplKey(pi, zi);
+            const off = S.ctplOff[key] || {x:0,y:0};
+            const zm  = S.ctplScale[key] || 1;
+            _ngCover(cx, ri, z.x*PX, z.y*PX, z.w*PX, z.h*PX, off.x*PX, off.y*PX, zm);
+          }
+        }
+        if (svgImg) cx.drawImage(svgImg, 0, 0, pc.width, pc.height);
+        const pgLabel = (page.label||`p${pi+1}`).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-${pgLabel}.png`, 'image/png');
+        if (pi < S.ctplData.pages.length-1) await new Promise(r => setTimeout(r,200));
+      }
+
+    } else if (S.neogeoMode) {
+      // ─── NeoGeo PNG: Lado A + Lado B ─────────────────
+      const PX = 150 / 25.4, PW = 210, PH = 297;
+      const ri = getRotImg();
+      for (const page of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(page);
+        const pc   = document.createElement('canvas');
+        pc.width   = Math.round(PW * PX);
+        pc.height  = Math.round(PH * PX);
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (page === 'A') {
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
+          } else {
+            const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX,  S.ngScale.B_back);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
+          }
+        }
+        if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-neogeo-lado${page}.png`, 'image/png');
+        if (page === 'A') await new Promise(r => setTimeout(r, 200));
+      }
+
+    } else if (S.posterActive) {
       // ─── Poster PNG export ───────────────────────────
       const mg   = +S.posterMargin;
       const cat  = S.formatCat || 'poster';
@@ -1743,9 +2132,9 @@ async function exportPNG() {
         const usW = pw-2*mg, usH = ph-2*mg;
         const riA3 = getRotImg();
         const iW = riA3.naturalWidth, iH = riA3.naturalHeight;
-        const fitSc = Math.min(usW/iW, usH/iH);
+        const fitSc = Math.min(usW/iW, usH/iH) * S.imgScale;
         const dw = iW*fitSc, dh = iH*fitSc;
-        const dx = (usW-dw)/2, dy = (usH-dh)/2;
+        const dx = (usW-dw)/2 + S.imgOff.x, dy = (usH-dh)/2 + S.imgOff.y;
 
         const pc = document.createElement('canvas');
         pc.width  = Math.round(pw*PX_MM); pc.height = Math.round(ph*PX_MM);
@@ -1760,9 +2149,9 @@ async function exportPNG() {
         const aW = usW*2, aH = usH*2;
         const riPng4 = getRotImg();
         const iW = riPng4.naturalWidth, iH = riPng4.naturalHeight;
-        const fitSc = Math.min(aW/iW, aH/iH);
+        const fitSc = Math.min(aW/iW, aH/iH) * S.imgScale;
         const fW = iW*fitSc, fH = iH*fitSc;
-        const imgX = (aW-fW)/2, imgY = (aH-fH)/2;
+        const imgX = (aW-fW)/2 + S.imgOff.x, imgY = (aH-fH)/2 + S.imgOff.y;
         let pageNum = 0;
         for (let row = 0; row < 2; row++) {
           for (let col = 0; col < 2; col++) {
@@ -1829,7 +2218,7 @@ async function exportPNG() {
           const y = Math.round((g.oy + r*(g.lH+g.sp)) * PX_MM);
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
-          drawLabel(pctx, x, y, w, h, S.img);
+          drawLabel(pctx, x, y, w, h, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
           if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
         }
       }
@@ -1841,7 +2230,7 @@ async function exportPNG() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode);
   }
 }
 
@@ -1978,6 +2367,999 @@ function showToast(msg) {
   setTimeout(() => el.remove(), 2100);
 }
 
+// ── Community template tab ────────────────────────────
+function switchReproTab(tab) {
+  document.getElementById('repro-tab-incluidas').style.display = tab === 'incluidas' ? '' : 'none';
+  document.getElementById('repro-tab-comunidad').style.display = tab === 'comunidad' ? '' : 'none';
+  document.getElementById('tab-incluidas').classList.toggle('on', tab === 'incluidas');
+  document.getElementById('tab-comunidad').classList.toggle('on', tab === 'comunidad');
+  if (tab === 'comunidad' && !_ctplLoaded) loadCtplGallery();
+}
+
+let _ctplLoaded = false;
+let _ctplStore  = {};
+
+function _esc(s) {
+  return (s||'').toString()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function _getAuthorId() {
+  const KEY = 'coverlabel_author_id';
+  let id = localStorage.getItem(KEY);
+  if (!id) { id = 'anon_' + Math.random().toString(36).slice(2,7); localStorage.setItem(KEY, id); }
+  return id;
+}
+function _getVotes() {
+  try { return JSON.parse(localStorage.getItem('coverlabel_votes') || '{}'); } catch { return {}; }
+}
+function _saveVote(id, dir) {
+  const v = _getVotes(); v[id] = dir; localStorage.setItem('coverlabel_votes', JSON.stringify(v));
+}
+
+async function loadCtplGallery() {
+  _ctplLoaded = true;
+  const gallery  = document.getElementById('ctpl-gallery');
+  const emptyEl  = document.getElementById('ctpl-empty');
+  const loadEl   = document.getElementById('ctpl-loading');
+  gallery.innerHTML = '';
+  if (emptyEl)  emptyEl.style.display  = 'none';
+  if (loadEl)   loadEl.style.display   = 'block';
+
+  if (!window._ctplFB) {
+    if (loadEl)  loadEl.style.display  = 'none';
+    if (emptyEl) { emptyEl.textContent = 'Firebase no disponible — comprueba la conexión.'; emptyEl.style.display = 'block'; }
+    return;
+  }
+  try {
+    const sort = (document.getElementById('ctpl-sort') || {}).value || 'best';
+    const cons = (document.getElementById('ctpl-console-filter') || {}).value || '';
+    const templates = await window._ctplFB.loadTemplates(sort, cons);
+    if (loadEl) loadEl.style.display = 'none';
+    _renderCtplGallery(templates);
+    _populateCtplConsoleFilter(templates);
+  } catch(e) {
+    if (loadEl)  loadEl.style.display  = 'none';
+    if (emptyEl) { emptyEl.textContent = 'Error al cargar plantillas.'; emptyEl.style.display = 'block'; }
+  }
+}
+
+function _populateCtplConsoleFilter(templates) {
+  const sel = document.getElementById('ctpl-console-filter');
+  if (!sel) return;
+  const consoles = [...new Set(templates.map(t => t.console).filter(Boolean))].sort();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Todas las consolas</option>' +
+    consoles.map(c => `<option value="${_esc(c)}"${c===current?' selected':''}>${_esc(c)}</option>`).join('');
+}
+
+function _renderCtplGallery(templates) {
+  const gallery = document.getElementById('ctpl-gallery');
+  const emptyEl = document.getElementById('ctpl-empty');
+  if (!gallery) return;
+  _ctplStore = {};
+  templates.forEach(t => { _ctplStore[t.id] = t; });
+  if (!templates.length) {
+    gallery.innerHTML = '';
+    if (emptyEl) { emptyEl.textContent = 'Sin plantillas todavía. ¡Sé el primero en subir una!'; emptyEl.style.display = 'block'; }
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  const votes = _getVotes();
+  gallery.innerHTML = templates.map(tpl => {
+    const page0 = tpl.pages && tpl.pages[0];
+    const prevUrl = page0 && page0.svgUrl;
+    const prevHtml = prevUrl
+      ? `<img src="${_esc(prevUrl)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\\'ctpl-card-placeholder\\'>📋</span>'">`
+      : `<span class="ctpl-card-placeholder">📋</span>`;
+    const nPages = tpl.pages ? tpl.pages.length : 1;
+    const pagesLbl = nPages > 1 ? `<div class="ctpl-card-pages">${nPages}p</div>` : '';
+    const myVote = votes[tpl.id] || 0;
+    const upCls = myVote ===  1 ? 'ctpl-vote voted-up'   : 'ctpl-vote';
+    const dnCls = myVote === -1 ? 'ctpl-vote voted-down' : 'ctpl-vote';
+    return `<div class="ctpl-card" data-id="${tpl.id}">
+      <div class="ctpl-card-preview">${prevHtml}${pagesLbl}</div>
+      <div class="ctpl-card-body">
+        <div class="ctpl-card-name">${_esc(tpl.name)}</div>
+        <div class="ctpl-card-meta">${_esc(tpl.console||'')}${tpl.author?' · '+_esc(tpl.author):''}</div>
+      </div>
+      <div class="ctpl-card-votes">
+        <button class="${upCls}" onclick="voteCtpl('${tpl.id}',1)">👍 ${tpl.upvotes||0}</button>
+        <button class="${dnCls}" onclick="voteCtpl('${tpl.id}',-1)">👎 ${tpl.downvotes||0}</button>
+      </div>
+      <button class="ctpl-use" onclick="applyCtplTemplate(_ctplStore['${tpl.id}'])">Usar esta</button>
+    </div>`;
+  }).join('');
+}
+
+function sortCtplGallery()   { _ctplLoaded = false; loadCtplGallery(); }
+function filterCtplGallery() { _ctplLoaded = false; loadCtplGallery(); }
+
+async function voteCtpl(id, dir) {
+  const votes = _getVotes();
+  if (votes[id]) { showToast('Ya has votado esta plantilla'); return; }
+  if (!window._ctplFB) { showToast('Sin conexión — voto no guardado'); return; }
+  _saveVote(id, dir);
+  const tpl = _ctplStore[id];
+  if (tpl) {
+    if (dir > 0) tpl.upvotes = (tpl.upvotes||0) + 1;
+    else         tpl.downvotes = (tpl.downvotes||0) + 1;
+    const card = document.querySelector(`.ctpl-card[data-id="${id}"]`);
+    if (card) {
+      const net = (tpl.upvotes||0) - (tpl.downvotes||0);
+      if (net <= -5) { card.remove(); delete _ctplStore[id]; }
+      else {
+        const btns = card.querySelectorAll('.ctpl-vote');
+        if (btns[0]) { btns[0].className = dir===1?'ctpl-vote voted-up':'ctpl-vote'; btns[0].textContent=`👍 ${tpl.upvotes||0}`; }
+        if (btns[1]) { btns[1].className = dir===-1?'ctpl-vote voted-down':'ctpl-vote'; btns[1].textContent=`👎 ${tpl.downvotes||0}`; }
+      }
+    }
+  }
+  const hide = tpl && ((tpl.upvotes||0)-(tpl.downvotes||0)) <= -5;
+  try { await window._ctplFB.vote(id, dir, hide); } catch(e) { console.warn('vote err',e); }
+}
+
+function applyCtplTemplate(tpl) {
+  if (!tpl) return;
+  S.ctplData  = tpl;
+  S.ctplPage  = 0;
+  S.ctplOff   = {};
+  S.ctplScale = {};
+  _ctplLastZone = null;
+  const nb = document.getElementById('ctpl-name-badge');
+  if (nb) nb.textContent = tpl.name;
+  _updateCtplPageChips();
+  if (tpl.pages) tpl.pages.forEach(p => {
+    if (p.svgUrl && !_ctplSvgCache[p.svgUrl])
+      _loadCtplSvg(p.svgUrl).then(() => { if (S.ctplMode && S.ctplData===tpl) renderCtpl(); });
+  });
+  setCtpl(true);
+  closeReproModal();
+  showToast(`✓ Plantilla: ${tpl.name}`);
+}
+
+// ── Community template renderer ───────────────────────
+let _ctplSc  = 1;
+let _ctplSvgCache = {};
+let _ctplLastZone = null;
+
+function ctplKey(pi, zi) { return `${pi}_${zi}`; }
+
+async function _loadCtplSvg(url) {
+  if (_ctplSvgCache[url]) return _ctplSvgCache[url];
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const processed = _preprocessNgSvg(await resp.text());
+    const img = await new Promise((res, rej) => {
+      const blob = new Blob([processed], { type:'image/svg+xml' });
+      const burl = URL.createObjectURL(blob);
+      const im = new Image();
+      im.onload  = () => { URL.revokeObjectURL(burl); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(burl); rej(new Error('SVG fail')); };
+      im.src = burl;
+    });
+    _ctplSvgCache[url] = img;
+    return img;
+  } catch(e) { console.warn('ctpl SVG:', e); return null; }
+}
+
+function renderCtpl() {
+  if (!S.ctplData) return;
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const badge  = document.getElementById('badge');
+  const info   = document.getElementById('info-bar');
+
+  const pages = S.ctplData.pages || [];
+  const pi    = Math.min(S.ctplPage, pages.length - 1);
+  const page  = pages[pi] || { label:'', zones:[], svgUrl:null };
+
+  const PW = 210, PH = 297;
+  const wrap = document.getElementById('cvbg');
+  const maxW = wrap.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc   = Math.min(maxW / PW, maxH / PH);
+  _ctplSc = sc;
+
+  canvas.width  = Math.round(PW * sc);
+  canvas.height = Math.round(PH * sc);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const ri = getRotImg();
+  if (ri && page.zones && page.zones.length) {
+    for (let zi = 0; zi < page.zones.length; zi++) {
+      const z = page.zones[zi];
+      const key = ctplKey(pi, zi);
+      const off  = S.ctplOff[key]   || { x:0, y:0 };
+      const zoom = S.ctplScale[key] || 1;
+      _ngCover(ctx, ri, z.x*sc, z.y*sc, z.w*sc, z.h*sc, off.x*sc, off.y*sc, zoom);
+    }
+  }
+
+  const svgImg = _ctplSvgCache[page.svgUrl];
+  if (svgImg) {
+    ctx.drawImage(svgImg, 0, 0, canvas.width, canvas.height);
+  } else if (page.svgUrl) {
+    _loadCtplSvg(page.svgUrl).then(img => { if (img && S.ctplMode) renderCtpl(); });
+    ctx.fillStyle = 'rgba(124,106,247,.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#a78bfa'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Cargando plantilla…', canvas.width/2, canvas.height/2);
+  }
+
+  ctx.strokeStyle = 'rgba(0,0,0,.06)'; ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = `${S.ctplData.name} — ${page.label}`;
+  badge.className = '';
+  const nZones = page.zones ? page.zones.length : 0;
+  info.innerHTML = `<span>📐 A4: 210×297 mm</span>` +
+    `<span>📦 ${_esc(S.ctplData.console||'')} — ${_esc(page.label)}</span>` +
+    (nZones > 1 ? `<span>${nZones} zonas</span>` : '') +
+    (!ri ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+
+  _updateCtplPageChips();
+  setExp(true);
+}
+
+function _updateCtplPageChips() {
+  if (!S.ctplData) return;
+  const cont = document.getElementById('ctpl-page-chips');
+  const sub  = document.getElementById('ctpl-page-sub');
+  const pages = S.ctplData.pages || [];
+  if (!cont) return;
+  if (pages.length <= 1) {
+    cont.style.display = 'none';
+    if (sub) sub.textContent = pages[0] ? pages[0].label : '';
+    return;
+  }
+  cont.style.display = '';
+  cont.innerHTML = pages.map((p, i) =>
+    `<button class="chip${i===S.ctplPage?' on':''}" onclick="setCtplPage(${i})">${_esc(p.label)}</button>`
+  ).join('');
+  if (sub) sub.textContent = pages[S.ctplPage] ? pages[S.ctplPage].label : '';
+}
+
+function _updateCtplScaleUI(key) {
+  _ctplLastZone = key;
+  const pct = Math.round((S.ctplScale[key] || 1) * 100);
+  const sl  = document.getElementById('ctpl-scale-sl');
+  const lbl = document.getElementById('ctpl-scale-val');
+  if (sl)  sl.value = pct;
+  if (lbl) lbl.textContent = pct + '%';
+  if (key && S.ctplData) {
+    const [pi, zi] = key.split('_').map(Number);
+    const page = (S.ctplData.pages||[])[pi];
+    const zoneLbl = document.getElementById('ctpl-zone-label');
+    if (page && page.zones && page.zones[zi] && zoneLbl)
+      zoneLbl.textContent = `Escala: ${page.zones[zi].label || ('Zona '+(zi+1))}`;
+  }
+}
+
+function setCtplScale(v) {
+  const key = _ctplLastZone || ctplKey(S.ctplPage, 0);
+  _ctplLastZone = key;
+  if (!S.ctplOff[key])   S.ctplOff[key]   = { x:0, y:0 };
+  S.ctplScale[key] = Math.max(0.2, Math.min(4, v));
+  _updateCtplScaleUI(key);
+  renderCtpl();
+}
+
+function resetCtplOffsets() {
+  S.ctplOff   = {};
+  S.ctplScale = {};
+  _ctplLastZone = null;
+  const sl  = document.getElementById('ctpl-scale-sl');
+  const lbl = document.getElementById('ctpl-scale-val');
+  const zl  = document.getElementById('ctpl-zone-label');
+  if (sl)  sl.value = 100;
+  if (lbl) lbl.textContent = '100%';
+  if (zl)  zl.textContent  = 'Escala zona';
+  renderCtpl();
+}
+
+function setCtplPage(i) {
+  S.ctplPage    = i;
+  _ctplLastZone = null;
+  const sl  = document.getElementById('ctpl-scale-sl');
+  const lbl = document.getElementById('ctpl-scale-val');
+  const zl  = document.getElementById('ctpl-zone-label');
+  if (sl)  sl.value = 100;
+  if (lbl) lbl.textContent = '100%';
+  if (zl)  zl.textContent  = 'Escala zona';
+  _updateCtplPageChips();
+  schedRender();
+}
+
+function setCtpl(on) {
+  S.ctplMode = on;
+  document.getElementById('ctpl-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display = on ? 'none' : 'block';
+  if (!on) {
+    S.ctplData  = null;
+    S.ctplPage  = 0;
+    S.ctplOff   = {};
+    S.ctplScale = {};
+    _ctplLastZone = null;
+    schedRender();
+    return;
+  }
+  if (S.neogeoMode) {
+    S.neogeoMode = false;
+    document.getElementById('neogeo-on').checked = false;
+    document.getElementById('neogeo-ctrl').style.display = 'none';
+  }
+  if (S.posterActive) clearPoster();
+  if (S.split) {
+    S.split = false;
+    document.getElementById('split-on').checked = false;
+    document.getElementById('split-ctrl').style.display = 'none';
+  }
+  schedRender();
+}
+
+function _ctplHitZone(clientX, clientY) {
+  if (!S.ctplData) return null;
+  const canvas = document.getElementById('pvc');
+  const rect   = canvas.getBoundingClientRect();
+  const cx = (clientX - rect.left) * (canvas.width  / rect.width);
+  const cy = (clientY - rect.top)  * (canvas.height / rect.height);
+  const page = (S.ctplData.pages||[])[S.ctplPage];
+  if (!page || !page.zones) return null;
+  for (let zi = 0; zi < page.zones.length; zi++) {
+    const z = page.zones[zi];
+    if (cx >= z.x*_ctplSc && cx <= (z.x+z.w)*_ctplSc &&
+        cy >= z.y*_ctplSc && cy <= (z.y+z.h)*_ctplSc) return zi;
+  }
+  return null;
+}
+
+// ── Upload form ───────────────────────────────────────
+let _uploadPageCount = 0;
+let _uploadZoneCounts = {};
+
+function openUploadModal() {
+  _uploadPageCount = 0;
+  _uploadZoneCounts = {};
+  document.getElementById('u-name').value    = '';
+  document.getElementById('u-console').value = '';
+  document.getElementById('u-desc').value    = '';
+  document.getElementById('upload-pages').innerHTML = '';
+  document.getElementById('upload-status').textContent = '';
+  document.getElementById('upload-submit-btn').disabled = false;
+  addUploadPage();
+  document.getElementById('upload-modal').style.display = 'flex';
+}
+function closeUploadModal() { document.getElementById('upload-modal').style.display = 'none'; }
+
+function addUploadPage() {
+  if (_uploadPageCount >= 4) { showToast('Máximo 4 páginas'); return; }
+  const i = _uploadPageCount++;
+  _uploadZoneCounts[i] = 0;
+  const defaultLabels = ['Portada','Trasera','Lomo','Extra'];
+  const div = document.createElement('div');
+  div.className = 'upage-block';
+  div.id = `upage-${i}`;
+  div.innerHTML = `
+    <div class="upage-header">
+      <span>Página ${i+1}</span>
+      ${i > 0 ? `<button class="upage-del" onclick="removeUploadPage(${i})">✕ Eliminar</button>` : ''}
+    </div>
+    <div class="upage-label-row">
+      <input type="text" id="u-page-label-${i}" value="${defaultLabels[i]||'Página '+(i+1)}" maxlength="50" placeholder="Etiqueta de página">
+    </div>
+    <div class="ufile-row">
+      <label>SVG:</label>
+      <input type="file" id="u-page-file-${i}" accept=".svg,image/svg+xml">
+    </div>
+    <div class="uzone-label-row">
+      <span>Zonas de imagen</span>
+      <button class="uzone-add-btn" onclick="addUploadZone(${i})">+ Añadir zona</button>
+    </div>
+    <div class="uzone-hint">X · Y · Ancho · Alto (mm desde esquina sup-izq del A4) · Nombre</div>
+    <div id="uzones-${i}"></div>`;
+  document.getElementById('upload-pages').appendChild(div);
+  addUploadZone(i);
+}
+
+function removeUploadPage(i) {
+  const el = document.getElementById(`upage-${i}`);
+  if (el) el.remove();
+}
+
+function addUploadZone(pageIdx) {
+  if (!_uploadZoneCounts[pageIdx]) _uploadZoneCounts[pageIdx] = 0;
+  if (_uploadZoneCounts[pageIdx] >= 6) { showToast('Máximo 6 zonas'); return; }
+  const zi = _uploadZoneCounts[pageIdx]++;
+  const cont = document.getElementById(`uzones-${pageIdx}`);
+  if (!cont) return;
+  const row = document.createElement('div');
+  row.className = 'uzone-row';
+  row.id = `uzone-${pageIdx}-${zi}`;
+  row.innerHTML = `
+    <input type="number" id="uzx-${pageIdx}-${zi}" placeholder="X" step="0.5">
+    <input type="number" id="uzy-${pageIdx}-${zi}" placeholder="Y" step="0.5">
+    <input type="number" id="uzw-${pageIdx}-${zi}" placeholder="W" step="0.5">
+    <input type="number" id="uzh-${pageIdx}-${zi}" placeholder="H" step="0.5">
+    <input type="text"   id="uzl-${pageIdx}-${zi}" placeholder="Nombre" maxlength="30">
+    <button class="uzone-del" onclick="removeUploadZone(${pageIdx},${zi})">✕</button>`;
+  cont.appendChild(row);
+}
+
+function removeUploadZone(pageIdx, zi) {
+  const el = document.getElementById(`uzone-${pageIdx}-${zi}`);
+  if (el) el.remove();
+}
+
+function _sanitizeUploadSvg(svgText) {
+  const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+  for (const el of doc.querySelectorAll('script')) el.remove();
+  for (const el of doc.querySelectorAll('*')) {
+    for (const attr of [...el.attributes]) {
+      if (attr.name.startsWith('on')) el.removeAttribute(attr.name);
+      if (['href','src','xlink:href'].includes(attr.name) && /^javascript:/i.test(attr.value))
+        el.removeAttribute(attr.name);
+    }
+  }
+  for (const el of doc.querySelectorAll('use')) {
+    const h = el.getAttribute('href') || el.getAttribute('xlink:href') || '';
+    if (/^https?:\/\/|^\/\//.test(h)) el.remove();
+  }
+  return new XMLSerializer().serializeToString(doc.documentElement);
+}
+
+async function submitTemplate() {
+  const name    = (document.getElementById('u-name').value||'').trim();
+  const console_ = (document.getElementById('u-console').value||'').trim();
+  const desc    = (document.getElementById('u-desc').value||'').trim();
+  const statusEl = document.getElementById('upload-status');
+  const submitBtn = document.getElementById('upload-submit-btn');
+
+  if (!name || name.length < 3)     { statusEl.textContent = 'El nombre debe tener al menos 3 caracteres.'; return; }
+  if (!console_ || console_.length < 2) { statusEl.textContent = 'La consola es obligatoria.'; return; }
+  if (!window._ctplFB)              { statusEl.textContent = 'Sin conexión con Firebase.'; return; }
+
+  const pageBlocks = document.querySelectorAll('.upage-block');
+  if (!pageBlocks.length) { statusEl.textContent = 'Añade al menos una página.'; return; }
+
+  submitBtn.disabled = true;
+  statusEl.textContent = 'Validando…';
+
+  const pagesToProcess = [];
+  for (const block of pageBlocks) {
+    const idx   = block.id.replace('upage-','');
+    const label = (document.getElementById(`u-page-label-${idx}`)?.value||'').trim();
+    const file  = document.getElementById(`u-page-file-${idx}`)?.files[0];
+    if (!file) { statusEl.textContent = `Falta el SVG para "${label||'página '+idx}".`; submitBtn.disabled=false; return; }
+    if (file.size > 2*1024*1024) { statusEl.textContent = `SVG supera 2 MB: ${file.name}`; submitBtn.disabled=false; return; }
+
+    const zones = [];
+    for (const row of block.querySelectorAll('.uzone-row')) {
+      const parts = row.id.replace('uzone-','').split('-');
+      const pi = parts[0], zi = parts[1];
+      const x = parseFloat(document.getElementById(`uzx-${pi}-${zi}`)?.value);
+      const y = parseFloat(document.getElementById(`uzy-${pi}-${zi}`)?.value);
+      const w = parseFloat(document.getElementById(`uzw-${pi}-${zi}`)?.value);
+      const h = parseFloat(document.getElementById(`uzh-${pi}-${zi}`)?.value);
+      const zl = (document.getElementById(`uzl-${pi}-${zi}`)?.value||'').trim() || `Zona ${+zi+1}`;
+      if ([x,y,w,h].some(isNaN) || w<=0 || h<=0) { statusEl.textContent=`Zona inválida en "${label}". Rellena X, Y, W, H.`; submitBtn.disabled=false; return; }
+      zones.push({ x, y, w, h, label: zl });
+    }
+    pagesToProcess.push({ label, file, zones });
+  }
+
+  const pagesData = [];
+  for (let i = 0; i < pagesToProcess.length; i++) {
+    const { label, file, zones } = pagesToProcess[i];
+    statusEl.textContent = `Subiendo SVG ${i+1}/${pagesToProcess.length}…`;
+    const svgText   = await file.text();
+    const sanitized = _sanitizeUploadSvg(svgText);
+    const blob      = new Blob([sanitized], { type:'image/svg+xml' });
+    try {
+      const url = await window._ctplFB.uploadSvg(blob);
+      pagesData.push({ label, svgUrl: url, zones });
+    } catch(e) { statusEl.textContent = `Error al subir SVG: ${e.message}`; submitBtn.disabled=false; return; }
+  }
+
+  statusEl.textContent = 'Guardando…';
+  try {
+    await window._ctplFB.saveTemplate({ name, console: console_, description: desc, pages: pagesData, author: _getAuthorId() });
+    statusEl.textContent = '✓ Plantilla subida correctamente.';
+    showToast('✓ Plantilla subida!');
+    _ctplLoaded = false;
+    setTimeout(() => { closeUploadModal(); loadCtplGallery(); }, 1600);
+  } catch(e) { statusEl.textContent = `Error: ${e.message}`; submitBtn.disabled=false; }
+}
+
+// ── NeoGeo AES A4 caja templates ─────────────────────
+const NG_AREAS = {
+  A:       { x:10.66, y:40.15, w:150.50, h:195.64 },
+  B_back:  { x:17.35, y:65.22, w:151.05, h:194.68 },
+  B_spine: { x:167.83,y:64.98, w:37.84,  h:194.97 },
+};
+const _ngCache = {};
+
+function _preprocessNgSvg(svgText) {
+  const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+  for (const el of doc.querySelectorAll('*')) {
+    const style = el.getAttribute('style') || '';
+    if (/fill:\s*#(?:fff(?:fff)?|ffffff)/i.test(style))
+      el.setAttribute('style', style.replace(/fill:[^;]+/i, 'fill:none'));
+    const fill = el.getAttribute('fill') || '';
+    if (/^#(?:fff(?:fff)?|ffffff)$/i.test(fill))
+      el.setAttribute('fill', 'none');
+  }
+  return new XMLSerializer().serializeToString(doc.documentElement);
+}
+
+async function _loadNgSvg(side) {
+  if (_ngCache[side]) return _ngCache[side];
+  try {
+    const resp = await fetch(`templates/neogeo-${side.toLowerCase()}.svg`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const processed = _preprocessNgSvg(await resp.text());
+    const img = await new Promise((res, rej) => {
+      const blob = new Blob([processed], { type:'image/svg+xml' });
+      const url  = URL.createObjectURL(blob);
+      const im   = new Image();
+      im.onload  = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('SVG load')); };
+      im.src = url;
+    });
+    _ngCache[side] = img;
+    return img;
+  } catch(e) { console.warn('NeoGeo template:', e); return null; }
+}
+
+function _ngCover(ctx, img, x, y, w, h, offX=0, offY=0, zoom=1) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight) * zoom;
+  ctx.drawImage(img,
+    x + (w - img.naturalWidth  * s) / 2 + offX,
+    y + (h - img.naturalHeight * s) / 2 + offY,
+    img.naturalWidth * s, img.naturalHeight * s);
+  ctx.restore();
+}
+
+let _ngLastZone = 'A';
+
+function _updateNgScaleUI(zone) {
+  _ngLastZone = zone;
+  const pct = Math.round((S.ngScale[zone] || 1) * 100);
+  const sl  = document.getElementById('ng-scale');
+  const lbl = document.getElementById('ng-scale-val');
+  if (sl)  sl.value = pct;
+  if (lbl) lbl.textContent = pct + '%';
+}
+
+function setNgScale(factor) {
+  S.ngScale[_ngLastZone] = Math.max(0.2, Math.min(4, factor));
+  _updateNgScaleUI(_ngLastZone);
+  renderNeoGeo();
+}
+
+function resetNgOffsets() {
+  S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+  S.ngScale = { A:1,         B_back:1,          B_spine:1          };
+  _updateNgScaleUI(S.neogeoPage === 'A' ? 'A' : 'B_back');
+  renderNeoGeo();
+}
+
+function setNeoGeo(on) {
+  S.neogeoMode = on;
+  document.getElementById('neogeo-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display = on ? 'none' : 'block';
+  if (on) {
+    if (S.ctplMode) { S.ctplMode=false; S.ctplData=null; document.getElementById('ctpl-ctrl').style.display='none'; }
+    if (S.posterActive) clearPoster();
+    if (S.split) {
+      S.split = false;
+      document.getElementById('split-on').checked = false;
+      document.getElementById('split-ctrl').style.display = 'none';
+    }
+    S.neogeoPage = 'A';
+    document.querySelectorAll('#ng-page-chips .chip').forEach(b =>
+      b.classList.toggle('on', b.dataset.ngp === 'A'));
+    document.getElementById('ng-sub-a').style.display = 'block';
+    document.getElementById('ng-sub-b').style.display = 'none';
+    // Preload both templates; re-render when each arrives
+    ['A','B'].forEach(side => {
+      if (!_ngCache[side])
+        _loadNgSvg(side).then(() => { if (S.neogeoMode) renderNeoGeo(); });
+    });
+  }
+  schedRender();
+}
+
+function setNeoGeoPage(page) {
+  S.neogeoPage = page;
+  document.querySelectorAll('#ng-page-chips .chip').forEach(b =>
+    b.classList.toggle('on', b.dataset.ngp === page));
+  document.getElementById('ng-sub-a').style.display = page === 'A' ? 'block' : 'none';
+  document.getElementById('ng-sub-b').style.display = page === 'B' ? 'block' : 'none';
+  _updateNgScaleUI(page === 'A' ? 'A' : 'B_back');
+  schedRender();
+}
+
+let _ngSc   = 1;   // canvas px per mm — updated on every renderNeoGeo call
+let _mainSc = 1;   // canvas px per mm — updated on every render/renderPoster call
+
+function _updateImgScaleUI() {
+  const pct = Math.round(S.imgScale * 100);
+  const sl  = document.getElementById('img-scale-sl');
+  const lbl = document.getElementById('img-scale-val');
+  if (sl)  sl.value = pct;
+  if (lbl) lbl.textContent = pct + '%';
+}
+function setImgScale(v) {
+  S.imgScale = Math.max(0.2, Math.min(4, v));
+  _updateImgScaleUI();
+  render();
+}
+function resetImgOffset() {
+  S.imgOff   = { x:0, y:0 };
+  S.imgScale = 1;
+  _updateImgScaleUI();
+  render();
+}
+
+function renderNeoGeo() {
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const badge  = document.getElementById('badge');
+  const info   = document.getElementById('info-bar');
+  const page   = S.neogeoPage || 'A';
+
+  const PW = 210, PH = 297;
+  const wrap = document.getElementById('cvbg');
+  const maxW = wrap.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc   = Math.min(maxW / PW, maxH / PH);
+  _ngSc = sc;
+
+  canvas.width  = Math.round(PW * sc);
+  canvas.height = Math.round(PH * sc);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const ri   = getRotImg();
+  const tmpl = _ngCache[page];   // sync — already preloaded by setNeoGeo
+
+  if (ri) {
+    if (page === 'A') {
+      const a = NG_AREAS.A, off = S.ngOff.A;
+      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc, off.x*sc, off.y*sc, S.ngScale.A);
+    } else {
+      const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
+      const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc,  offB.x*sc,  offB.y*sc,  S.ngScale.B_back);
+      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc, offSp.x*sc, offSp.y*sc, S.ngScale.B_spine);
+    }
+  }
+
+  if (tmpl) {
+    ctx.drawImage(tmpl, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = 'rgba(124,106,247,.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#a78bfa'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Cargando plantilla…', canvas.width/2, canvas.height/2);
+  }
+
+  ctx.strokeStyle = 'rgba(0,0,0,.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = `Neo Geo AES — Lado ${page}`;
+  badge.className   = '';
+  info.innerHTML =
+    `<span>📐 A4: 210×297 mm</span>` +
+    `<span>📦 ${page === 'A' ? 'Portada — 150×195 mm' : 'Trasera + Lomo — 2 zonas'}</span>` +
+    (!ri ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
+
+  setExp(true);
+}
+
+// ── Drag-to-reposition (NeoGeo + ctpl + all other modes) ─
+let _ngDrag   = null;
+let _imgDrag  = null;
+let _ctplDrag = null;
+
+function _ngHitZone(clientX, clientY) {
+  const canvas = document.getElementById('pvc');
+  const rect   = canvas.getBoundingClientRect();
+  const cx = (clientX - rect.left) * (canvas.width  / rect.width);
+  const cy = (clientY - rect.top)  * (canvas.height / rect.height);
+  const page = S.neogeoPage || 'A';
+  const hit = (a) => cx >= a.x*_ngSc && cx <= (a.x+a.w)*_ngSc &&
+                     cy >= a.y*_ngSc && cy <= (a.y+a.h)*_ngSc;
+  if (page === 'A')  return hit(NG_AREAS.A)       ? 'A'       : null;
+  if (hit(NG_AREAS.B_back))  return 'B_back';
+  if (hit(NG_AREAS.B_spine)) return 'B_spine';
+  return null;
+}
+
+(function() {
+  const canvas = document.getElementById('pvc');
+  const pos = (e) => e.touches
+    ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    : { x: e.clientX,            y: e.clientY };
+
+  function onStart(e) {
+    const p = pos(e);
+    if (S.neogeoMode && getRotImg()) {
+      const zone = _ngHitZone(p.x, p.y);
+      if (!zone) return;
+      e.preventDefault();
+      _ngDrag = { zone, startCX: p.x, startCY: p.y,
+                  startOffX: S.ngOff[zone].x, startOffY: S.ngOff[zone].y };
+      _updateNgScaleUI(zone);
+      canvas.style.cursor = 'grabbing';
+    } else if (S.ctplMode && getRotImg()) {
+      const zi = _ctplHitZone(p.x, p.y);
+      if (zi === null) return;
+      e.preventDefault();
+      const key = ctplKey(S.ctplPage, zi);
+      const off = S.ctplOff[key] || { x:0, y:0 };
+      _ctplDrag = { key, startCX: p.x, startCY: p.y, startOffX: off.x, startOffY: off.y };
+      _updateCtplScaleUI(key);
+      canvas.style.cursor = 'grabbing';
+    } else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) {
+      e.preventDefault();
+      _imgDrag = { startCX: p.x, startCY: p.y,
+                   startOffX: S.imgOff.x, startOffY: S.imgOff.y };
+      canvas.style.cursor = 'grabbing';
+    }
+  }
+
+  function onMove(e) {
+    const p = pos(e);
+    if (_ngDrag) {
+      if (e.cancelable) e.preventDefault();
+      const dxMM = (p.x - _ngDrag.startCX) / _ngSc;
+      const dyMM = (p.y - _ngDrag.startCY) / _ngSc;
+      S.ngOff[_ngDrag.zone] = { x: _ngDrag.startOffX + dxMM, y: _ngDrag.startOffY + dyMM };
+      renderNeoGeo();
+    } else if (_ctplDrag) {
+      if (e.cancelable) e.preventDefault();
+      const dxMM = (p.x - _ctplDrag.startCX) / _ctplSc;
+      const dyMM = (p.y - _ctplDrag.startCY) / _ctplSc;
+      S.ctplOff[_ctplDrag.key] = { x: _ctplDrag.startOffX + dxMM, y: _ctplDrag.startOffY + dyMM };
+      renderCtpl();
+    } else if (_imgDrag) {
+      if (e.cancelable) e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const dxMM = (p.x - _imgDrag.startCX) * (canvas.width  / rect.width)  / _mainSc;
+      const dyMM = (p.y - _imgDrag.startCY) * (canvas.height / rect.height) / _mainSc;
+      S.imgOff.x = _imgDrag.startOffX + dxMM;
+      S.imgOff.y = _imgDrag.startOffY + dyMM;
+      canvas.style.cursor = 'grabbing';
+      render();
+    } else if (S.neogeoMode && getRotImg()) {
+      canvas.style.cursor = _ngHitZone(p.x, p.y) ? 'grab' : '';
+    } else if (S.ctplMode && getRotImg()) {
+      canvas.style.cursor = _ctplHitZone(p.x, p.y) !== null ? 'grab' : '';
+    } else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) {
+      canvas.style.cursor = 'grab';
+    }
+  }
+
+  function onEnd() {
+    _ngDrag = null; _ctplDrag = null; _imgDrag = null;
+    if      (S.neogeoMode && getRotImg())                        canvas.style.cursor = 'grab';
+    else if (S.ctplMode   && getRotImg())                        canvas.style.cursor = 'grab';
+    else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) canvas.style.cursor = 'grab';
+    else canvas.style.cursor = '';
+  }
+
+  canvas.addEventListener('mousedown',  onStart);
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onEnd);
+  document.addEventListener('touchmove', (e) => { if (_ngDrag || _ctplDrag || _imgDrag) onMove(e); }, { passive: false });
+  document.addEventListener('touchend',  onEnd);
+  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_ctplDrag && !_imgDrag) canvas.style.cursor = ''; });
+
+  // Wheel-to-zoom
+  canvas.addEventListener('wheel', (e) => {
+    if (S.neogeoMode) {
+      const zone = _ngHitZone(e.clientX, e.clientY);
+      if (!zone) return;
+      e.preventDefault();
+      const oldZoom = S.ngScale[zone] || 1;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      const rect = canvas.getBoundingClientRect();
+      const cx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cy   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const areaMM  = NG_AREAS[zone];
+      const cxRelMM = (cx - (areaMM.x + areaMM.w / 2) * _ngSc) / _ngSc;
+      const cyRelMM = (cy - (areaMM.y + areaMM.h / 2) * _ngSc) / _ngSc;
+      const off = S.ngOff[zone];
+      S.ngOff[zone] = {
+        x: cxRelMM - (cxRelMM - off.x) * newZoom / oldZoom,
+        y: cyRelMM - (cyRelMM - off.y) * newZoom / oldZoom,
+      };
+      S.ngScale[zone] = newZoom;
+      _updateNgScaleUI(zone);
+      renderNeoGeo();
+    } else if (S.ctplMode && getRotImg()) {
+      const zi = _ctplHitZone(e.clientX, e.clientY);
+      if (zi === null) return;
+      e.preventDefault();
+      const key     = ctplKey(S.ctplPage, zi);
+      const oldZoom = S.ctplScale[key] || 1;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      const rect = canvas.getBoundingClientRect();
+      const cx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cy   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const z    = (S.ctplData.pages[S.ctplPage].zones||[])[zi];
+      const cxRelMM = (cx - (z.x + z.w/2) * _ctplSc) / _ctplSc;
+      const cyRelMM = (cy - (z.y + z.h/2) * _ctplSc) / _ctplSc;
+      const off  = S.ctplOff[key] || { x:0, y:0 };
+      S.ctplOff[key]   = { x: cxRelMM-(cxRelMM-off.x)*newZoom/oldZoom, y: cyRelMM-(cyRelMM-off.y)*newZoom/oldZoom };
+      S.ctplScale[key] = newZoom;
+      _updateCtplScaleUI(key);
+      renderCtpl();
+    } else if (!S.split && getRotImg()) {
+      e.preventDefault();
+      const oldZoom = S.imgScale;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      const rect = canvas.getBoundingClientRect();
+      const cxPx = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cyPx = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const cxMM = (cxPx - canvas.width  / 2) / _mainSc;
+      const cyMM = (cyPx - canvas.height / 2) / _mainSc;
+      S.imgOff.x = cxMM - (cxMM - S.imgOff.x) * newZoom / oldZoom;
+      S.imgOff.y = cyMM - (cyMM - S.imgOff.y) * newZoom / oldZoom;
+      S.imgScale = newZoom;
+      _updateImgScaleUI();
+      render();
+    }
+  }, { passive: false });
+})();
+
+// ── Print Direct ──────────────────────────────────────
+async function printDirect() {
+  if (!S.img && !S.neogeoMode && !S.ctplMode) return;
+  const btn = document.getElementById('btn-print');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Preparando…'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    const PX = 200 / 25.4;
+    const pages = []; // { url, wmm, hmm }
+
+    if (S.ctplMode && S.ctplData) {
+      const ri = getRotImg();
+      for (let pi = 0; pi < S.ctplData.pages.length; pi++) {
+        const page   = S.ctplData.pages[pi];
+        const svgImg = await _loadCtplSvg(page.svgUrl);
+        const pc     = document.createElement('canvas');
+        pc.width = Math.round(210*PX); pc.height = Math.round(297*PX);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        if (ri && page.zones) {
+          for (let zi = 0; zi < page.zones.length; zi++) {
+            const z   = page.zones[zi];
+            const key = ctplKey(pi, zi);
+            const off = S.ctplOff[key] || {x:0,y:0};
+            const zm  = S.ctplScale[key] || 1;
+            _ngCover(cx, ri, z.x*PX, z.y*PX, z.w*PX, z.h*PX, off.x*PX, off.y*PX, zm);
+          }
+        }
+        if (svgImg) cx.drawImage(svgImg, 0, 0, pc.width, pc.height);
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w:210, h:297 });
+      }
+
+    } else if (S.neogeoMode) {
+      for (const side of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(side);
+        const ri   = getRotImg();
+        const pc   = document.createElement('canvas');
+        pc.width = Math.round(210 * PX); pc.height = Math.round(297 * PX);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (side === 'A') {
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(cx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
+          } else {
+            const b = NG_AREAS.B_back, offB = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(cx, ri, b.x*PX, b.y*PX, b.w*PX, b.h*PX, offB.x*PX, offB.y*PX, S.ngScale.B_back);
+            _ngCover(cx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
+          }
+        }
+        if (tmpl) cx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        pages.push({ url: pc.toDataURL('image/jpeg', .95), w: 210, h: 297 });
+      }
+
+    } else if (S.posterActive) {
+      const mg = +S.posterMargin;
+      if (S.posterType === 'a3') {
+        const pw=297, ph=420, usW=pw-2*mg, usH=ph-2*mg;
+        const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+        const fitSc=Math.min(usW/iW,usH/iH)*S.imgScale, dw=iW*fitSc, dh=iH*fitSc;
+        const pc=document.createElement('canvas');
+        pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
+        const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.drawImage(ri,(mg+(usW-dw)/2+S.imgOff.x)*PX,(mg+(usH-dh)/2+S.imgOff.y)*PX,dw*PX,dh*PX);
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: pw, h: ph });
+      } else {
+        const pw=210, ph=297, usW=pw-2*mg, usH=ph-2*mg;
+        const aW=usW*2, aH=usH*2;
+        const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+        const fitSc=Math.min(aW/iW,aH/iH)*S.imgScale, fW=iW*fitSc, fH=iH*fitSc;
+        const imgX=(aW-fW)/2+S.imgOff.x, imgY=(aH-fH)/2+S.imgOff.y;
+        for (let row=0; row<2; row++) for (let col=0; col<2; col++) {
+          const pc=document.createElement('canvas');
+          pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
+          const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+          cx.drawImage(ri,(mg+imgX-col*usW)*PX,(mg+imgY-row*usH)*PX,fW*PX,fH*PX);
+          pages.push({ url: pc.toDataURL('image/jpeg',.95), w: pw, h: ph });
+        }
+      }
+
+    } else if (S.split) {
+      const cols=Math.max(1,Math.round(S.splitCols)), rows=Math.max(1,Math.round(S.splitRows));
+      const fullW=S.lW*10, fullH=S.lH*10, pieceW=fullW/cols, pieceH=fullH/rows;
+      const p=pageMM(), mg=+S.margin, usW=p.w-2*mg, usH=p.h-2*mg;
+      const fitSc=Math.min(usW/pieceW,usH/pieceH), drawW=pieceW*fitSc, drawH=pieceH*fitSc;
+      const ox=mg+(usW-drawW)/2, oy=mg+(usH-drawH)/2;
+      const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+      for (let row=0; row<rows; row++) for (let col=0; col<cols; col++) {
+        const pc=document.createElement('canvas');
+        pc.width=Math.round(p.w*PX); pc.height=Math.round(p.h*PX);
+        const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.drawImage(ri, col*(iW/cols), row*(iH/rows), iW/cols, iH/rows,
+          ox*PX, oy*PX, drawW*PX, drawH*PX);
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+      }
+
+    } else {
+      const g=calcGrid(); if(!g) throw new Error('No cabe en el papel');
+      const p=pageMM();
+      const pc=document.createElement('canvas');
+      pc.width=Math.round(p.w*PX); pc.height=Math.round(p.h*PX);
+      const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+      for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
+        const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
+        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.img, S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
+        if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
+      }
+      pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+    }
+
+    if (!pages.length) return;
+    const imgs = pages.map((pg, i) =>
+      `<div${i<pages.length-1?' style="page-break-after:always"':''}>` +
+      `<img src="${pg.url}" style="width:${pg.w}mm;height:${pg.h}mm;display:block"></div>`
+    ).join('');
+    const win = window.open('', '_blank');
+    win.document.write(
+      `<!DOCTYPE html><html><head><title>CoverLabel</title>` +
+      `<style>*{margin:0;padding:0;box-sizing:border-box}@page{margin:0;size:auto}body{background:#fff}</style>` +
+      `</head><body>${imgs}` +
+      `<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script>` +
+      `</body></html>`
+    );
+    win.document.close();
+
+  } catch(e) { alert('Error al imprimir:\n' + e.message); }
+  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode || S.ctplMode); }
+}
+
+// ── Info Modal ────────────────────────────────────────
+function openInfoModal()  { document.getElementById('info-modal').style.display='flex'; }
+function closeInfoModal() { document.getElementById('info-modal').style.display='none'; }
+
 // ── Init ──────────────────────────────────────────────
 window.addEventListener('resize', () => {
   clearTimeout(renderTimer);
@@ -1985,5 +3367,167 @@ window.addEventListener('resize', () => {
 });
 render();
 </script>
+
+<!-- ── Upload Modal ───────────────────────────────────── -->
+<div id="upload-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeUploadModal()">
+  <div class="modal-box upload-modal-box">
+    <div class="modal-head">
+      <span style="font-size:1.2rem">⬆</span>
+      <h3>Subir plantilla</h3>
+      <button class="modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div class="upload-body">
+      <div class="ufield">
+        <label>Nombre <span style="color:var(--ac)">*</span></label>
+        <input type="text" id="u-name" placeholder="ej. NES — Caja USA Oficial" maxlength="100">
+      </div>
+      <div class="ufield">
+        <label>Consola / Formato <span style="color:var(--ac)">*</span></label>
+        <input type="text" id="u-console" placeholder="ej. NES, SNES, Mega Drive…" maxlength="60">
+      </div>
+      <div class="ufield">
+        <label>Descripción (opcional)</label>
+        <textarea id="u-desc" placeholder="Información extra sobre la plantilla…" rows="2"></textarea>
+      </div>
+      <div style="font-size:.67rem;color:var(--txt3);margin-bottom:10px;line-height:1.5">
+        El SVG debe tener <code>viewBox="0 0 210 297"</code> (A4 en mm). Las coordenadas de zona son en mm desde la esquina superior izquierda de la página.
+      </div>
+      <div id="upload-pages"></div>
+      <button class="uadd-page-btn" onclick="addUploadPage()">+ Añadir otra página</button>
+      <button class="upload-submit-btn" id="upload-submit-btn" onclick="submitTemplate()">⬆ Subir plantilla</button>
+      <div class="upload-status" id="upload-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div id="info-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeInfoModal()">
+  <div class="modal-box info-modal-box">
+    <div class="modal-head">
+      <img src="icons/icon-48.png" style="width:26px;height:26px;object-fit:contain;border-radius:6px" alt="">
+      <h3>Qué es CoverLabel</h3>
+      <button class="modal-close" onclick="closeInfoModal()">✕</button>
+    </div>
+    <div class="info-body">
+      <p><strong>CoverLabel</strong> es una herramienta gratuita para imprimir portadas y etiquetas de colecciones al tamaño exacto, directamente desde el navegador o como app de escritorio. Diseñada para coleccionistas que quieren reproducir cajas, inlays, spines o carátulas con <strong>precisión milimétrica</strong>.</p>
+      <p style="font-size:.77rem;margin-top:-4px">Funciona <strong>sin servidor</strong>, <strong>sin cuenta</strong> y <strong>sin conexión</strong> una vez cargada.</p>
+
+      <h4>Casos de uso</h4>
+      <div class="info-grid">
+        <div class="info-card"><strong>🎮 Videojuegos retro</strong>NES, SNES, Mega Drive, Neo Geo AES/MVS, Game Boy…</div>
+        <div class="info-card"><strong>💿 Música</strong>Portadas de CD, inlays, carátulas de vinilo</div>
+        <div class="info-card"><strong>📀 Cine y series</strong>Cubiertas de DVD, Blu-ray, VHS</div>
+        <div class="info-card"><strong>📚 Libros y cómics</strong>Sobrecubiertas, lomos, marcapáginas</div>
+        <div class="info-card"><strong>🎲 Juegos de mesa</strong>Cartas, tokens, reglamentos a medida</div>
+        <div class="info-card"><strong>🏷️ Etiquetas</strong>Spine labels, price tags, etiquetas personalizadas</div>
+      </div>
+
+      <h4>Características</h4>
+      <ul>
+        <li><strong>Cuadrícula automática</strong> — múltiples copias por página, máximo aprovechamiento del papel</li>
+        <li><strong>Modo División</strong> — divide portadas grandes en varias hojas A4 con guías de ensamblaje</li>
+        <li><strong>Modo Póster</strong> — imprime a A3 completo o distribuye la imagen en 4 hojas A4</li>
+        <li><strong>Cajas Repro Neo Geo AES</strong> — plantillas A4 listas para recortar y montar</li>
+        <li>Exportación a <strong>PDF</strong>, <strong>PNG</strong> e impresión directa en alta calidad</li>
+        <li>Márgenes, escala, rotación e inversión de imagen ajustables</li>
+        <li>Funciona <strong>100% offline</strong> — las imágenes nunca salen de tu dispositivo</li>
+      </ul>
+
+      <h4>Cómo usar</h4>
+      <ol class="info-steps">
+        <li>Abre la app, arrastra una imagen o usa el botón para cargarla</li>
+        <li>Introduce el ancho y alto en milímetros de tu portada o etiqueta</li>
+        <li>Ajusta márgenes, escala y rotación si es necesario</li>
+        <li>Exporta como PDF, PNG o imprime directamente con el botón 🖨️</li>
+      </ol>
+
+      <h4>Descargar</h4>
+      <div class="info-dl-row">
+        <a class="info-dl-btn" href="https://github.com/JFSAINTS/coverlabel/releases/latest" target="_blank">🪟 Windows (.exe)</a>
+        <a class="info-dl-btn" href="https://github.com/JFSAINTS/coverlabel/releases/latest" target="_blank">🤖 Android (.apk)</a>
+        <a class="info-dl-btn" href="https://coverlabel.netlify.app" target="_blank">🌐 Web App</a>
+      </div>
+
+      <p class="info-privacy">🔒 Privacidad: toda la app corre en local. Las imágenes que cargas no se envían a ningún servidor. Sin analíticas ni rastreo. Licencia MIT.</p>
+
+      <h4>Contacto</h4>
+      <p style="font-size:.8rem;margin:4px 0 0">Desarrollado por <a href="https://x.com/_SAINTS_" target="_blank" style="color:var(--ac);text-decoration:none;font-weight:700">@_SAINTS_</a> en X / Twitter.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Firebase community templates ───────────────────── -->
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, query, where, orderBy, limit,
+         getDocs, setDoc, updateDoc, increment, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+try {
+  const app = initializeApp({
+    apiKey:            'AIzaSyBGz85M4pcshA4_ooJX9sCK4Kf9KfBHjXQ',
+    authDomain:        'collectr-4ecb9.firebaseapp.com',
+    projectId:         'collectr-4ecb9',
+    storageBucket:     'collectr-4ecb9.firebasestorage.app',
+    messagingSenderId: '606660325614',
+    appId:             '1:606660325614:web:944f0384d6251f88b703ff'
+  }, 'coverlabel');
+
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+  const COLL    = 'coverlabel_templates';
+
+  window._ctplFB = {
+    async loadTemplates(sortBy = 'best', filterConsole = '') {
+      const field = sortBy === 'new' ? 'uploadedAt' : 'upvotes';
+      const q = query(
+        collection(db, COLL),
+        where('hidden', '==', false),
+        orderBy(field, 'desc'),
+        limit(60)
+      );
+      const snap = await getDocs(q);
+      let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (filterConsole) docs = docs.filter(t => t.console === filterConsole);
+      // Auto-hide client-side at net ≤ -5
+      return docs.filter(t => (t.upvotes||0) - (t.downvotes||0) > -5);
+    },
+
+    async uploadSvg(svgBlob) {
+      const name    = `${Date.now()}_${Math.random().toString(36).slice(2,7)}.svg`;
+      const sRef    = storageRef(storage, `coverlabel_templates/${name}`);
+      await uploadBytes(sRef, svgBlob, { contentType: 'image/svg+xml' });
+      return getDownloadURL(sRef);
+    },
+
+    async saveTemplate(data) {
+      const docRef = doc(collection(db, COLL));
+      await setDoc(docRef, {
+        ...data,
+        upvotes:    0,
+        downvotes:  0,
+        hidden:     false,
+        uploadedAt: serverTimestamp()
+      });
+      return docRef.id;
+    },
+
+    async vote(templateId, dir, shouldHide) {
+      const ref    = doc(db, COLL, templateId);
+      const update = {};
+      if (dir > 0) update.upvotes   = increment(1);
+      else         update.downvotes = increment(1);
+      if (shouldHide) update.hidden = true;
+      await updateDoc(ref, update);
+    }
+  };
+} catch(e) {
+  console.warn('CoverLabel Firebase init failed:', e);
+  window._ctplFB = null;
+}
+</script>
+
 </body>
 </html>
