@@ -413,6 +413,40 @@
       cursor: pointer; font-size: 1rem; line-height: 1;
     }
     .modal-close:hover { color: var(--txt); }
+
+    /* Print button */
+    .btn-print { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
+    .btn-print:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,.35); }
+
+    /* Info header button */
+    .info-hdr-btn {
+      background: none; border: 1px solid var(--brd); border-radius: 8px;
+      color: var(--txt2); padding: 5px 11px; cursor: pointer;
+      font-size: .73rem; white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .info-hdr-btn:hover { color: var(--txt); border-color: var(--ac); }
+
+    /* Info modal */
+    .info-modal-box { max-width: 620px; }
+    .info-body { overflow-y: auto; padding: 16px 22px 22px; font-size: .82rem; line-height: 1.6; }
+    .info-body h4 { font-size: .73rem; font-weight: 700; color: var(--txt3); text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+    .info-body p { color: var(--txt2); margin-bottom: 10px; }
+    .info-body strong { color: var(--txt); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px; }
+    .info-card { background: var(--bg3); border-radius: 8px; padding: 9px 11px; color: var(--txt2); font-size: .78rem; }
+    .info-card strong { display: block; color: var(--txt); margin-bottom: 2px; }
+    .info-body ul { padding-left: 18px; color: var(--txt2); margin-bottom: 10px; }
+    .info-body ul li { margin-bottom: 4px; }
+    .info-steps { list-style: none; padding: 0; counter-reset: step; }
+    .info-steps li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 7px; color: var(--txt2); }
+    .info-steps li::before { counter-increment: step; content: counter(step); background: var(--ac); color: #fff; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+    .info-dl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .info-dl-btn { padding: 7px 14px; background: var(--bg3); border: 1px solid var(--brd); border-radius: 8px; color: var(--txt); text-decoration: none; font-size: .77rem; transition: border-color .15s, color .15s; }
+    .info-dl-btn:hover { border-color: var(--ac); color: var(--ac); }
+    .info-privacy { font-size: .72rem; color: var(--txt3); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--brd); }
+    @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+
     .modal-intro {
       padding: 12px 22px 0; font-size: .78rem; color: var(--txt2);
       line-height: 1.55;
@@ -486,6 +520,7 @@
     <span class="sub">Tu útil de covers, etiquetas y cajas</span>
   </div>
   <button class="repro-btn" onclick="openReproModal()">🎮 Cajas Repro</button>
+  <button class="info-hdr-btn" onclick="openInfoModal()">ℹ️ Qué es</button>
 </header>
 
 <main>
@@ -766,6 +801,7 @@
     <div class="card export-row">
       <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled>📄 Exportar PDF</button>
       <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled>🖼️ Exportar PNG</button>
+      <button class="btn btn-print" id="btn-print" onclick="printDirect()" disabled>🖨️ Imprimir</button>
     </div>
   </div>
 </main>
@@ -1556,6 +1592,7 @@ function render() {
 function setExp(en) {
   document.getElementById('btn-pdf').disabled = !en;
   document.getElementById('btn-png').disabled = !en;
+  document.getElementById('btn-print').disabled = !en;
 }
 
 // ── File upload ───────────────────────────────────────
@@ -2345,6 +2382,120 @@ function _ngHitZone(clientX, clientY) {
   }, { passive: false });
 })();
 
+// ── Print Direct ──────────────────────────────────────
+async function printDirect() {
+  if (!S.img && !S.neogeoMode) return;
+  const btn = document.getElementById('btn-print');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Preparando…'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    const PX = 200 / 25.4;
+    const pages = []; // { url, wmm, hmm }
+
+    if (S.neogeoMode) {
+      for (const side of ['A', 'B']) {
+        const tmpl = await _loadNgSvg(side);
+        const ri   = getRotImg();
+        const pc   = document.createElement('canvas');
+        pc.width = Math.round(210 * PX); pc.height = Math.round(297 * PX);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, pc.width, pc.height);
+        if (ri) {
+          if (side === 'A') {
+            const a = NG_AREAS.A, off = S.ngOff.A;
+            _ngCover(cx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
+          } else {
+            const b = NG_AREAS.B_back, offB = S.ngOff.B_back;
+            const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
+            _ngCover(cx, ri, b.x*PX, b.y*PX, b.w*PX, b.h*PX, offB.x*PX, offB.y*PX, S.ngScale.B_back);
+            _ngCover(cx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
+          }
+        }
+        if (tmpl) cx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        pages.push({ url: pc.toDataURL('image/jpeg', .95), w: 210, h: 297 });
+      }
+
+    } else if (S.posterActive) {
+      const mg = +S.posterMargin;
+      if (S.posterType === 'a3') {
+        const pw=297, ph=420, usW=pw-2*mg, usH=ph-2*mg;
+        const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+        const fitSc=Math.min(usW/iW,usH/iH), dw=iW*fitSc, dh=iH*fitSc;
+        const pc=document.createElement('canvas');
+        pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
+        const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.drawImage(ri,(mg+(usW-dw)/2)*PX,(mg+(usH-dh)/2)*PX,dw*PX,dh*PX);
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: pw, h: ph });
+      } else {
+        const pw=210, ph=297, usW=pw-2*mg, usH=ph-2*mg;
+        const aW=usW*2, aH=usH*2;
+        const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+        const fitSc=Math.min(aW/iW,aH/iH), fW=iW*fitSc, fH=iH*fitSc;
+        const imgX=(aW-fW)/2, imgY=(aH-fH)/2;
+        for (let row=0; row<2; row++) for (let col=0; col<2; col++) {
+          const pc=document.createElement('canvas');
+          pc.width=Math.round(pw*PX); pc.height=Math.round(ph*PX);
+          const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+          cx.drawImage(ri,(mg+imgX-col*usW)*PX,(mg+imgY-row*usH)*PX,fW*PX,fH*PX);
+          pages.push({ url: pc.toDataURL('image/jpeg',.95), w: pw, h: ph });
+        }
+      }
+
+    } else if (S.split) {
+      const cols=Math.max(1,Math.round(S.splitCols)), rows=Math.max(1,Math.round(S.splitRows));
+      const fullW=S.lW*10, fullH=S.lH*10, pieceW=fullW/cols, pieceH=fullH/rows;
+      const p=pageMM(), mg=+S.margin, usW=p.w-2*mg, usH=p.h-2*mg;
+      const fitSc=Math.min(usW/pieceW,usH/pieceH), drawW=pieceW*fitSc, drawH=pieceH*fitSc;
+      const ox=mg+(usW-drawW)/2, oy=mg+(usH-drawH)/2;
+      const ri=getRotImg(), iW=ri.naturalWidth, iH=ri.naturalHeight;
+      for (let row=0; row<rows; row++) for (let col=0; col<cols; col++) {
+        const pc=document.createElement('canvas');
+        pc.width=Math.round(p.w*PX); pc.height=Math.round(p.h*PX);
+        const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.drawImage(ri, col*(iW/cols), row*(iH/rows), iW/cols, iH/rows,
+          ox*PX, oy*PX, drawW*PX, drawH*PX);
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+      }
+
+    } else {
+      const g=calcGrid(); if(!g) throw new Error('No cabe en el papel');
+      const p=pageMM();
+      const pc=document.createElement('canvas');
+      pc.width=Math.round(p.w*PX); pc.height=Math.round(p.h*PX);
+      const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+      for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
+        const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
+        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.img);
+        if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
+      }
+      pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+    }
+
+    if (!pages.length) return;
+    const imgs = pages.map((pg, i) =>
+      `<div${i<pages.length-1?' style="page-break-after:always"':''}>` +
+      `<img src="${pg.url}" style="width:${pg.w}mm;height:${pg.h}mm;display:block"></div>`
+    ).join('');
+    const win = window.open('', '_blank');
+    win.document.write(
+      `<!DOCTYPE html><html><head><title>CoverLabel</title>` +
+      `<style>*{margin:0;padding:0;box-sizing:border-box}@page{margin:0;size:auto}body{background:#fff}</style>` +
+      `</head><body>${imgs}` +
+      `<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script>` +
+      `</body></html>`
+    );
+    win.document.close();
+
+  } catch(e) { alert('Error al imprimir:\n' + e.message); }
+  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode); }
+}
+
+// ── Info Modal ────────────────────────────────────────
+function openInfoModal()  { document.getElementById('info-modal').style.display='flex'; }
+function closeInfoModal() { document.getElementById('info-modal').style.display='none'; }
+
 // ── Init ──────────────────────────────────────────────
 window.addEventListener('resize', () => {
   clearTimeout(renderTimer);
@@ -2352,5 +2503,59 @@ window.addEventListener('resize', () => {
 });
 render();
 </script>
+
+<!-- Info Modal -->
+<div id="info-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeInfoModal()">
+  <div class="modal-box info-modal-box">
+    <div class="modal-head">
+      <img src="icons/icon-48.png" style="width:26px;height:26px;object-fit:contain;border-radius:6px" alt="">
+      <h3>Qué es CoverLabel</h3>
+      <button class="modal-close" onclick="closeInfoModal()">✕</button>
+    </div>
+    <div class="info-body">
+      <p><strong>CoverLabel</strong> es una herramienta gratuita para imprimir portadas y etiquetas de colecciones al tamaño exacto, directamente desde el navegador o como app de escritorio. Diseñada para coleccionistas que quieren reproducir cajas, inlays, spines o carátulas con <strong>precisión milimétrica</strong>.</p>
+      <p style="font-size:.77rem;margin-top:-4px">Funciona <strong>sin servidor</strong>, <strong>sin cuenta</strong> y <strong>sin conexión</strong> una vez cargada.</p>
+
+      <h4>Casos de uso</h4>
+      <div class="info-grid">
+        <div class="info-card"><strong>🎮 Videojuegos retro</strong>NES, SNES, Mega Drive, Neo Geo AES/MVS, Game Boy…</div>
+        <div class="info-card"><strong>💿 Música</strong>Portadas de CD, inlays, carátulas de vinilo</div>
+        <div class="info-card"><strong>📀 Cine y series</strong>Cubiertas de DVD, Blu-ray, VHS</div>
+        <div class="info-card"><strong>📚 Libros y cómics</strong>Sobrecubiertas, lomos, marcapáginas</div>
+        <div class="info-card"><strong>🎲 Juegos de mesa</strong>Cartas, tokens, reglamentos a medida</div>
+        <div class="info-card"><strong>🏷️ Etiquetas</strong>Spine labels, price tags, etiquetas personalizadas</div>
+      </div>
+
+      <h4>Características</h4>
+      <ul>
+        <li><strong>Cuadrícula automática</strong> — múltiples copias por página, máximo aprovechamiento del papel</li>
+        <li><strong>Modo División</strong> — divide portadas grandes en varias hojas A4 con guías de ensamblaje</li>
+        <li><strong>Modo Póster</strong> — imprime a A3 completo o distribuye la imagen en 4 hojas A4</li>
+        <li><strong>Cajas Repro Neo Geo AES</strong> — plantillas A4 listas para recortar y montar</li>
+        <li>Exportación a <strong>PDF</strong>, <strong>PNG</strong> e impresión directa en alta calidad</li>
+        <li>Márgenes, escala, rotación e inversión de imagen ajustables</li>
+        <li>Funciona <strong>100% offline</strong> — las imágenes nunca salen de tu dispositivo</li>
+      </ul>
+
+      <h4>Cómo usar</h4>
+      <ol class="info-steps">
+        <li>Abre la app, arrastra una imagen o usa el botón para cargarla</li>
+        <li>Introduce el ancho y alto en milímetros de tu portada o etiqueta</li>
+        <li>Ajusta márgenes, escala y rotación si es necesario</li>
+        <li>Exporta como PDF, PNG o imprime directamente con el botón 🖨️</li>
+      </ol>
+
+      <h4>Descargar</h4>
+      <div class="info-dl-row">
+        <a class="info-dl-btn" href="https://github.com/JFSAINTS/coverlabel/releases/latest" target="_blank">🪟 Windows (.exe)</a>
+        <a class="info-dl-btn" href="https://github.com/JFSAINTS/coverlabel/releases/latest" target="_blank">🤖 Android (.apk)</a>
+        <a class="info-dl-btn" href="https://coverlabel.netlify.app" target="_blank">🌐 Web App</a>
+      </div>
+
+      <p class="info-privacy">🔒 Privacidad: toda la app corre en local. Las imágenes que cargas no se envían a ningún servidor. Sin analíticas ni rastreo. Licencia MIT.</p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
