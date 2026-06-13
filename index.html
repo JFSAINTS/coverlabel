@@ -414,6 +414,15 @@
     }
     .modal-close:hover { color: var(--txt); }
 
+    /* Grid manual chips */
+    .gm-chip {
+      background: var(--bg3); border: 1px solid var(--brd); border-radius: 6px;
+      color: var(--txt2); padding: 3px 9px; cursor: pointer;
+      font-size: .7rem; font-family: inherit;
+      transition: color .12s, border-color .12s, background .12s;
+    }
+    .gm-chip.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+
     /* Print button */
     .btn-print { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
     .btn-print:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,.35); }
@@ -703,6 +712,30 @@
                  oninput="S.setN('margin',this.value)">
         </div>
       </div>
+      <div style="margin-top:9px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:.73rem;color:var(--txt2)">Cuadrícula</span>
+          <div style="display:flex;gap:4px">
+            <button class="gm-chip on" id="gm-auto"   onclick="setGridManual(false)">Auto</button>
+            <button class="gm-chip"    id="gm-manual" onclick="setGridManual(true)">Manual</button>
+          </div>
+        </div>
+        <div id="grid-manual-ctrl" style="display:none">
+          <div class="dim-row">
+            <div class="field">
+              <label>Columnas</label>
+              <input type="number" id="grid-cols" value="2" min="1" max="20" step="1"
+                     oninput="S.setN('gridCols',this.value)">
+            </div>
+            <span class="sep">×</span>
+            <div class="field">
+              <label>Filas</label>
+              <input type="number" id="grid-rows" value="2" min="1" max="20" step="1"
+                     oninput="S.setN('gridRows',this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- PÓSTER -->
@@ -952,6 +985,9 @@ const S = {
   ngScale: { A:1,         B_back:1,          B_spine:1          },
   imgOff:   { x: 0, y: 0 },
   imgScale: 1,
+  gridManual: false,
+  gridCols:   2,
+  gridRows:   2,
 
   set(key, val) {
     this[key] = val;
@@ -1095,14 +1131,25 @@ function calcGrid() {
   const usW = p.w - 2*mg;
   const usH = p.h - 2*mg;
   if (usW <= 0 || usH <= 0) return null;
-  const cols = Math.floor((usW + sp) / (lW + sp));
-  const rows = Math.floor((usH + sp) / (lH + sp));
-  if (cols < 1 || rows < 1) return null;
+
+  let cols, rows, overflow = false;
+  if (S.gridManual) {
+    cols = Math.max(1, Math.round(S.gridCols));
+    rows = Math.max(1, Math.round(S.gridRows));
+    const totalW = cols*lW + (cols-1)*sp;
+    const totalH = rows*lH + (rows-1)*sp;
+    overflow = totalW > usW + 0.01 || totalH > usH + 0.01;
+  } else {
+    cols = Math.floor((usW + sp) / (lW + sp));
+    rows = Math.floor((usH + sp) / (lH + sp));
+    if (cols < 1 || rows < 1) return null;
+  }
+
   const totalW = cols*lW + (cols-1)*sp;
   const totalH = rows*lH + (rows-1)*sp;
   const ox = (p.w - totalW) / 2;
   const oy = (p.h - totalH) / 2;
-  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg };
+  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg, overflow };
 }
 
 // ── Label drawing ─────────────────────────────────────
@@ -1156,6 +1203,14 @@ function drawGuides(ctx, x, y, w, h, gLen) {
 }
 
 // ── Split / poster mode ───────────────────────────────
+function setGridManual(on) {
+  S.gridManual = on;
+  document.getElementById('gm-auto').classList.toggle('on', !on);
+  document.getElementById('gm-manual').classList.toggle('on', on);
+  document.getElementById('grid-manual-ctrl').style.display = on ? 'block' : 'none';
+  schedRender();
+}
+
 function setSplit(enabled) {
   S.split = enabled;
   if (enabled && S.neogeoMode) {
@@ -1592,8 +1647,10 @@ function render() {
   const noun = S.formatCat
     ? (g.total === 1 ? 'portada' : 'portadas')
     : (g.total === 1 ? 'etiqueta' : 'etiquetas');
-  badge.textContent = `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
-  badge.className = '';
+  badge.textContent = g.overflow
+    ? `⚠️ ${g.total} ${noun}  (${g.cols}×${g.rows}) — excede el papel`
+    : `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
+  badge.className = g.overflow ? 'warn' : '';
 
   info.innerHTML =
     `<span>📐 ${p.w}×${p.h} mm</span>` +
