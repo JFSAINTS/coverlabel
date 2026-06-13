@@ -725,8 +725,16 @@
         </div>
         <div class="ng-sub" id="ng-sub-a">Portada frontal — 150×195 mm</div>
         <div class="ng-sub" id="ng-sub-b" style="display:none">Trasera (151×194 mm) + Lomo (37×195 mm)</div>
-        <div class="ng-sub" style="margin-top:6px;color:var(--txt3)">Arrastra la imagen en la vista previa para reposicionarla</div>
-        <button class="auto-btn" style="margin-top:7px" onclick="resetNgOffsets()">↺ Recentrar imagen</button>
+        <div class="ng-sub" style="margin-top:6px;color:var(--txt3)">Arrastra la imagen en el preview · rueda = zoom</div>
+        <div style="margin-top:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <span class="ng-sub">Escala imagen</span>
+            <span class="ng-sub" id="ng-scale-val" style="font-weight:700;color:var(--ac)">100%</span>
+          </div>
+          <input type="range" id="ng-scale" min="20" max="400" step="1" value="100"
+                 style="width:100%;accent-color:var(--ac)" oninput="setNgScale(+this.value/100)">
+        </div>
+        <button class="auto-btn" style="margin-top:7px" onclick="resetNgOffsets()">↺ Recentrar y escala 100%</button>
       </div>
     </div>
 
@@ -894,7 +902,8 @@ const S = {
   imgRot: 0,
   neogeoMode: false,
   neogeoPage: 'A',
-  ngOff: { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} },
+  ngOff:   { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} },
+  ngScale: { A:1,         B_back:1,          B_spine:1          },
 
   set(key, val) {
     this[key] = val;
@@ -1566,7 +1575,8 @@ function loadImage(file) {
       S.img = img;
       S.imgRot = 0;
       _rotCache = null;
-      S.ngOff = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+      S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+      S.ngScale = { A:1,         B_back:1,          B_spine:1          };
       document.getElementById('rot-ccw').disabled = false;
       document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
@@ -1626,12 +1636,12 @@ async function exportPDF() {
         if (ri) {
           if (page === 'A') {
             const a = NG_AREAS.A, off = S.ngOff.A;
-            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX);
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
           } else {
             const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
             const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
-            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX);
-            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX);
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX,  S.ngScale.B_back);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
@@ -1812,12 +1822,12 @@ async function exportPNG() {
         if (ri) {
           if (page === 'A') {
             const a = NG_AREAS.A, off = S.ngOff.A;
-            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX);
+            _ngCover(pctx, ri, a.x*PX, a.y*PX, a.w*PX, a.h*PX, off.x*PX, off.y*PX, S.ngScale.A);
           } else {
             const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
             const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
-            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX);
-            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX);
+            _ngCover(pctx, ri, b.x*PX,  b.y*PX,  b.w*PX,  b.h*PX,  offB.x*PX,  offB.y*PX,  S.ngScale.B_back);
+            _ngCover(pctx, ri, sp.x*PX, sp.y*PX, sp.w*PX, sp.h*PX, offSp.x*PX, offSp.y*PX, S.ngScale.B_spine);
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
@@ -2111,10 +2121,10 @@ async function _loadNgSvg(side) {
   } catch(e) { console.warn('NeoGeo template:', e); return null; }
 }
 
-function _ngCover(ctx, img, x, y, w, h, offX=0, offY=0) {
+function _ngCover(ctx, img, x, y, w, h, offX=0, offY=0, zoom=1) {
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
-  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight) * zoom;
   ctx.drawImage(img,
     x + (w - img.naturalWidth  * s) / 2 + offX,
     y + (h - img.naturalHeight * s) / 2 + offY,
@@ -2122,16 +2132,27 @@ function _ngCover(ctx, img, x, y, w, h, offX=0, offY=0) {
   ctx.restore();
 }
 
-function _ngClampMM(img, zoneMM, offXmm, offYmm) {
-  const s    = Math.max(zoneMM.w / img.naturalWidth, zoneMM.h / img.naturalHeight);
-  const maxX = Math.max(0, (img.naturalWidth  * s - zoneMM.w) / 2);
-  const maxY = Math.max(0, (img.naturalHeight * s - zoneMM.h) / 2);
-  return { x: Math.max(-maxX, Math.min(maxX, offXmm)),
-           y: Math.max(-maxY, Math.min(maxY, offYmm)) };
+let _ngLastZone = 'A';
+
+function _updateNgScaleUI(zone) {
+  _ngLastZone = zone;
+  const pct = Math.round((S.ngScale[zone] || 1) * 100);
+  const sl  = document.getElementById('ng-scale');
+  const lbl = document.getElementById('ng-scale-val');
+  if (sl)  sl.value = pct;
+  if (lbl) lbl.textContent = pct + '%';
+}
+
+function setNgScale(factor) {
+  S.ngScale[_ngLastZone] = Math.max(0.2, Math.min(4, factor));
+  _updateNgScaleUI(_ngLastZone);
+  renderNeoGeo();
 }
 
 function resetNgOffsets() {
-  S.ngOff = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+  S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
+  S.ngScale = { A:1,         B_back:1,          B_spine:1          };
+  _updateNgScaleUI(S.neogeoPage === 'A' ? 'A' : 'B_back');
   renderNeoGeo();
 }
 
@@ -2165,6 +2186,7 @@ function setNeoGeoPage(page) {
     b.classList.toggle('on', b.dataset.ngp === page));
   document.getElementById('ng-sub-a').style.display = page === 'A' ? 'block' : 'none';
   document.getElementById('ng-sub-b').style.display = page === 'B' ? 'block' : 'none';
+  _updateNgScaleUI(page === 'A' ? 'A' : 'B_back');
   schedRender();
 }
 
@@ -2196,12 +2218,12 @@ function renderNeoGeo() {
   if (ri) {
     if (page === 'A') {
       const a = NG_AREAS.A, off = S.ngOff.A;
-      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc, off.x*sc, off.y*sc);
+      _ngCover(ctx, ri, a.x*sc, a.y*sc, a.w*sc, a.h*sc, off.x*sc, off.y*sc, S.ngScale.A);
     } else {
       const b = NG_AREAS.B_back,  offB  = S.ngOff.B_back;
       const sp = NG_AREAS.B_spine, offSp = S.ngOff.B_spine;
-      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc,  offB.x*sc,  offB.y*sc);
-      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc, offSp.x*sc, offSp.y*sc);
+      _ngCover(ctx, ri, b.x*sc,  b.y*sc,  b.w*sc,  b.h*sc,  offB.x*sc,  offB.y*sc,  S.ngScale.B_back);
+      _ngCover(ctx, ri, sp.x*sc, sp.y*sc, sp.w*sc, sp.h*sc, offSp.x*sc, offSp.y*sc, S.ngScale.B_spine);
     }
   }
 
@@ -2260,6 +2282,7 @@ function _ngHitZone(clientX, clientY) {
     e.preventDefault();
     _ngDrag = { zone, startCX: p.x, startCY: p.y,
                 startOffX: S.ngOff[zone].x, startOffY: S.ngOff[zone].y };
+    _updateNgScaleUI(zone);
     canvas.style.cursor = 'grabbing';
   }
 
@@ -2272,8 +2295,7 @@ function _ngHitZone(clientX, clientY) {
       const ri   = getRotImg();
       const zone = _ngDrag.zone;
       const areaMM = NG_AREAS[zone] || NG_AREAS.A;
-      const raw  = { x: _ngDrag.startOffX + dxMM, y: _ngDrag.startOffY + dyMM };
-      S.ngOff[zone] = ri ? _ngClampMM(ri, areaMM, raw.x, raw.y) : raw;
+      S.ngOff[zone] = { x: _ngDrag.startOffX + dxMM, y: _ngDrag.startOffY + dyMM };
       renderNeoGeo();
     } else if (S.neogeoMode && getRotImg()) {
       const p = pos(e);
@@ -2294,6 +2316,33 @@ function _ngHitZone(clientX, clientY) {
   document.addEventListener('touchmove', (e) => { if (_ngDrag) onMove(e); }, { passive: false });
   document.addEventListener('touchend',  onEnd);
   canvas.addEventListener('mouseleave', () => { if (!_ngDrag) canvas.style.cursor = ''; });
+
+  // Wheel-to-zoom — zooms towards cursor position within the zone
+  canvas.addEventListener('wheel', (e) => {
+    if (!S.neogeoMode) return;
+    const zone = _ngHitZone(e.clientX, e.clientY);
+    if (!zone) return;
+    e.preventDefault();
+    const oldZoom = S.ngScale[zone] || 1;
+    const factor  = e.deltaY > 0 ? 0.92 : 1.08;
+    const newZoom = Math.max(0.2, Math.min(4, oldZoom * factor));
+
+    // Zoom towards cursor: keep the image pixel under the cursor fixed
+    const rect = canvas.getBoundingClientRect();
+    const cx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
+    const cy   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+    const areaMM  = NG_AREAS[zone];
+    const cxRelMM = (cx - (areaMM.x + areaMM.w / 2) * _ngSc) / _ngSc;
+    const cyRelMM = (cy - (areaMM.y + areaMM.h / 2) * _ngSc) / _ngSc;
+    const off = S.ngOff[zone];
+    S.ngOff[zone] = {
+      x: cxRelMM - (cxRelMM - off.x) * newZoom / oldZoom,
+      y: cyRelMM - (cyRelMM - off.y) * newZoom / oldZoom,
+    };
+    S.ngScale[zone] = newZoom;
+    _updateNgScaleUI(zone);
+    renderNeoGeo();
+  }, { passive: false });
 })();
 
 // ── Init ──────────────────────────────────────────────
