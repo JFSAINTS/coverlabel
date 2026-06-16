@@ -63,15 +63,22 @@ A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dim
 - Opción para invertir imagen en espejo
 - **Retoque en vivo**: brillo, contraste, saturación y nitidez, aplicado en la vista previa y en todas las exportaciones
 
+### Texto sobre portada y lomo
+Añade capas de texto (título, número de cartucho, texto de lomo…) con posición, tamaño, giro, color, contorno y alineación ajustables. Se imprime junto a la imagen en PDF, PNG y SVG.
+
 ### Plantillas personalizadas
 Guarda tus propios tamaños como plantilla (localStorage), reutilízalos desde el selector de formato, y expórtalos/impórtalos como JSON para compartirlos o hacer copia de seguridad.
 
-### Interfaz
+### Interfaz y comodidad
 - **Modo oscuro automático** (según el sistema) con interruptor manual en la cabecera
+- **Multi-idioma**: español, inglés, portugués y francés
+- **Recuerda tu última sesión** (papel, dimensiones, márgenes, textos…) al reabrir
+- **Zona segura** opcional (margen interior de 3 mm) para no cortar contenido importante
 - Buscador rápido de consola/formato en el selector de plantillas
+- Optimización automática de imágenes muy grandes (mejor rendimiento en móvil)
 
 ### PWA / Sin conexión
-Funciona completamente offline después de la primera carga. Instálala desde el navegador como app.
+**App instalable** desde el navegador (manifest + service worker). Funciona 100% offline tras la primera carga; las imágenes nunca salen de tu dispositivo.
 
 ### Plantillas de la comunidad
 La pestaña **Comunidad** en el modal de Cajas Repro permite explorar, votar y usar plantillas SVG creadas por otros usuarios. Las plantillas incluidas inicialmente son cortesía del blog [**el cuarto de Toby**](https://elcuartodetoby.blogspot.com/p/cajas-custom.html).

@@ -7,6 +7,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7c6af7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CoverLabel">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -312,6 +317,31 @@
     .opt-row span { font-size: .78rem; color: var(--txt2); }
 
     input[type=range] { width: 100%; accent-color: var(--ac); margin: 2px 0; cursor: pointer; }
+
+    /* ── Text overlay editor ── */
+    .text-item { background: var(--sfc2); border: 1px solid var(--brd); border-radius: var(--rs); padding: 8px; margin-bottom: 8px; }
+    .text-item-head { display: flex; gap: 6px; align-items: center; }
+    .text-item-head input[type=text] {
+      flex: 1; background: var(--sfc); border: 1.5px solid var(--brd); border-radius: 6px;
+      color: var(--txt); padding: 5px 8px; font-size: .76rem; font-family: inherit; outline: none;
+    }
+    .text-del { background: none; border: none; color: var(--txt3); cursor: pointer; font-size: .85rem; padding: 2px 4px; }
+    .text-del:hover { color: var(--red); }
+    .text-item-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; margin-top: 6px; }
+    .text-item-controls label { font-size: .64rem; color: var(--txt3); display: flex; flex-direction: column; }
+    .text-item-controls label span { color: var(--ac); font-weight: 700; float: right; }
+    .text-item-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+    .text-color { display: flex; align-items: center; gap: 2px; font-size: .7rem; color: var(--txt3); cursor: pointer; }
+    .text-color input[type=color] { width: 24px; height: 24px; border: 1px solid var(--brd); border-radius: 5px; padding: 0; cursor: pointer; background: none; }
+    .text-tog {
+      width: 26px; height: 26px; border: 1.5px solid var(--brd); border-radius: 6px;
+      background: var(--sfc); color: var(--txt2); cursor: pointer; font-size: .8rem; font-family: inherit;
+    }
+    .text-tog.on { border-color: var(--ac); background: var(--aclt); color: var(--ac); }
+    .text-item-row select {
+      margin-left: auto; background: var(--sfc); border: 1.5px solid var(--brd); border-radius: 6px;
+      color: var(--txt); padding: 3px 5px; font-size: .8rem; font-family: inherit; cursor: pointer;
+    }
 
     /* ── Split ── */
     .auto-btn {
@@ -638,11 +668,17 @@
   <div class="logo"><img src="icons/icon-48.png" alt="CoverLabel" style="width:30px;height:30px;object-fit:contain;"></div>
   <div>
     <h1>CoverLabel <span style="font-weight:400;color:var(--txt3);font-size:.78rem">by JFSAINTS</span></h1>
-    <span class="sub">Tu útil de covers, etiquetas y cajas</span>
+    <span class="sub" data-i18n="subtitle">Tu útil de covers, etiquetas y cajas</span>
   </div>
-  <button class="repro-btn" onclick="openReproModal()">🎮 Cajas Repro</button>
+  <button class="repro-btn" onclick="openReproModal()" data-i18n="btn_repro">🎮 Cajas Repro</button>
+  <select id="lang-sel" class="info-hdr-btn" onchange="setLang(this.value)" title="Idioma / Language" style="padding:5px 6px">
+    <option value="es">🇪🇸 ES</option>
+    <option value="en">🇬🇧 EN</option>
+    <option value="pt">🇵🇹 PT</option>
+    <option value="fr">🇫🇷 FR</option>
+  </select>
   <button class="info-hdr-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro">🌙</button>
-  <button class="info-hdr-btn" onclick="openInfoModal()">ℹ️ Qué es</button>
+  <button class="info-hdr-btn" onclick="openInfoModal()" data-i18n="btn_info">ℹ️ Qué es</button>
 </header>
 
 <main>
@@ -650,8 +686,8 @@
 
     <!-- FORMATO -->
     <div class="sec">
-      <div class="sec-title">Formato / Categoría</div>
-      <input type="text" id="fmt-search" placeholder="🔎 Buscar consola/formato…" autocomplete="off"
+      <div class="sec-title" data-i18n="sec_format">Formato / Categoría</div>
+      <input type="text" id="fmt-search" placeholder="🔎 Buscar consola/formato…" data-i18n-ph="fmt_search" autocomplete="off"
              style="width:100%;margin-bottom:7px;padding:7px 9px;border:1.5px solid var(--brd);border-radius:var(--rs);background:var(--sfc2);color:var(--txt);font-family:inherit;font-size:.78rem;outline:none"
              oninput="filterFormatSelect(this.value)">
       <select id="cat-sel" class="cat-select" onchange="onCatChange(this.value)">
@@ -731,15 +767,15 @@
 
     <!-- IMAGEN -->
     <div class="sec">
-      <div class="sec-title">Imagen</div>
+      <div class="sec-title" data-i18n="sec_image">Imagen</div>
       <div id="upload-drop" onclick="triggerFile()">
         <div class="di">🖼️</div>
-        <p><strong>Haz clic</strong> o arrastra la imagen aquí</p>
+        <p><strong data-i18n="upload_hint1">Haz clic</strong> <span data-i18n="upload_hint2">o arrastra la imagen aquí</span></p>
         <p>PNG · JPG · WEBP · GIF</p>
       </div>
       <div id="upload-preview">
         <img id="thumb" src="" alt="">
-        <button class="change-btn" onclick="triggerFile()">✎ Cambiar</button>
+        <button class="change-btn" onclick="triggerFile()" data-i18n="btn_change">✎ Cambiar</button>
       </div>
       <div class="rot-row">
         <button class="rot-btn" id="rot-ccw" onclick="rotateImg(-90)" title="Girar 90° izquierda" disabled>↺ −90°</button>
@@ -750,21 +786,21 @@
 
     <!-- AJUSTES DE IMAGEN -->
     <div class="sec" id="adj-sec" style="display:none">
-      <div class="sec-title">Retoque de imagen</div>
-      <div style="display:flex;justify-content:space-between"><span class="ng-sub">☀️ Brillo</span><span class="ng-sub" id="adj-brightness-val">100%</span></div>
+      <div class="sec-title" data-i18n="sec_adjust">Retoque de imagen</div>
+      <div style="display:flex;justify-content:space-between"><span class="ng-sub" data-i18n="adj_bright">☀️ Brillo</span><span class="ng-sub" id="adj-brightness-val">100%</span></div>
       <input type="range" id="adj-brightness" min="50" max="150" value="100" oninput="setImgAdj('brightness', +this.value)">
-      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">◐ Contraste</span><span class="ng-sub" id="adj-contrast-val">100%</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub" data-i18n="adj_contrast">◐ Contraste</span><span class="ng-sub" id="adj-contrast-val">100%</span></div>
       <input type="range" id="adj-contrast" min="50" max="150" value="100" oninput="setImgAdj('contrast', +this.value)">
-      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">🎨 Saturación</span><span class="ng-sub" id="adj-saturation-val">100%</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub" data-i18n="adj_sat">🎨 Saturación</span><span class="ng-sub" id="adj-saturation-val">100%</span></div>
       <input type="range" id="adj-saturation" min="0" max="200" value="100" oninput="setImgAdj('saturation', +this.value)">
-      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">✨ Nitidez</span><span class="ng-sub" id="adj-sharpen-val">0%</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub" data-i18n="adj_sharp">✨ Nitidez</span><span class="ng-sub" id="adj-sharpen-val">0%</span></div>
       <input type="range" id="adj-sharpen" min="0" max="100" value="0" oninput="setImgAdj('sharpen', +this.value)">
-      <button class="auto-btn" onclick="resetImgAdj()">↺ Restablecer</button>
+      <button class="auto-btn" onclick="resetImgAdj()" data-i18n="btn_reset">↺ Restablecer</button>
     </div>
 
     <!-- PAPEL -->
     <div class="sec">
-      <div class="sec-title">Tamaño de papel</div>
+      <div class="sec-title" data-i18n="sec_paper">Tamaño de papel</div>
       <div class="chips" id="paper-chips">
         <button class="chip" data-v="A3"  onclick="S.set('paper','A3')">A3</button>
         <button class="chip on" data-v="A4" onclick="S.set('paper','A4')">A4</button>
@@ -772,26 +808,26 @@
       </div>
       <div class="orient-row">
         <button class="oc on" id="oc-p" onclick="S.set('orient','portrait')">
-          <span class="pg v"></span>Vertical
+          <span class="pg v"></span><span data-i18n="orient_v">Vertical</span>
         </button>
         <button class="oc" id="oc-l" onclick="S.set('orient','landscape')">
-          <span class="pg h"></span>Horizontal
+          <span class="pg h"></span><span data-i18n="orient_h">Horizontal</span>
         </button>
       </div>
     </div>
 
     <!-- TAMAÑO -->
     <div class="sec">
-      <div class="sec-title">Tamaño (cm)</div>
+      <div class="sec-title" data-i18n="sec_size">Tamaño (cm)</div>
       <div class="dim-row">
         <div class="field">
-          <label>Ancho</label>
+          <label data-i18n="lbl_width">Ancho</label>
           <input type="number" id="lw" value="9.0" min="0.5" max="200" step="0.1"
                  oninput="S.setN('lW',this.value)">
         </div>
         <span class="sep">×</span>
         <div class="field">
-          <label>Alto</label>
+          <label data-i18n="lbl_height">Alto</label>
           <input type="number" id="lh" value="5.5" min="0.5" max="200" step="0.1"
                  oninput="S.setN('lH',this.value)">
         </div>
@@ -800,7 +836,7 @@
 
     <!-- AJUSTE -->
     <div class="sec">
-      <div class="sec-title">Ajuste de imagen</div>
+      <div class="sec-title" data-i18n="sec_fit">Ajuste de imagen</div>
       <div class="fit-list">
         <div class="fi on" data-fit="cover"   onclick="S.set('fit','cover')">
           <div class="fi-thumb cover"></div>
@@ -978,16 +1014,27 @@
               onclick="setCtpl(false)">✕ Cerrar plantilla</button>
     </div>
 
+    <!-- TEXTO -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_text">Texto (título / lomo / nº)</div>
+      <div id="text-list"></div>
+      <button class="auto-btn" style="margin-top:6px" onclick="addText()" data-i18n="btn_add_text">+ Añadir texto</button>
+    </div>
+
     <!-- OPCIONES -->
     <div class="sec">
-      <div class="sec-title">Opciones</div>
+      <div class="sec-title" data-i18n="sec_options">Opciones</div>
       <label class="opt-row">
         <input type="checkbox" id="guides" onchange="S.set('guides',this.checked)">
-        <span>Guías de corte en las esquinas</span>
+        <span data-i18n="opt_guides">Guías de corte en las esquinas</span>
       </label>
       <label class="opt-row" style="margin-top:7px">
         <input type="checkbox" id="reg-marks" onchange="S.set('regMarks',this.checked)">
-        <span>Marcas de registro en la página</span>
+        <span data-i18n="opt_regmarks">Marcas de registro en la página</span>
+      </label>
+      <label class="opt-row" style="margin-top:7px">
+        <input type="checkbox" id="bleed-on" onchange="S.set('bleed',this.checked)">
+        <span data-i18n="opt_bleed">Zona segura (margen interior 3 mm)</span>
       </label>
     </div>
 
@@ -997,7 +1044,7 @@
   <div class="preview-panel">
     <div class="card">
       <div class="pv-bar">
-        <h2>Vista previa</h2>
+        <h2 data-i18n="pv_title">Vista previa</h2>
         <div id="badge">—</div>
       </div>
       <div class="canvas-bg" id="cvbg">
@@ -1008,10 +1055,10 @@
       </div>
     </div>
     <div class="card export-row">
-      <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled>📄 Exportar PDF</button>
-      <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled>🖼️ Exportar PNG</button>
-      <button class="btn btn-svg" id="btn-svg" onclick="exportSVG()" disabled>🔷 Exportar SVG</button>
-      <button class="btn btn-print" id="btn-print" onclick="printDirect()" disabled>🖨️ Imprimir</button>
+      <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled data-i18n="btn_pdf">📄 Exportar PDF</button>
+      <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled data-i18n="btn_png">🖼️ Exportar PNG</button>
+      <button class="btn btn-svg" id="btn-svg" onclick="exportSVG()" disabled data-i18n="btn_svg">🔷 Exportar SVG</button>
+      <button class="btn btn-print" id="btn-print" onclick="printDirect()" disabled data-i18n="btn_print">🖨️ Imprimir</button>
     </div>
   </div>
 </main>
@@ -1064,6 +1111,111 @@
 
 <script src="./lib/jspdf.min.js"></script>
 <script>
+// ── i18n (ES / EN / PT / FR) ──────────────────────────
+const I18N = {
+  es: {
+    subtitle: 'Tu útil de covers, etiquetas y cajas',
+    btn_repro: '🎮 Cajas Repro', btn_info: 'ℹ️ Qué es',
+    sec_format: 'Formato / Categoría', fmt_search: '🔎 Buscar consola/formato…',
+    sec_image: 'Imagen', upload_hint1: 'Haz clic', upload_hint2: 'o arrastra la imagen aquí',
+    btn_change: '✎ Cambiar', sec_adjust: 'Retoque de imagen',
+    adj_bright: '☀️ Brillo', adj_contrast: '◐ Contraste', adj_sat: '🎨 Saturación', adj_sharp: '✨ Nitidez',
+    btn_reset: '↺ Restablecer', sec_paper: 'Tamaño de papel',
+    orient_v: 'Vertical', orient_h: 'Horizontal', sec_size: 'Tamaño (cm)',
+    lbl_width: 'Ancho', lbl_height: 'Alto', sec_fit: 'Ajuste de imagen',
+    sec_text: 'Texto (título / lomo / nº)', btn_add_text: '+ Añadir texto',
+    sec_options: 'Opciones', opt_guides: 'Guías de corte en las esquinas',
+    opt_regmarks: 'Marcas de registro en la página', opt_bleed: 'Zona segura (margen interior 3 mm)',
+    text_empty: 'Sin textos. Añade título o lomo.', text_default: 'Texto', text_ph: 'Escribe…',
+    text_remove: 'Eliminar', text_size: 'Tamaño', text_rot: 'Giro', text_outline: 'Contorno',
+    pv_title: 'Vista previa', btn_pdf: '📄 Exportar PDF', btn_png: '🖼️ Exportar PNG',
+    btn_svg: '🔷 Exportar SVG', btn_print: '🖨️ Imprimir',
+  },
+  en: {
+    subtitle: 'Your covers, labels & boxes tool',
+    btn_repro: '🎮 Repro Boxes', btn_info: 'ℹ️ About',
+    sec_format: 'Format / Category', fmt_search: '🔎 Search console/format…',
+    sec_image: 'Image', upload_hint1: 'Click', upload_hint2: 'or drag the image here',
+    btn_change: '✎ Change', sec_adjust: 'Image touch-up',
+    adj_bright: '☀️ Brightness', adj_contrast: '◐ Contrast', adj_sat: '🎨 Saturation', adj_sharp: '✨ Sharpness',
+    btn_reset: '↺ Reset', sec_paper: 'Paper size',
+    orient_v: 'Portrait', orient_h: 'Landscape', sec_size: 'Size (cm)',
+    lbl_width: 'Width', lbl_height: 'Height', sec_fit: 'Image fit',
+    sec_text: 'Text (title / spine / no.)', btn_add_text: '+ Add text',
+    sec_options: 'Options', opt_guides: 'Cut guides at corners',
+    opt_regmarks: 'Registration marks on page', opt_bleed: 'Safe zone (3 mm inner margin)',
+    text_empty: 'No texts. Add a title or spine.', text_default: 'Text', text_ph: 'Type…',
+    text_remove: 'Remove', text_size: 'Size', text_rot: 'Rotation', text_outline: 'Outline',
+    pv_title: 'Preview', btn_pdf: '📄 Export PDF', btn_png: '🖼️ Export PNG',
+    btn_svg: '🔷 Export SVG', btn_print: '🖨️ Print',
+  },
+  pt: {
+    subtitle: 'Sua ferramenta de capas, etiquetas e caixas',
+    btn_repro: '🎮 Caixas Repro', btn_info: 'ℹ️ Sobre',
+    sec_format: 'Formato / Categoria', fmt_search: '🔎 Buscar console/formato…',
+    sec_image: 'Imagem', upload_hint1: 'Clique', upload_hint2: 'ou arraste a imagem aqui',
+    btn_change: '✎ Trocar', sec_adjust: 'Retoque de imagem',
+    adj_bright: '☀️ Brilho', adj_contrast: '◐ Contraste', adj_sat: '🎨 Saturação', adj_sharp: '✨ Nitidez',
+    btn_reset: '↺ Redefinir', sec_paper: 'Tamanho do papel',
+    orient_v: 'Vertical', orient_h: 'Horizontal', sec_size: 'Tamanho (cm)',
+    lbl_width: 'Largura', lbl_height: 'Altura', sec_fit: 'Ajuste da imagem',
+    sec_text: 'Texto (título / lombada / nº)', btn_add_text: '+ Adicionar texto',
+    sec_options: 'Opções', opt_guides: 'Guias de corte nos cantos',
+    opt_regmarks: 'Marcas de registro na página', opt_bleed: 'Zona segura (margem interna 3 mm)',
+    text_empty: 'Sem textos. Adicione título ou lombada.', text_default: 'Texto', text_ph: 'Digite…',
+    text_remove: 'Remover', text_size: 'Tamanho', text_rot: 'Rotação', text_outline: 'Contorno',
+    pv_title: 'Pré-visualização', btn_pdf: '📄 Exportar PDF', btn_png: '🖼️ Exportar PNG',
+    btn_svg: '🔷 Exportar SVG', btn_print: '🖨️ Imprimir',
+  },
+  fr: {
+    subtitle: 'Votre outil de jaquettes, étiquettes et boîtes',
+    btn_repro: '🎮 Boîtes Repro', btn_info: 'ℹ️ À propos',
+    sec_format: 'Format / Catégorie', fmt_search: '🔎 Rechercher console/format…',
+    sec_image: 'Image', upload_hint1: 'Cliquez', upload_hint2: 'ou glissez l\'image ici',
+    btn_change: '✎ Changer', sec_adjust: 'Retouche d\'image',
+    adj_bright: '☀️ Luminosité', adj_contrast: '◐ Contraste', adj_sat: '🎨 Saturation', adj_sharp: '✨ Netteté',
+    btn_reset: '↺ Réinitialiser', sec_paper: 'Format papier',
+    orient_v: 'Portrait', orient_h: 'Paysage', sec_size: 'Taille (cm)',
+    lbl_width: 'Largeur', lbl_height: 'Hauteur', sec_fit: 'Ajustement image',
+    sec_text: 'Texte (titre / tranche / nº)', btn_add_text: '+ Ajouter texte',
+    sec_options: 'Options', opt_guides: 'Repères de coupe aux coins',
+    opt_regmarks: 'Repères de calage sur la page', opt_bleed: 'Zone sûre (marge intérieure 3 mm)',
+    text_empty: 'Aucun texte. Ajoutez titre ou tranche.', text_default: 'Texte', text_ph: 'Saisir…',
+    text_remove: 'Supprimer', text_size: 'Taille', text_rot: 'Rotation', text_outline: 'Contour',
+    pv_title: 'Aperçu', btn_pdf: '📄 Exporter PDF', btn_png: '🖼️ Exporter PNG',
+    btn_svg: '🔷 Exporter SVG', btn_print: '🖨️ Imprimer',
+  },
+};
+const LANG_KEY = 'coverlabel_lang';
+function getLang() {
+  const stored = localStorage.getItem(LANG_KEY);
+  if (stored && I18N[stored]) return stored;
+  const nav = (navigator.language || 'es').slice(0,2).toLowerCase();
+  return I18N[nav] ? nav : 'es';
+}
+let _lang = 'es';
+function t(key) { return (I18N[_lang] && I18N[_lang][key]) || (I18N.es[key]) || ''; }
+function setLang(code) {
+  if (!I18N[code]) return;
+  localStorage.setItem(LANG_KEY, code);
+  applyLang(code);
+  schedRender();
+}
+function applyLang(code) {
+  _lang = I18N[code] ? code : 'es';
+  document.documentElement.lang = _lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n);
+    if (v) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const v = t(el.dataset.i18nPh);
+    if (v) el.placeholder = v;
+  });
+  const sel = document.getElementById('lang-sel');
+  if (sel) sel.value = _lang;
+}
+
 // ── Format presets (dimensions in mm) ────────────────
 const FORMATS = {
   custom:       [{ id:'custom',         name:'Personalizado',     w:0,   h:0   }],
@@ -1189,6 +1341,8 @@ const S = {
   ctplScale:  {},
   imgAdj: { brightness:100, contrast:100, saturation:100, sharpen:0 },
   regMarks: false,
+  bleed: false,
+  texts: [],   // [{id, content, xPct, yPct, sizePct, color, bold, rotation, align}]
 
   set(key, val) {
     this[key] = val;
@@ -1306,6 +1460,72 @@ function resetImgAdj() {
     document.getElementById(`adj-${k}-val`).textContent = (k === 'sharpen' ? 0 : 100) + '%';
   });
   schedRender();
+}
+
+// ── Text overlays (título / lomo / nº cartucho) ───────
+function addText() {
+  S.texts.push({
+    id: 't' + Date.now() + Math.random().toString(36).slice(2,5),
+    content: t('text_default') || 'Texto',
+    xPct: 50, yPct: 90, sizePct: 8, rotation: 0,
+    color: '#ffffff', bold: true, align: 'center',
+    font: 'sans-serif', stroke: true, strokeColor: '#000000',
+  });
+  renderTextList();
+  schedRender();
+}
+function removeText(id) {
+  S.texts = S.texts.filter(x => x.id !== id);
+  renderTextList();
+  schedRender();
+}
+function updateText(id, key, val) {
+  const t = S.texts.find(x => x.id === id);
+  if (!t) return;
+  if (['xPct','yPct','sizePct','rotation'].includes(key)) val = +val;
+  if (['bold','stroke'].includes(key)) val = !!val;
+  t[key] = val;
+  const lbl = document.getElementById(`txt-${id}-${key}-val`);
+  if (lbl) lbl.textContent = key === 'rotation' ? `${val}°` : `${val}%`;
+  schedRender();
+}
+function renderTextList() {
+  const wrap = document.getElementById('text-list');
+  if (!wrap) return;
+  if (!S.texts.length) {
+    wrap.innerHTML = `<span class="ng-sub" data-i18n="text_empty">${t('text_empty')||'Sin textos. Añade título o lomo.'}</span>`;
+    return;
+  }
+  wrap.innerHTML = S.texts.map(tx => `
+    <div class="text-item">
+      <div class="text-item-head">
+        <input type="text" value="${_esc(tx.content)}" placeholder="${t('text_ph')||'Escribe…'}"
+               oninput="updateText('${tx.id}','content',this.value)">
+        <button class="text-del" onclick="removeText('${tx.id}')" title="${t('text_remove')||'Eliminar'}">✕</button>
+      </div>
+      <div class="text-item-controls">
+        <label>X <span id="txt-${tx.id}-xPct-val">${tx.xPct}%</span>
+          <input type="range" min="0" max="100" value="${tx.xPct}" oninput="updateText('${tx.id}','xPct',this.value)"></label>
+        <label>Y <span id="txt-${tx.id}-yPct-val">${tx.yPct}%</span>
+          <input type="range" min="0" max="100" value="${tx.yPct}" oninput="updateText('${tx.id}','yPct',this.value)"></label>
+        <label data-i18n="text_size">Tamaño <span id="txt-${tx.id}-sizePct-val">${tx.sizePct}%</span>
+          <input type="range" min="2" max="40" value="${tx.sizePct}" oninput="updateText('${tx.id}','sizePct',this.value)"></label>
+        <label data-i18n="text_rot">Giro <span id="txt-${tx.id}-rotation-val">${tx.rotation}°</span>
+          <input type="range" min="-90" max="90" value="${tx.rotation}" oninput="updateText('${tx.id}','rotation',this.value)"></label>
+      </div>
+      <div class="text-item-row">
+        <label class="text-color">A<input type="color" value="${tx.color}" oninput="updateText('${tx.id}','color',this.value)"></label>
+        <label class="text-color" title="${t('text_outline')||'Contorno'}">⬚<input type="color" value="${tx.strokeColor}" oninput="updateText('${tx.id}','strokeColor',this.value)"></label>
+        <button class="text-tog ${tx.bold?'on':''}"   onclick="updateText('${tx.id}','bold',!${tx.bold});renderTextList()" title="Negrita"><b>B</b></button>
+        <button class="text-tog ${tx.stroke?'on':''}" onclick="updateText('${tx.id}','stroke',!${tx.stroke});renderTextList()" title="${t('text_outline')||'Contorno'}">⬚</button>
+        <select onchange="updateText('${tx.id}','align',this.value)">
+          <option value="left"   ${tx.align==='left'?'selected':''}>⬅</option>
+          <option value="center" ${tx.align==='center'?'selected':''}>⬌</option>
+          <option value="right"  ${tx.align==='right'?'selected':''}>➡</option>
+        </select>
+      </div>
+    </div>`).join('');
+  applyLang(getLang());
 }
 
 // ── Suggest best paper for dimensions (mm) ────────────
@@ -1566,6 +1786,47 @@ function drawLabel(ctx, x, y, w, h, img, offX=0, offY=0, zoom=1) {
     ctx.textBaseline = 'middle';
     ctx.fillText(S.formatCat || 'etiqueta', x+w/2, y+h/2);
   }
+  _drawTextOverlays(ctx, x, y, w, h);
+  ctx.restore();
+}
+
+// Text overlays (título, lomo, nº cartucho…). Positions/size are % of label.
+function _drawTextOverlays(ctx, x, y, w, h) {
+  if (!S.texts || !S.texts.length) return;
+  S.texts.forEach(t => {
+    if (!t.content) return;
+    ctx.save();
+    const px = x + w * (t.xPct / 100);
+    const py = y + h * (t.yPct / 100);
+    const fontPx = Math.max(1, h * (t.sizePct / 100));
+    ctx.translate(px, py);
+    if (t.rotation) ctx.rotate(t.rotation * Math.PI / 180);
+    ctx.font = `${t.bold ? '700 ' : ''}${fontPx}px ${t.font || 'sans-serif'}`;
+    ctx.textAlign = t.align || 'center';
+    ctx.textBaseline = 'middle';
+    if (t.stroke) {
+      ctx.lineWidth = Math.max(1, fontPx * 0.12);
+      ctx.strokeStyle = t.strokeColor || '#ffffff';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(t.content, 0, 0);
+    }
+    ctx.fillStyle = t.color || '#000000';
+    ctx.fillText(t.content, 0, 0);
+    ctx.restore();
+  });
+}
+
+// Safe zone (zona segura) — dashed inset rect at `mm` from each label edge.
+function drawSafeZone(ctx, x, y, w, h, labelWmm, labelHmm) {
+  if (!S.bleed) return;
+  const insX = labelWmm > 0 ? w * (3 / labelWmm) : 0;
+  const insY = labelHmm > 0 ? h * (3 / labelHmm) : 0;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(14,165,233,.7)';
+  ctx.lineWidth = Math.max(0.6, w * 0.004);
+  ctx.setLineDash([Math.max(3, w*0.02), Math.max(3, w*0.02)]);
+  ctx.strokeRect(x + insX, y + insY, w - 2*insX, h - 2*insY);
+  ctx.setLineDash([]);
   ctx.restore();
 }
 
@@ -1990,6 +2251,64 @@ let renderTimer = null;
 function schedRender() {
   clearTimeout(renderTimer);
   renderTimer = setTimeout(render, 55);
+  schedPersist();
+}
+
+// ── Recordar última sesión (localStorage) ─────────────
+const SESSION_KEY = 'coverlabel_session';
+let _persistTimer = null;
+function schedPersist() {
+  clearTimeout(_persistTimer);
+  _persistTimer = setTimeout(persistSession, 400);
+}
+function persistSession() {
+  try {
+    const data = {
+      paper: S.paper, orient: S.orient, lW: S.lW, lH: S.lH,
+      fit: S.fit, spacing: S.spacing, margin: S.margin,
+      guides: S.guides, regMarks: S.regMarks, bleed: S.bleed,
+      gridManual: S.gridManual, gridCols: S.gridCols, gridRows: S.gridRows,
+      formatCat: S.formatCat, formatId: S.formatId, texts: S.texts,
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  } catch {}
+}
+function restoreSession() {
+  let d;
+  try { d = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return; }
+  if (!d) return;
+
+  ['paper','orient','fit'].forEach(k => { if (d[k] != null) S[k] = d[k]; });
+  ['lW','lH','spacing','margin','gridCols','gridRows'].forEach(k => { if (d[k] != null) S[k] = +d[k]; });
+  ['guides','regMarks','bleed','gridManual'].forEach(k => { if (d[k] != null) S[k] = !!d[k]; });
+  if (Array.isArray(d.texts)) S.texts = d.texts;
+
+  // Reflect into the DOM controls
+  document.querySelectorAll('#paper-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.v === S.paper));
+  document.getElementById('oc-p').classList.toggle('on', S.orient === 'portrait');
+  document.getElementById('oc-l').classList.toggle('on', S.orient === 'landscape');
+  document.querySelectorAll('.fi').forEach(el => el.classList.toggle('on', el.dataset.fit === S.fit));
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('lw', S.lW); setVal('lh', S.lH); setVal('sp', S.spacing); setVal('mg', S.margin);
+  setVal('grid-cols', S.gridCols); setVal('grid-rows', S.gridRows);
+  const gd = document.getElementById('guides');     if (gd) gd.checked = S.guides;
+  const rm = document.getElementById('reg-marks');  if (rm) rm.checked = S.regMarks;
+  const bl = document.getElementById('bleed-on');   if (bl) bl.checked = S.bleed;
+
+  // Restore a chosen preset category (skip custom user templates here)
+  if (S.formatCat && FORMATS[S.formatCat]) {
+    const sel = document.getElementById('cat-sel');
+    if (sel) { sel.value = S.formatCat; onCatChange(S.formatCat); }
+  }
+  if (S.gridManual) {
+    const gm = document.getElementById('grid-manual-ctrl');
+    if (gm) {
+      document.getElementById('gm-auto').classList.remove('on');
+      document.getElementById('gm-manual').classList.add('on');
+      gm.style.display = 'block';
+    }
+  }
+  renderTextList();
 }
 
 function render() {
@@ -2040,6 +2359,7 @@ function render() {
       const w = g.lW * sc;
       const h = g.lH * sc;
       drawLabel(ctx, x, y, w, h, getRotImg(), S.imgOff.x*sc, S.imgOff.y*sc, S.imgScale);
+      drawSafeZone(ctx, x, y, w, h, S.lW*10, S.lH*10);
       if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
     }
   }
@@ -2095,12 +2415,28 @@ function onFile(e) {
   e.target.value = '';
 }
 
+// Downscale very large images on load to keep memory/perf sane (esp. mobile).
+// 300 DPI on A3 long side (420mm) ≈ 4960px, so 4500px keeps print quality.
+const MAX_IMG_DIM = 4500;
+function _downscaleIfHuge(img) {
+  const m = Math.max(img.naturalWidth, img.naturalHeight);
+  if (m <= MAX_IMG_DIM) return img;
+  const ratio = MAX_IMG_DIM / m;
+  const cw = Math.round(img.naturalWidth * ratio);
+  const ch = Math.round(img.naturalHeight * ratio);
+  const oc = document.createElement('canvas');
+  oc.width = cw; oc.height = ch;
+  oc.getContext('2d').drawImage(img, 0, 0, cw, ch);
+  oc.naturalWidth = cw; oc.naturalHeight = ch;
+  return oc;
+}
+
 function loadImage(file) {
   const reader = new FileReader();
   reader.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      S.img = img;
+      S.img = _downscaleIfHuge(img);
       S.imgRot = 0;
       _rotCache = null;
       S.ngOff   = { A:{x:0,y:0}, B_back:{x:0,y:0}, B_spine:{x:0,y:0} };
@@ -2317,6 +2653,7 @@ async function exportPDF() {
       lctx.fillStyle = '#fff';
       lctx.fillRect(0, 0, lc.width, lc.height);
       drawLabel(lctx, 0, 0, lc.width, lc.height, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
+      drawSafeZone(lctx, 0, 0, lc.width, lc.height, S.lW*10, S.lH*10);
       const imgData = lc.toDataURL('image/jpeg', 0.93);
 
       for (let r = 0; r < g.rows; r++)
@@ -2531,6 +2868,7 @@ async function exportPNG() {
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
           drawLabel(pctx, x, y, w, h, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
+          drawSafeZone(pctx, x, y, w, h, S.lW*10, S.lH*10);
           if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
         }
       }
@@ -3573,9 +3911,27 @@ async function exportSVG() {
         const s = (S.fit === 'contain' ? Math.min(g.lW/iW, g.lH/iH) : Math.max(g.lW/iW, g.lH/iH)) * S.imgScale;
         const ix = (g.lW - iW*s)/2 + S.imgOff.x;
         const iy = (g.lH - iH*s)/2 + S.imgOff.y;
+        let textSvg = '';
+        (S.texts || []).forEach(t => {
+          if (!t.content) return;
+          const tx = g.lW * (t.xPct/100), ty = g.lH * (t.yPct/100);
+          const fs = g.lH * (t.sizePct/100);
+          const anchor = t.align === 'left' ? 'start' : t.align === 'right' ? 'end' : 'middle';
+          const rot = t.rotation ? ` rotate(${t.rotation} ${tx} ${ty})` : '';
+          const strokeAttr = t.stroke ? ` stroke="${t.strokeColor||'#fff'}" stroke-width="${(fs*0.12).toFixed(2)}" paint-order="stroke"` : '';
+          textSvg += `<text x="${tx}" y="${ty}" font-family="${t.font||'sans-serif'}" font-size="${fs}" ` +
+                     `font-weight="${t.bold?700:400}" fill="${t.color||'#000'}" text-anchor="${anchor}" ` +
+                     `dominant-baseline="central" transform="translate(0 0)${rot}"${strokeAttr}>${_esc(t.content)}</text>`;
+        });
+        let safeSvg = '';
+        if (S.bleed) {
+          safeSvg = `<rect x="3" y="3" width="${g.lW-6}" height="${g.lH-6}" fill="none" ` +
+                    `stroke="#0ea5e9" stroke-width="0.25" stroke-dasharray="2 2"/>`;
+        }
         body += `<g transform="translate(${x},${y})" clip-path="url(#cliplabel)">` +
                 `<rect x="0" y="0" width="${g.lW}" height="${g.lH}" fill="#fff"/>` +
                 `<image href="${dataUri}" x="${ix}" y="${iy}" width="${iW*s}" height="${iH*s}"/>` +
+                safeSvg + textSvg +
                 `</g>`;
         if (S.guides) {
           const gl = Math.min(g.sp > 0 ? g.sp*.45 : 2, 3);
@@ -3736,6 +4092,7 @@ async function printDirect() {
       for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
         const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
         drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), getRotImg(), S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
+        drawSafeZone(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.lW*10, S.lH*10);
         if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
       }
       if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX);
@@ -3789,7 +4146,16 @@ window.addEventListener('resize', () => {
 updateThemeIcon();
 _populateCustomOptgroup();
 renderCustomTplChips();
+applyLang(getLang());
+restoreSession();
 render();
+
+// ── PWA service worker (solo http/https; ignora file:// de Electron) ──
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 
 <!-- ── Upload Modal ───────────────────────────────────── -->

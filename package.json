@@ -1,6 +1,6 @@
 {
   "name": "coverlabel",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Etiquetas y portadas listas para imprimir",
   "main": "electron-main.js",
   "scripts": {
@@ -14,6 +14,8 @@
     "directories": { "output": "dist" },
     "files": [
       "index.html",
+      "manifest.json",
+      "sw.js",
       "lib/**",
       "icons/**",
       "templates/**",
