@@ -1750,25 +1750,35 @@ function calcGrid() {
   const usH = p.h - 2*mg;
   if (usW <= 0 || usH <= 0) return null;
 
-  let cols, rows, overflow = false;
+  let cols, rows, overflow = false, scaled = false;
+  let eLW = lW, eLH = lH, eSpX = spX, eSpY = spY;   // dimensiones efectivas (mm)
+
   if (S.gridManual) {
     cols = Math.max(1, Math.round(S.gridCols));
     rows = Math.max(1, Math.round(S.gridRows));
-    const totalW = cols*lW + (cols-1)*spX;
-    const totalH = rows*lH + (rows-1)*spY;
-    overflow = totalW > usW + 0.01 || totalH > usH + 0.01;
+    let totalW = cols*lW + (cols-1)*spX;
+    let totalH = rows*lH + (rows-1)*spY;
+    // Si el conjunto no cabe, escalar etiquetas + espaciado para que quepa
+    // dentro del área útil, conservando proporciones (nunca sale de la página).
+    if (totalW > usW + 0.01 || totalH > usH + 0.01) {
+      const fit = Math.min(usW / totalW, usH / totalH);
+      eLW = lW * fit; eLH = lH * fit; eSpX = spX * fit; eSpY = spY * fit;
+      scaled = true;
+    }
   } else {
     cols = Math.floor((usW + spX) / (lW + spX));
     rows = Math.floor((usH + spY) / (lH + spY));
     if (cols < 1 || rows < 1) return null;
   }
 
-  const totalW = cols*lW + (cols-1)*spX;
-  const totalH = rows*lH + (rows-1)*spY;
+  const totalW = cols*eLW + (cols-1)*eSpX;
+  const totalH = rows*eLH + (rows-1)*eSpY;
   const ox = (p.w - totalW) / 2;
   const oy = (p.h - totalH) / 2;
   // `sp` retained for guide-length heuristics
-  return { cols, rows, total: cols*rows, lW, lH, spX, spY, sp: Math.min(spX, spY), ox, oy, mg, overflow };
+  return { cols, rows, total: cols*rows, lW: eLW, lH: eLH, spX: eSpX, spY: eSpY,
+           sp: Math.min(eSpX, eSpY), ox, oy, mg, overflow, scaled,
+           realLW: eLW, realLH: eLH };
 }
 
 // ── Label drawing ─────────────────────────────────────
@@ -2379,7 +2389,7 @@ function render() {
       const w = g.lW * sc;
       const h = g.lH * sc;
       drawLabel(ctx, x, y, w, h, getRotImg(), S.imgOff.x*sc, S.imgOff.y*sc, S.imgScale);
-      drawSafeZone(ctx, x, y, w, h, S.lW*10, S.lH*10);
+      drawSafeZone(ctx, x, y, w, h, g.lW, g.lH);
       if (S.guides) drawGuides(ctx, x, y, w, h, gLenPx);
     }
   }
@@ -2405,14 +2415,20 @@ function render() {
   const noun = S.formatCat
     ? (g.total === 1 ? 'portada' : 'portadas')
     : (g.total === 1 ? 'etiqueta' : 'etiquetas');
-  badge.textContent = g.overflow
-    ? `⚠️ ${g.total} ${noun}  (${g.cols}×${g.rows}) — excede el papel`
+  badge.textContent = g.scaled
+    ? `⚠️ ${g.total} ${noun}  (${g.cols}×${g.rows}) — ajustado a la página`
     : `${g.total} ${noun}  (${g.cols} × ${g.rows})`;
-  badge.className = g.overflow ? 'warn' : '';
+  badge.className = g.scaled ? 'warn' : '';
+
+  // Tamaño efectivo (si se escaló para caber, muestra el real impreso)
+  const effW = (g.lW/10), effH = (g.lH/10);
+  const sizeStr = g.scaled
+    ? `📏 ${effW.toFixed(1)}×${effH.toFixed(1)} cm (ajustado de ${S.lW}×${S.lH})`
+    : `📏 ${S.lW}×${S.lH} cm`;
 
   info.innerHTML =
     `<span>📐 ${p.w}×${p.h} mm</span>` +
-    `<span>📏 ${S.lW}×${S.lH} cm</span>` +
+    `<span>${sizeStr}</span>` +
     `<span>↔ Margen real: ${g.ox.toFixed(1)} × ${g.oy.toFixed(1)} mm</span>` +
     (!S.img ? `<span style="color:var(--ac)">⬆ Sube una imagen para exportar</span>` : '');
 
@@ -2674,7 +2690,7 @@ async function exportPDF() {
       lctx.fillStyle = '#fff';
       lctx.fillRect(0, 0, lc.width, lc.height);
       drawLabel(lctx, 0, 0, lc.width, lc.height, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
-      drawSafeZone(lctx, 0, 0, lc.width, lc.height, S.lW*10, S.lH*10);
+      drawSafeZone(lctx, 0, 0, lc.width, lc.height, g.lW, g.lH);
       const imgData = lc.toDataURL('image/jpeg', 0.93);
 
       for (let r = 0; r < g.rows; r++)
@@ -2890,7 +2906,7 @@ async function exportPNG() {
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
           drawLabel(pctx, x, y, w, h, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
-          drawSafeZone(pctx, x, y, w, h, S.lW*10, S.lH*10);
+          drawSafeZone(pctx, x, y, w, h, g.lW, g.lH);
           if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
         }
       }
@@ -4117,7 +4133,7 @@ async function printDirect() {
       for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
         const x=Math.round((g.ox+c*(g.lW+g.spX))*PX), y=Math.round((g.oy+r*(g.lH+g.spY))*PX);
         drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), getRotImg(), S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
-        drawSafeZone(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.lW*10, S.lH*10);
+        drawSafeZone(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), g.lW, g.lH);
         if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
       }
       if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX);

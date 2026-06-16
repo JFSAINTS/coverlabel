@@ -51,7 +51,7 @@ Funciona **sin servidor**, **sin cuenta** y **sin conexión** una vez cargada.
 A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dimensiones introducidas
 
 ### Espaciado independiente
-Define el espacio **entre columnas** y **entre filas** por separado (mm) para aprovechar al máximo cada hoja según el formato de tu etiqueta.
+Define el espacio **entre columnas** y **entre filas** por separado (mm) para aprovechar al máximo cada hoja según el formato de tu etiqueta. En modo de cuadrícula manual, si la combinación de columnas/filas/espaciado no cabe, el conjunto se **ajusta automáticamente** para no salirse nunca de los márgenes de la página (A4/A3/A5…), conservando las proporciones.
 
 ### Exportación
 - **PDF** listo para imprimir (máxima calidad, vectorial)
