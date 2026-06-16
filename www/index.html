@@ -874,16 +874,23 @@
 
     <!-- ESPACIADO -->
     <div class="sec">
-      <div class="sec-title">Espaciado</div>
+      <div class="sec-title" data-i18n="sec_spacing">Espaciado</div>
       <div class="dim-row">
         <div class="field">
-          <label>Entre elementos (mm)</label>
-          <input type="number" id="sp" value="0" min="0" max="30" step="0.5"
-                 oninput="S.setN('spacing',this.value)">
+          <label data-i18n="lbl_sp_cols">Entre columnas (mm)</label>
+          <input type="number" id="sp-x" value="0" min="0" max="30" step="0.5"
+                 oninput="S.setN('spacingX',this.value)">
         </div>
-        <span class="sep"></span>
+        <span class="sep">×</span>
         <div class="field">
-          <label>Margen mínimo (mm)</label>
+          <label data-i18n="lbl_sp_rows">Entre filas (mm)</label>
+          <input type="number" id="sp-y" value="0" min="0" max="30" step="0.5"
+                 oninput="S.setN('spacingY',this.value)">
+        </div>
+      </div>
+      <div class="dim-row" style="margin-top:7px">
+        <div class="field">
+          <label data-i18n="lbl_margin">Margen mínimo (mm)</label>
           <input type="number" id="mg" value="3" min="0" max="40" step="0.5"
                  oninput="S.setN('margin',this.value)">
         </div>
@@ -1123,6 +1130,7 @@ const I18N = {
     btn_reset: '↺ Restablecer', sec_paper: 'Tamaño de papel',
     orient_v: 'Vertical', orient_h: 'Horizontal', sec_size: 'Tamaño (cm)',
     lbl_width: 'Ancho', lbl_height: 'Alto', sec_fit: 'Ajuste de imagen',
+    sec_spacing: 'Espaciado', lbl_sp_cols: 'Entre columnas (mm)', lbl_sp_rows: 'Entre filas (mm)', lbl_margin: 'Margen mínimo (mm)',
     sec_text: 'Texto (título / lomo / nº)', btn_add_text: '+ Añadir texto',
     sec_options: 'Opciones', opt_guides: 'Guías de corte en las esquinas',
     opt_regmarks: 'Marcas de registro en la página', opt_bleed: 'Zona segura (margen interior 3 mm)',
@@ -1141,6 +1149,7 @@ const I18N = {
     btn_reset: '↺ Reset', sec_paper: 'Paper size',
     orient_v: 'Portrait', orient_h: 'Landscape', sec_size: 'Size (cm)',
     lbl_width: 'Width', lbl_height: 'Height', sec_fit: 'Image fit',
+    sec_spacing: 'Spacing', lbl_sp_cols: 'Between columns (mm)', lbl_sp_rows: 'Between rows (mm)', lbl_margin: 'Min. margin (mm)',
     sec_text: 'Text (title / spine / no.)', btn_add_text: '+ Add text',
     sec_options: 'Options', opt_guides: 'Cut guides at corners',
     opt_regmarks: 'Registration marks on page', opt_bleed: 'Safe zone (3 mm inner margin)',
@@ -1159,6 +1168,7 @@ const I18N = {
     btn_reset: '↺ Redefinir', sec_paper: 'Tamanho do papel',
     orient_v: 'Vertical', orient_h: 'Horizontal', sec_size: 'Tamanho (cm)',
     lbl_width: 'Largura', lbl_height: 'Altura', sec_fit: 'Ajuste da imagem',
+    sec_spacing: 'Espaçamento', lbl_sp_cols: 'Entre colunas (mm)', lbl_sp_rows: 'Entre linhas (mm)', lbl_margin: 'Margem mínima (mm)',
     sec_text: 'Texto (título / lombada / nº)', btn_add_text: '+ Adicionar texto',
     sec_options: 'Opções', opt_guides: 'Guias de corte nos cantos',
     opt_regmarks: 'Marcas de registro na página', opt_bleed: 'Zona segura (margem interna 3 mm)',
@@ -1177,6 +1187,7 @@ const I18N = {
     btn_reset: '↺ Réinitialiser', sec_paper: 'Format papier',
     orient_v: 'Portrait', orient_h: 'Paysage', sec_size: 'Taille (cm)',
     lbl_width: 'Largeur', lbl_height: 'Hauteur', sec_fit: 'Ajustement image',
+    sec_spacing: 'Espacement', lbl_sp_cols: 'Entre colonnes (mm)', lbl_sp_rows: 'Entre lignes (mm)', lbl_margin: 'Marge min. (mm)',
     sec_text: 'Texte (titre / tranche / nº)', btn_add_text: '+ Ajouter texte',
     sec_options: 'Options', opt_guides: 'Repères de coupe aux coins',
     opt_regmarks: 'Repères de calage sur la page', opt_bleed: 'Zone sûre (marge intérieure 3 mm)',
@@ -1313,7 +1324,8 @@ const S = {
   lW: 9.0,
   lH: 5.5,
   fit: 'cover',
-  spacing: 0,
+  spacingX: 0,
+  spacingY: 0,
   margin: 3,
   guides: false,
   formatCat: null,   // null = custom
@@ -1730,7 +1742,8 @@ function calcGrid() {
   const p = pageMM();
   const lW = S.lW * 10;
   const lH = S.lH * 10;
-  const sp = +S.spacing;
+  const spX = +S.spacingX;   // entre columnas (horizontal)
+  const spY = +S.spacingY;   // entre filas (vertical)
   const mg = +S.margin;
   if (lW <= 0 || lH <= 0) return null;
   const usW = p.w - 2*mg;
@@ -1741,20 +1754,21 @@ function calcGrid() {
   if (S.gridManual) {
     cols = Math.max(1, Math.round(S.gridCols));
     rows = Math.max(1, Math.round(S.gridRows));
-    const totalW = cols*lW + (cols-1)*sp;
-    const totalH = rows*lH + (rows-1)*sp;
+    const totalW = cols*lW + (cols-1)*spX;
+    const totalH = rows*lH + (rows-1)*spY;
     overflow = totalW > usW + 0.01 || totalH > usH + 0.01;
   } else {
-    cols = Math.floor((usW + sp) / (lW + sp));
-    rows = Math.floor((usH + sp) / (lH + sp));
+    cols = Math.floor((usW + spX) / (lW + spX));
+    rows = Math.floor((usH + spY) / (lH + spY));
     if (cols < 1 || rows < 1) return null;
   }
 
-  const totalW = cols*lW + (cols-1)*sp;
-  const totalH = rows*lH + (rows-1)*sp;
+  const totalW = cols*lW + (cols-1)*spX;
+  const totalH = rows*lH + (rows-1)*spY;
   const ox = (p.w - totalW) / 2;
   const oy = (p.h - totalH) / 2;
-  return { cols, rows, total: cols*rows, lW, lH, sp, ox, oy, mg, overflow };
+  // `sp` retained for guide-length heuristics
+  return { cols, rows, total: cols*rows, lW, lH, spX, spY, sp: Math.min(spX, spY), ox, oy, mg, overflow };
 }
 
 // ── Label drawing ─────────────────────────────────────
@@ -2265,7 +2279,7 @@ function persistSession() {
   try {
     const data = {
       paper: S.paper, orient: S.orient, lW: S.lW, lH: S.lH,
-      fit: S.fit, spacing: S.spacing, margin: S.margin,
+      fit: S.fit, spacingX: S.spacingX, spacingY: S.spacingY, margin: S.margin,
       guides: S.guides, regMarks: S.regMarks, bleed: S.bleed,
       gridManual: S.gridManual, gridCols: S.gridCols, gridRows: S.gridRows,
       formatCat: S.formatCat, formatId: S.formatId, texts: S.texts,
@@ -2279,7 +2293,12 @@ function restoreSession() {
   if (!d) return;
 
   ['paper','orient','fit'].forEach(k => { if (d[k] != null) S[k] = d[k]; });
-  ['lW','lH','spacing','margin','gridCols','gridRows'].forEach(k => { if (d[k] != null) S[k] = +d[k]; });
+  ['lW','lH','margin','gridCols','gridRows'].forEach(k => { if (d[k] != null) S[k] = +d[k]; });
+  // spacing: nuevos campos X/Y, con migración del antiguo `spacing` único
+  if (d.spacingX != null) S.spacingX = +d.spacingX;
+  else if (d.spacing != null) S.spacingX = +d.spacing;
+  if (d.spacingY != null) S.spacingY = +d.spacingY;
+  else if (d.spacing != null) S.spacingY = +d.spacing;
   ['guides','regMarks','bleed','gridManual'].forEach(k => { if (d[k] != null) S[k] = !!d[k]; });
   if (Array.isArray(d.texts)) S.texts = d.texts;
 
@@ -2289,7 +2308,8 @@ function restoreSession() {
   document.getElementById('oc-l').classList.toggle('on', S.orient === 'landscape');
   document.querySelectorAll('.fi').forEach(el => el.classList.toggle('on', el.dataset.fit === S.fit));
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-  setVal('lw', S.lW); setVal('lh', S.lH); setVal('sp', S.spacing); setVal('mg', S.margin);
+  setVal('lw', S.lW); setVal('lh', S.lH); setVal('mg', S.margin);
+  setVal('sp-x', S.spacingX); setVal('sp-y', S.spacingY);
   setVal('grid-cols', S.gridCols); setVal('grid-rows', S.gridRows);
   const gd = document.getElementById('guides');     if (gd) gd.checked = S.guides;
   const rm = document.getElementById('reg-marks');  if (rm) rm.checked = S.regMarks;
@@ -2354,8 +2374,8 @@ function render() {
   const gLenPx = Math.min(g.sp > 0 ? g.sp*sc*.45 : 5*sc*.4, 9);
   for (let r = 0; r < g.rows; r++) {
     for (let c = 0; c < g.cols; c++) {
-      const x = (g.ox + c*(g.lW+g.sp)) * sc;
-      const y = (g.oy + r*(g.lH+g.sp)) * sc;
+      const x = (g.ox + c*(g.lW+g.spX)) * sc;
+      const y = (g.oy + r*(g.lH+g.spY)) * sc;
       const w = g.lW * sc;
       const h = g.lH * sc;
       drawLabel(ctx, x, y, w, h, getRotImg(), S.imgOff.x*sc, S.imgOff.y*sc, S.imgScale);
@@ -2660,7 +2680,7 @@ async function exportPDF() {
       for (let r = 0; r < g.rows; r++)
         for (let c = 0; c < g.cols; c++)
           pdf.addImage(imgData, 'JPEG',
-            g.ox + c*(g.lW+g.sp), g.oy + r*(g.lH+g.sp),
+            g.ox + c*(g.lW+g.spX), g.oy + r*(g.lH+g.spY),
             g.lW, g.lH, undefined, 'FAST');
 
       if (S.guides) {
@@ -2668,7 +2688,7 @@ async function exportPDF() {
         const GL = Math.min(g.sp > 0 ? g.sp*.45 : 2, 3);
         for (let r = 0; r < g.rows; r++) {
           for (let c = 0; c < g.cols; c++) {
-            const x = g.ox + c*(g.lW+g.sp), y = g.oy + r*(g.lH+g.sp);
+            const x = g.ox + c*(g.lW+g.spX), y = g.oy + r*(g.lH+g.spY);
             const w = g.lW, h = g.lH;
             pdf.line(x-GL,y,x,y);   pdf.line(x,y-GL,x,y);
             pdf.line(x+w,y,x+w+GL,y); pdf.line(x+w,y-GL,x+w,y);
@@ -2865,8 +2885,8 @@ async function exportPNG() {
       const gLenPx = Math.round(Math.min(g.sp > 0 ? g.sp*PX_MM*.45 : 2*PX_MM, 3*PX_MM));
       for (let r = 0; r < g.rows; r++) {
         for (let c = 0; c < g.cols; c++) {
-          const x = Math.round((g.ox + c*(g.lW+g.sp)) * PX_MM);
-          const y = Math.round((g.oy + r*(g.lH+g.sp)) * PX_MM);
+          const x = Math.round((g.ox + c*(g.lW+g.spX)) * PX_MM);
+          const y = Math.round((g.oy + r*(g.lH+g.spY)) * PX_MM);
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
           drawLabel(pctx, x, y, w, h, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
@@ -3910,8 +3930,8 @@ async function exportSVG() {
     let body = '';
     for (let r = 0; r < g.rows; r++) {
       for (let c = 0; c < g.cols; c++) {
-        const x = g.ox + c * (g.lW + g.sp);
-        const y = g.oy + r * (g.lH + g.sp);
+        const x = g.ox + c * (g.lW + g.spX);
+        const y = g.oy + r * (g.lH + g.spY);
         const s = (S.fit === 'contain' ? Math.min(g.lW/iW, g.lH/iH) : Math.max(g.lW/iW, g.lH/iH)) * S.imgScale;
         const ix = (g.lW - iW*s)/2 + S.imgOff.x;
         const iy = (g.lH - iH*s)/2 + S.imgOff.y;
@@ -4095,7 +4115,7 @@ async function printDirect() {
       pc.width=Math.round(p.w*PX); pc.height=Math.round(p.h*PX);
       const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
       for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
-        const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
+        const x=Math.round((g.ox+c*(g.lW+g.spX))*PX), y=Math.round((g.oy+r*(g.lH+g.spY))*PX);
         drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), getRotImg(), S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
         drawSafeZone(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.lW*10, S.lH*10);
         if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));

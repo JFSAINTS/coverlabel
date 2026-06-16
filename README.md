@@ -50,6 +50,9 @@ Funciona **sin servidor**, **sin cuenta** y **sin conexión** una vez cargada.
 ### Tamaños de papel
 A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dimensiones introducidas
 
+### Espaciado independiente
+Define el espacio **entre columnas** y **entre filas** por separado (mm) para aprovechar al máximo cada hoja según el formato de tu etiqueta.
+
 ### Exportación
 - **PDF** listo para imprimir (máxima calidad, vectorial)
 - **PNG** para retoque o compartir
