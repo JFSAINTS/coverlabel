@@ -64,7 +64,7 @@ A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dim
 - **Retoque en vivo**: brillo, contraste, saturación y nitidez, aplicado en la vista previa y en todas las exportaciones
 
 ### Texto sobre portada y lomo
-Añade capas de texto (título, número de cartucho, texto de lomo…) con posición, tamaño, giro, color, contorno y alineación ajustables. Se imprime junto a la imagen en PDF, PNG y SVG.
+Añade capas de texto (título, número de cartucho, texto de lomo…) con posición, tamaño, giro, color, contorno y alineación ajustables. Se imprime junto a la imagen en PDF, PNG y SVG. Disponible en el modo estándar **y en las cajas Neo Geo AES**.
 
 ### Plantillas personalizadas
 Guarda tus propios tamaños como plantilla (localStorage), reutilízalos desde el selector de formato, y expórtalos/impórtalos como JSON para compartirlos o hacer copia de seguridad.

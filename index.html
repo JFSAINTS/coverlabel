@@ -2543,6 +2543,7 @@ async function exportPDF() {
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        _drawTextOverlays(pctx, 0, 0, pc.width, pc.height);
         const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[PW, PH] });
         pdf.addImage(pc.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, PW, PH, undefined, 'FAST');
         await downloadOrShare(pdf.output('blob'), `coverlabel-neogeo-lado${page}.pdf`, 'application/pdf');
@@ -2766,6 +2767,7 @@ async function exportPNG() {
           }
         }
         if (tmpl) pctx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        _drawTextOverlays(pctx, 0, 0, pc.width, pc.height);
         await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-neogeo-lado${page}.png`, 'image/png');
         if (page === 'A') await new Promise(r => setTimeout(r, 200));
       }
@@ -3703,6 +3705,8 @@ function renderNeoGeo() {
     ctx.fillText('Cargando plantilla…', canvas.width/2, canvas.height/2);
   }
 
+  _drawTextOverlays(ctx, 0, 0, canvas.width, canvas.height);
+
   ctx.strokeStyle = 'rgba(0,0,0,.06)';
   ctx.lineWidth = 1;
   ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
@@ -4038,6 +4042,7 @@ async function printDirect() {
           }
         }
         if (tmpl) cx.drawImage(tmpl, 0, 0, pc.width, pc.height);
+        _drawTextOverlays(cx, 0, 0, pc.width, pc.height);
         pages.push({ url: pc.toDataURL('image/jpeg', .95), w: 210, h: 297 });
       }
 
