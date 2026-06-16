@@ -53,12 +53,22 @@ A4 · A5 · A3 · Carta (US Letter) · con detección automática según las dim
 ### Exportación
 - **PDF** listo para imprimir (máxima calidad, vectorial)
 - **PNG** para retoque o compartir
+- **SVG** vectorial con la imagen embebida (modo cuadrícula estándar)
+- **Marcas de registro** en las esquinas de la página, para alineación profesional de impresión
 
 ### Configuración de imagen
 - Márgenes ajustables (0–30 mm)
 - Escala libre o encaje automático
 - Rotación 0–360°
 - Opción para invertir imagen en espejo
+- **Retoque en vivo**: brillo, contraste, saturación y nitidez, aplicado en la vista previa y en todas las exportaciones
+
+### Plantillas personalizadas
+Guarda tus propios tamaños como plantilla (localStorage), reutilízalos desde el selector de formato, y expórtalos/impórtalos como JSON para compartirlos o hacer copia de seguridad.
+
+### Interfaz
+- **Modo oscuro automático** (según el sistema) con interruptor manual en la cabecera
+- Buscador rápido de consola/formato en el selector de plantillas
 
 ### PWA / Sin conexión
 Funciona completamente offline después de la primera carga. Instálala desde el navegador como app.

@@ -1,4 +1,4 @@
-package com.jfsaints.printlabel;
+package com.jfsaints.coverlabel;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -28,6 +28,39 @@
       --sh:    0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(124,106,247,.09);
     }
 
+    :root[data-theme="dark"] {
+      --bg:    #15141d;
+      --sfc:   #1c1b29;
+      --sfc2:  #242333;
+      --brd:   #34324a;
+      --ac:    #8b7cf8;
+      --ac2:   #a78bfa;
+      --aclt:  #2a2640;
+      --txt:   #ece9fb;
+      --txt2:  #a6a2c6;
+      --txt3:  #6f6b8f;
+      --red:   #f87171;
+      --grn:   #4ade80;
+      --sh:    0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:    #15141d;
+        --sfc:   #1c1b29;
+        --sfc2:  #242333;
+        --brd:   #34324a;
+        --ac:    #8b7cf8;
+        --ac2:   #a78bfa;
+        --aclt:  #2a2640;
+        --txt:   #ece9fb;
+        --txt2:  #a6a2c6;
+        --txt3:  #6f6b8f;
+        --red:   #f87171;
+        --grn:   #4ade80;
+        --sh:    0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+      }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
@@ -278,6 +311,8 @@
     .opt-row input[type=checkbox] { accent-color: var(--ac); width: 13px; height: 13px; }
     .opt-row span { font-size: .78rem; color: var(--txt2); }
 
+    input[type=range] { width: 100%; accent-color: var(--ac); margin: 2px 0; cursor: pointer; }
+
     /* ── Split ── */
     .auto-btn {
       width: 100%; margin-top: 7px;
@@ -426,6 +461,8 @@
     /* Print button */
     .btn-print { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
     .btn-print:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,.35); }
+    .btn-svg { background: linear-gradient(135deg,#0ea5e9,#6366f1); color:#fff; }
+    .btn-svg:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(14,165,233,.35); }
 
     /* Info header button */
     .info-hdr-btn {
@@ -582,6 +619,13 @@
     }
     @keyframes fadeOut { to { opacity:0; } }
   </style>
+  <script>
+    // Apply stored theme override before paint to avoid flash
+    (function() {
+      const stored = localStorage.getItem('coverlabel_theme');
+      if (stored === 'dark' || stored === 'light') document.documentElement.dataset.theme = stored;
+    })();
+  </script>
 </head>
 <body>
 
@@ -592,6 +636,7 @@
     <span class="sub">Tu útil de covers, etiquetas y cajas</span>
   </div>
   <button class="repro-btn" onclick="openReproModal()">🎮 Cajas Repro</button>
+  <button class="info-hdr-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro">🌙</button>
   <button class="info-hdr-btn" onclick="openInfoModal()">ℹ️ Qué es</button>
 </header>
 
@@ -601,6 +646,9 @@
     <!-- FORMATO -->
     <div class="sec">
       <div class="sec-title">Formato / Categoría</div>
+      <input type="text" id="fmt-search" placeholder="🔎 Buscar consola/formato…" autocomplete="off"
+             style="width:100%;margin-bottom:7px;padding:7px 9px;border:1.5px solid var(--brd);border-radius:var(--rs);background:var(--sfc2);color:var(--txt);font-family:inherit;font-size:.78rem;outline:none"
+             oninput="filterFormatSelect(this.value)">
       <select id="cat-sel" class="cat-select" onchange="onCatChange(this.value)">
         <option value="custom">✏️  Personalizado</option>
         <optgroup label="──── Vídeo ────">
@@ -659,10 +707,20 @@
         <optgroup label="──── SNK / TurboGrafx ────">
           <option value="TurboGrafx-16">🕹️  TurboGrafx-16 / PC Engine</option>
         </optgroup>
+        <optgroup label="──── Mis plantillas ────" id="custom-optgroup"></optgroup>
       </select>
       <div class="subfmt-row" id="subfmt-row" style="display:none">
         <div class="subfmt-chips" id="subfmt-chips"></div>
         <div class="fmt-dim" id="fmt-dim"></div>
+      </div>
+      <div id="custom-tpl-row" style="display:none;margin-top:8px">
+        <button class="auto-btn" style="margin-top:0" onclick="saveCustomTemplate()">💾 Guardar tamaño actual como plantilla</button>
+        <div class="ctpl-page-chips" id="custom-tpl-chips" style="margin-top:8px"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="auto-btn" style="margin-top:0;flex:1" onclick="exportCustomTemplates()">⬇ Exportar JSON</button>
+          <button class="auto-btn" style="margin-top:0;flex:1" onclick="document.getElementById('custom-tpl-file').click()">⬆ Importar JSON</button>
+        </div>
+        <input type="file" id="custom-tpl-file" accept=".json,application/json" style="display:none" onchange="importCustomTemplates(event)">
       </div>
     </div>
 
@@ -683,6 +741,20 @@
         <button class="rot-btn" id="rot-cw"  onclick="rotateImg(90)"  title="Girar 90° derecha"   disabled>↻ +90°</button>
       </div>
       <input type="file" id="file-input" accept="image/*" style="display:none" onchange="onFile(event)">
+    </div>
+
+    <!-- AJUSTES DE IMAGEN -->
+    <div class="sec" id="adj-sec" style="display:none">
+      <div class="sec-title">Retoque de imagen</div>
+      <div style="display:flex;justify-content:space-between"><span class="ng-sub">☀️ Brillo</span><span class="ng-sub" id="adj-brightness-val">100%</span></div>
+      <input type="range" id="adj-brightness" min="50" max="150" value="100" oninput="setImgAdj('brightness', +this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">◐ Contraste</span><span class="ng-sub" id="adj-contrast-val">100%</span></div>
+      <input type="range" id="adj-contrast" min="50" max="150" value="100" oninput="setImgAdj('contrast', +this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">🎨 Saturación</span><span class="ng-sub" id="adj-saturation-val">100%</span></div>
+      <input type="range" id="adj-saturation" min="0" max="200" value="100" oninput="setImgAdj('saturation', +this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="ng-sub">✨ Nitidez</span><span class="ng-sub" id="adj-sharpen-val">0%</span></div>
+      <input type="range" id="adj-sharpen" min="0" max="100" value="0" oninput="setImgAdj('sharpen', +this.value)">
+      <button class="auto-btn" onclick="resetImgAdj()">↺ Restablecer</button>
     </div>
 
     <!-- PAPEL -->
@@ -908,6 +980,10 @@
         <input type="checkbox" id="guides" onchange="S.set('guides',this.checked)">
         <span>Guías de corte en las esquinas</span>
       </label>
+      <label class="opt-row" style="margin-top:7px">
+        <input type="checkbox" id="reg-marks" onchange="S.set('regMarks',this.checked)">
+        <span>Marcas de registro en la página</span>
+      </label>
     </div>
 
   </aside>
@@ -929,6 +1005,7 @@
     <div class="card export-row">
       <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled>📄 Exportar PDF</button>
       <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled>🖼️ Exportar PNG</button>
+      <button class="btn btn-svg" id="btn-svg" onclick="exportSVG()" disabled>🔷 Exportar SVG</button>
       <button class="btn btn-print" id="btn-print" onclick="printDirect()" disabled>🖨️ Imprimir</button>
     </div>
   </div>
@@ -1105,6 +1182,8 @@ const S = {
   ctplPage:   0,
   ctplOff:    {},
   ctplScale:  {},
+  imgAdj: { brightness:100, contrast:100, saturation:100, sharpen:0 },
+  regMarks: false,
 
   set(key, val) {
     this[key] = val;
@@ -1137,28 +1216,90 @@ const S = {
   }
 };
 
-// ── Image rotation ────────────────────────────────────
+// ── Image rotation + adjustments (brillo/contraste/saturación/nitidez) ─
 let _rotCache = null;
+function _adjKey() {
+  const a = S.imgAdj;
+  return `${S.imgRot}_${a.brightness}_${a.contrast}_${a.saturation}_${a.sharpen}`;
+}
+function _hasAdj() {
+  const a = S.imgAdj;
+  return a.brightness !== 100 || a.contrast !== 100 || a.saturation !== 100 || a.sharpen > 0;
+}
 function getRotImg() {
   if (!S.img) return null;
-  if (S.imgRot === 0) return S.img;
-  if (_rotCache && _rotCache.rot === S.imgRot && _rotCache.src === S.img) return _rotCache.canvas;
+  if (S.imgRot === 0 && !_hasAdj()) return S.img;
+  const key = _adjKey();
+  if (_rotCache && _rotCache.key === key && _rotCache.src === S.img) return _rotCache.canvas;
   const swap = S.imgRot === 90 || S.imgRot === 270;
   const cw = swap ? S.img.naturalHeight : S.img.naturalWidth;
   const ch = swap ? S.img.naturalWidth  : S.img.naturalHeight;
   const oc = document.createElement('canvas');
   oc.width = cw; oc.height = ch;
   const octx = oc.getContext('2d');
+  const a = S.imgAdj;
+  if (a.brightness !== 100 || a.contrast !== 100 || a.saturation !== 100) {
+    octx.filter = `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)`;
+  }
   octx.translate(cw / 2, ch / 2);
   octx.rotate(S.imgRot * Math.PI / 180);
   octx.drawImage(S.img, -S.img.naturalWidth / 2, -S.img.naturalHeight / 2);
+  octx.filter = 'none';
+  octx.setTransform(1, 0, 0, 1, 0, 0);
+  if (a.sharpen > 0) _applySharpen(octx, cw, ch, a.sharpen);
   oc.naturalWidth = cw; oc.naturalHeight = ch;
-  _rotCache = { rot: S.imgRot, src: S.img, canvas: oc };
+  _rotCache = { key, src: S.img, canvas: oc };
   return oc;
+}
+
+// Unsharp-mask style 3x3 convolution sharpen, amount 0-100
+function _applySharpen(ctx, w, h, amount) {
+  const k = (amount / 100) * 1.2;
+  const src = ctx.getImageData(0, 0, w, h);
+  const sd  = src.data;
+  const out = ctx.createImageData(w, h);
+  const od  = out.data;
+  const idx = (x, y) => (y * w + x) * 4;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = idx(x, y);
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1) {
+        od[i] = sd[i]; od[i+1] = sd[i+1]; od[i+2] = sd[i+2]; od[i+3] = sd[i+3];
+        continue;
+      }
+      for (let c = 0; c < 3; c++) {
+        const center = sd[i + c];
+        const up    = sd[idx(x, y-1) + c];
+        const down  = sd[idx(x, y+1) + c];
+        const left  = sd[idx(x-1, y) + c];
+        const right = sd[idx(x+1, y) + c];
+        const sharpened = center + k * (4 * center - up - down - left - right) / 4;
+        od[i + c] = Math.max(0, Math.min(255, sharpened));
+      }
+      od[i + 3] = sd[i + 3];
+    }
+  }
+  ctx.putImageData(out, 0, 0);
 }
 function rotateImg(delta) {
   S.imgRot = ((S.imgRot + delta) + 360) % 360;
   _rotCache = null;
+  schedRender();
+}
+
+// ── Image adjustments UI ──────────────────────────────
+function setImgAdj(key, val) {
+  S.imgAdj[key] = val;
+  document.getElementById(`adj-${key}-val`).textContent =
+    key === 'sharpen' ? `${val}%` : `${val}%`;
+  schedRender();
+}
+function resetImgAdj() {
+  S.imgAdj = { brightness:100, contrast:100, saturation:100, sharpen:0 };
+  ['brightness','contrast','saturation','sharpen'].forEach(k => {
+    document.getElementById(`adj-${k}`).value = k === 'sharpen' ? 0 : 100;
+    document.getElementById(`adj-${k}-val`).textContent = (k === 'sharpen' ? 0 : 100) + '%';
+  });
   schedRender();
 }
 
@@ -1176,12 +1317,25 @@ function suggestPaper(w, h) {
 
 // ── Format selection ──────────────────────────────────
 function onCatChange(cat) {
-  S.formatCat = cat === 'custom' ? null : cat;
   const row = document.getElementById('subfmt-row');
   const chips = document.getElementById('subfmt-chips');
+  const customRow = document.getElementById('custom-tpl-row');
+
+  if (cat.startsWith('ctpl_')) {
+    S.formatCat = null;
+    row.style.display = 'none';
+    customRow.style.display = 'block';
+    renderCustomTplChips();
+    applyCustomTemplate(cat.slice(5));
+    return;
+  }
+
+  S.formatCat = cat === 'custom' ? null : cat;
+  customRow.style.display = cat === 'custom' ? 'block' : 'none';
 
   if (cat === 'custom') {
     row.style.display = 'none';
+    renderCustomTplChips();
     return;
   }
 
@@ -1192,6 +1346,115 @@ function onCatChange(cat) {
   row.style.display = 'block';
   // Auto-select first sub-format
   applyPreset(fmts[0].id);
+}
+
+// ── Plantillas personalizadas (localStorage + export/import JSON) ──
+const CUSTOM_TPL_KEY = 'coverlabel_custom_templates';
+function getCustomTemplates() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_TPL_KEY)) || []; } catch { return []; }
+}
+function setCustomTemplates(list) {
+  localStorage.setItem(CUSTOM_TPL_KEY, JSON.stringify(list));
+  _populateCustomOptgroup();
+}
+function _populateCustomOptgroup() {
+  const og = document.getElementById('custom-optgroup');
+  if (!og) return;
+  og.innerHTML = getCustomTemplates().map(t =>
+    `<option value="ctpl_${t.id}">💾  ${_esc(t.name)} (${t.w}×${t.h}mm)</option>`
+  ).join('');
+}
+function renderCustomTplChips() {
+  const wrap = document.getElementById('custom-tpl-chips');
+  if (!wrap) return;
+  const list = getCustomTemplates();
+  if (!list.length) { wrap.innerHTML = '<span class="ng-sub">Aún no tienes plantillas guardadas.</span>'; return; }
+  wrap.innerHTML = list.map(t => `
+    <button class="sfchip" onclick="document.getElementById('cat-sel').value='ctpl_${t.id}';onCatChange('ctpl_${t.id}')">
+      ${_esc(t.name)} (${t.w}×${t.h}mm)
+      <span onclick="event.stopPropagation();deleteCustomTemplate('${t.id}')" style="margin-left:5px;opacity:.6">✕</span>
+    </button>`).join('');
+}
+function saveCustomTemplate() {
+  if (!S.lW || !S.lH || S.lW <= 0 || S.lH <= 0) { showToast('✗ Define un tamaño válido primero'); return; }
+  const name = prompt('Nombre de la plantilla:', `Plantilla ${S.lW}×${S.lH}cm`);
+  if (!name) return;
+  const list = getCustomTemplates();
+  list.push({ id: 'u' + Date.now(), name, w: Math.round(S.lW * 10), h: Math.round(S.lH * 10) });
+  setCustomTemplates(list);
+  renderCustomTplChips();
+  showToast('✓ Plantilla guardada');
+}
+function applyCustomTemplate(id) {
+  const t = getCustomTemplates().find(x => x.id === id);
+  if (!t) return;
+  S.formatId = 'ctpl_' + id;
+  S.lW = +(t.w / 10).toFixed(2);
+  S.lH = +(t.h / 10).toFixed(2);
+  document.getElementById('lw').value = S.lW;
+  document.getElementById('lh').value = S.lH;
+  const { paper, orient } = suggestPaper(t.w, t.h);
+  S.paper = paper; S.orient = orient;
+  document.querySelectorAll('#paper-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.v === paper));
+  document.getElementById('oc-p').classList.toggle('on', orient === 'portrait');
+  document.getElementById('oc-l').classList.toggle('on', orient === 'landscape');
+  schedRender();
+  showToast(`✓ ${t.name} aplicada`);
+}
+function deleteCustomTemplate(id) {
+  setCustomTemplates(getCustomTemplates().filter(x => x.id !== id));
+  renderCustomTplChips();
+}
+function exportCustomTemplates() {
+  const list = getCustomTemplates();
+  if (!list.length) { showToast('No hay plantillas para exportar'); return; }
+  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'coverlabel-plantillas.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importCustomTemplates(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported)) throw new Error('bad format');
+      const list = getCustomTemplates();
+      let added = 0;
+      imported.forEach(t => {
+        if (t && typeof t.name === 'string' && +t.w > 0 && +t.h > 0) {
+          list.push({ id: 'u' + Date.now() + Math.random().toString(36).slice(2, 6), name: t.name, w: +t.w, h: +t.h });
+          added++;
+        }
+      });
+      setCustomTemplates(list);
+      renderCustomTplChips();
+      showToast(`✓ ${added} plantilla(s) importada(s)`);
+    } catch {
+      showToast('✗ Archivo JSON inválido');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ── Buscador de formato/consola ───────────────────────
+function filterFormatSelect(q) {
+  const sel = document.getElementById('cat-sel');
+  q = q.trim().toLowerCase();
+  if (!q) return;
+  for (const opt of sel.options) {
+    if (opt.disabled || opt.value === 'custom') continue;
+    if (opt.textContent.toLowerCase().includes(q)) {
+      sel.value = opt.value;
+      onCatChange(opt.value);
+      break;
+    }
+  }
 }
 
 function applyPreset(id) {
@@ -1303,19 +1566,49 @@ function drawLabel(ctx, x, y, w, h, img, offX=0, offY=0, zoom=1) {
 
 function drawGuides(ctx, x, y, w, h, gLen) {
   ctx.save();
-  ctx.strokeStyle = 'rgba(0,0,0,.28)';
-  ctx.lineWidth = .6;
   const g = gLen;
-  ctx.beginPath();
-  ctx.moveTo(x-g,y);   ctx.lineTo(x,y);
-  ctx.moveTo(x,y-g);   ctx.lineTo(x,y);
-  ctx.moveTo(x+w,y);   ctx.lineTo(x+w+g,y);
-  ctx.moveTo(x+w,y-g); ctx.lineTo(x+w,y);
-  ctx.moveTo(x-g,y+h); ctx.lineTo(x,y+h);
-  ctx.moveTo(x,y+h);   ctx.lineTo(x,y+h+g);
-  ctx.moveTo(x+w,y+h); ctx.lineTo(x+w+g,y+h);
-  ctx.moveTo(x+w,y+h); ctx.lineTo(x+w,y+h+g);
-  ctx.stroke();
+  const draw = () => {
+    ctx.beginPath();
+    ctx.moveTo(x-g,y);   ctx.lineTo(x,y);
+    ctx.moveTo(x,y-g);   ctx.lineTo(x,y);
+    ctx.moveTo(x+w,y);   ctx.lineTo(x+w+g,y);
+    ctx.moveTo(x+w,y-g); ctx.lineTo(x+w,y);
+    ctx.moveTo(x-g,y+h); ctx.lineTo(x,y+h);
+    ctx.moveTo(x,y+h);   ctx.lineTo(x,y+h+g);
+    ctx.moveTo(x+w,y+h); ctx.lineTo(x+w+g,y+h);
+    ctx.moveTo(x+w,y+h); ctx.lineTo(x+w,y+h+g);
+    ctx.stroke();
+  };
+  // White halo first for visibility over busy/dark images, then dark line on top
+  ctx.strokeStyle = 'rgba(255,255,255,.9)';
+  ctx.lineWidth = 2.1;
+  draw();
+  ctx.strokeStyle = 'rgba(0,0,0,.55)';
+  ctx.lineWidth = .7;
+  draw();
+  ctx.restore();
+}
+
+// Registration marks (crosshair + ring) at the page corners — printer alignment aid
+function drawRegMarks(ctx, pw, ph, sc) {
+  const offset = 7 * sc;     // mm-ish offset from edge, scaled to px
+  const r = 2.2 * sc;
+  const corners = [
+    [offset, offset], [pw - offset, offset],
+    [offset, ph - offset], [pw - offset, ph - offset],
+  ];
+  ctx.save();
+  corners.forEach(([cx, cy]) => {
+    ctx.strokeStyle = 'rgba(0,0,0,.5)';
+    ctx.lineWidth = .8;
+    ctx.beginPath();
+    ctx.moveTo(cx - r*1.6, cy); ctx.lineTo(cx + r*1.6, cy);
+    ctx.moveTo(cx, cy - r*1.6); ctx.lineTo(cx, cy + r*1.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.stroke();
+  });
   ctx.restore();
 }
 
@@ -1757,6 +2050,8 @@ function render() {
     ctx.restore();
   }
 
+  if (S.regMarks) drawRegMarks(ctx, canvas.width, canvas.height, sc);
+
   ctx.strokeStyle = 'rgba(0,0,0,.05)';
   ctx.lineWidth = 1;
   ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
@@ -1782,6 +2077,7 @@ function render() {
 function setExp(en) {
   document.getElementById('btn-pdf').disabled = !en;
   document.getElementById('btn-png').disabled = !en;
+  document.getElementById('btn-svg').disabled = !en;
   document.getElementById('btn-print').disabled = !en;
 }
 
@@ -1807,6 +2103,8 @@ function loadImage(file) {
       S.imgOff   = { x:0, y:0 };
       S.imgScale = 1;
       _updateImgScaleUI();
+      resetImgAdj();
+      document.getElementById('adj-sec').style.display = 'block';
       document.getElementById('rot-ccw').disabled = false;
       document.getElementById('rot-cw').disabled  = false;
       document.getElementById('thumb').src = ev.target.result;
@@ -2013,7 +2311,7 @@ async function exportPDF() {
       const lctx = lc.getContext('2d');
       lctx.fillStyle = '#fff';
       lctx.fillRect(0, 0, lc.width, lc.height);
-      drawLabel(lctx, 0, 0, lc.width, lc.height, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
+      drawLabel(lctx, 0, 0, lc.width, lc.height, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
       const imgData = lc.toDataURL('image/jpeg', 0.93);
 
       for (let r = 0; r < g.rows; r++)
@@ -2035,6 +2333,15 @@ async function exportPDF() {
             pdf.line(x+w,y+h,x+w+GL,y+h); pdf.line(x+w,y+h,x+w,y+h+GL);
           }
         }
+      }
+      if (S.regMarks) {
+        pdf.setDrawColor(90,90,90); pdf.setLineWidth(0.12);
+        const off = 7, rr = 2.2;
+        [[off,off],[p.w-off,off],[off,p.h-off],[p.w-off,p.h-off]].forEach(([cx,cy]) => {
+          pdf.line(cx-rr*1.6, cy, cx+rr*1.6, cy);
+          pdf.line(cx, cy-rr*1.6, cx, cy+rr*1.6);
+          pdf.circle(cx, cy, rr, 'S');
+        });
       }
       const cat  = S.formatCat || 'etiqueta';
       const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
@@ -2218,10 +2525,11 @@ async function exportPNG() {
           const y = Math.round((g.oy + r*(g.lH+g.sp)) * PX_MM);
           const w = Math.round(g.lW * PX_MM);
           const h = Math.round(g.lH * PX_MM);
-          drawLabel(pctx, x, y, w, h, S.img, S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
+          drawLabel(pctx, x, y, w, h, getRotImg(), S.imgOff.x*PX_MM, S.imgOff.y*PX_MM, S.imgScale);
           if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
         }
       }
+      if (S.regMarks) drawRegMarks(pctx, pc.width, pc.height, PX_MM);
       await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-${safe}-${g.cols}x${g.rows}.png`, 'image/png');
     }
 
@@ -3224,6 +3532,97 @@ function _ngHitZone(clientX, clientY) {
   }, { passive: false });
 })();
 
+// ── SVG Export (modo cuadrícula estándar) ─────────────
+async function exportSVG() {
+  if (S.neogeoMode || S.ctplMode || S.posterActive || S.split) {
+    showToast('✗ Exportación SVG disponible solo en modo cuadrícula estándar');
+    return;
+  }
+  if (!S.img) return;
+  const g = calcGrid();
+  if (!g) return;
+
+  const btn = document.getElementById('btn-svg');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generando SVG…';
+  btn.disabled = true;
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    const p = pageMM();
+    const ri = getRotImg();
+    const iW = ri.naturalWidth, iH = ri.naturalHeight;
+
+    // Encode the (rotated + adjusted) image once as a data URI
+    const tmp = document.createElement('canvas');
+    tmp.width = iW; tmp.height = iH;
+    tmp.getContext('2d').drawImage(ri, 0, 0);
+    const dataUri = tmp.toDataURL('image/png');
+
+    let defs = `<clipPath id="cliplabel"><rect x="0" y="0" width="${g.lW}" height="${g.lH}"/></clipPath>`;
+    let body = '';
+    for (let r = 0; r < g.rows; r++) {
+      for (let c = 0; c < g.cols; c++) {
+        const x = g.ox + c * (g.lW + g.sp);
+        const y = g.oy + r * (g.lH + g.sp);
+        const s = (S.fit === 'contain' ? Math.min(g.lW/iW, g.lH/iH) : Math.max(g.lW/iW, g.lH/iH)) * S.imgScale;
+        const ix = (g.lW - iW*s)/2 + S.imgOff.x;
+        const iy = (g.lH - iH*s)/2 + S.imgOff.y;
+        body += `<g transform="translate(${x},${y})" clip-path="url(#cliplabel)">` +
+                `<rect x="0" y="0" width="${g.lW}" height="${g.lH}" fill="#fff"/>` +
+                `<image href="${dataUri}" x="${ix}" y="${iy}" width="${iW*s}" height="${iH*s}"/>` +
+                `</g>`;
+        if (S.guides) {
+          const gl = Math.min(g.sp > 0 ? g.sp*.45 : 2, 3);
+          body += `<g stroke="#000" stroke-width="0.15" opacity=".5">` +
+                  `<line x1="${x-gl}" y1="${y}" x2="${x}" y2="${y}"/>` +
+                  `<line x1="${x}" y1="${y-gl}" x2="${x}" y2="${y}"/>` +
+                  `<line x1="${x+g.lW}" y1="${y}" x2="${x+g.lW+gl}" y2="${y}"/>` +
+                  `<line x1="${x+g.lW}" y1="${y-gl}" x2="${x+g.lW}" y2="${y}"/>` +
+                  `<line x1="${x-gl}" y1="${y+g.lH}" x2="${x}" y2="${y+g.lH}"/>` +
+                  `<line x1="${x}" y1="${y+g.lH}" x2="${x}" y2="${y+g.lH+gl}"/>` +
+                  `<line x1="${x+g.lW}" y1="${y+g.lH}" x2="${x+g.lW+gl}" y2="${y+g.lH}"/>` +
+                  `<line x1="${x+g.lW}" y1="${y+g.lH}" x2="${x+g.lW}" y2="${y+g.lH+gl}"/>` +
+                  `</g>`;
+        }
+      }
+    }
+
+    let regMarksSvg = '';
+    if (S.regMarks) {
+      const off = 7, r = 2.2;
+      const corners = [[off,off],[p.w-off,off],[off,p.h-off],[p.w-off,p.h-off]];
+      regMarksSvg = `<g stroke="#000" stroke-width="0.15" fill="none" opacity=".55">` +
+        corners.map(([cx,cy]) =>
+          `<line x1="${cx-r*1.6}" y1="${cy}" x2="${cx+r*1.6}" y2="${cy}"/>` +
+          `<line x1="${cx}" y1="${cy-r*1.6}" x2="${cx}" y2="${cy+r*1.6}"/>` +
+          `<circle cx="${cx}" cy="${cy}" r="${r}"/>`
+        ).join('') + `</g>`;
+    }
+
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${p.w}mm" height="${p.h}mm" viewBox="0 0 ${p.w} ${p.h}">` +
+      `<defs>${defs}</defs>` +
+      `<rect x="0" y="0" width="${p.w}" height="${p.h}" fill="#fff"/>` +
+      body + regMarksSvg +
+      `</svg>`;
+
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `coverlabel-${Date.now()}.svg`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✓ SVG exportado');
+  } catch (e) {
+    alert('Error al exportar SVG:\n' + e.message);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+    setExp(!!S.img);
+  }
+}
+
 // ── Print Direct ──────────────────────────────────────
 async function printDirect() {
   if (!S.img && !S.neogeoMode && !S.ctplMode) return;
@@ -3331,9 +3730,10 @@ async function printDirect() {
       const cx=pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
       for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
         const x=Math.round((g.ox+c*(g.lW+g.sp))*PX), y=Math.round((g.oy+r*(g.lH+g.sp))*PX);
-        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), S.img, S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
+        drawLabel(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), getRotImg(), S.imgOff.x*PX, S.imgOff.y*PX, S.imgScale);
         if (S.guides) drawGuides(cx, x, y, Math.round(g.lW*PX), Math.round(g.lH*PX), Math.round(2*PX));
       }
+      if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX);
       pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
     }
 
@@ -3360,11 +3760,30 @@ async function printDirect() {
 function openInfoModal()  { document.getElementById('info-modal').style.display='flex'; }
 function closeInfoModal() { document.getElementById('info-modal').style.display='none'; }
 
+// ── Theme (auto + manual override) ────────────────────
+function toggleTheme() {
+  const isDarkNow = document.documentElement.dataset.theme === 'dark' ||
+    (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const next = isDarkNow ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('coverlabel_theme', next);
+  updateThemeIcon();
+}
+function updateThemeIcon() {
+  const isDark = document.documentElement.dataset.theme === 'dark' ||
+    (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+
 // ── Init ──────────────────────────────────────────────
 window.addEventListener('resize', () => {
   clearTimeout(renderTimer);
   renderTimer = setTimeout(render, 80);
 });
+updateThemeIcon();
+_populateCustomOptgroup();
+renderCustomTplChips();
 render();
 </script>
 
