@@ -66,6 +66,12 @@ Define el espacio **entre columnas** y **entre filas** por separado (mm) para ap
 - Opción para invertir imagen en espejo
 - **Retoque en vivo**: brillo, contraste, saturación y nitidez, aplicado en la vista previa y en todas las exportaciones
 
+### Wrap de 3 imágenes con lomo ajustable
+Compón una carátula completa (caja DVD/Blu-ray/4K/CD/VHS/juegos) con **portada + contraportada + lomo por separado**. Ajusta el **ancho del lomo** (manual o por nº de discos), con **líneas de plegado** en los dobleces y marcas de corte. Cada zona se reposiciona y escala de forma independiente.
+
+### Calibración de impresora
+Desplaza la impresión unos milímetros (offset X/Y) para compensar el desalineado de tu impresora y que el corte caiga exacto. Se aplica a etiquetas estándar y al wrap.
+
 ### Texto sobre portada y lomo
 Añade capas de texto (título, número de cartucho, texto de lomo…) con posición, tamaño, giro, color, contorno y alineación ajustables. Se imprime junto a la imagen en PDF, PNG y SVG. Disponible en el modo estándar **y en las cajas Neo Geo AES**.
 
