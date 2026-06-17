@@ -697,6 +697,11 @@
           <option value="DVD">💿  DVD</option>
           <option value="Blu-ray">🔵  Blu-ray</option>
         </optgroup>
+        <optgroup label="──── Música / Audio ────">
+          <option value="CD">💿  CD (jewel / slim / mini)</option>
+          <option value="Vinilo">📀  Vinilo (LP 12&quot; / single 7&quot;)</option>
+          <option value="Casete">📼  Casete (J-card)</option>
+        </optgroup>
         <optgroup label="──── Xbox ────">
           <option value="Xbox">🟢  Xbox (original)</option>
           <option value="Xbox 360">🎮  Xbox 360</option>
@@ -1236,6 +1241,14 @@ const FORMATS = {
                  { id:'dvd_wrap',       name:'Wrap completo',     w:273, h:183 }],
   'Blu-ray':    [{ id:'br_front',       name:'Portada frontal',   w:129, h:173 },
                  { id:'br_wrap',        name:'Wrap completo',     w:272, h:173 }],
+  // ── Música / audio (medidas estándar) ──
+  CD:           [{ id:'cd_front',       name:'Jewel – Portada',   w:120, h:120 },
+                 { id:'cd_tray',        name:'Jewel – Trasera (inlay)', w:151, h:118 },
+                 { id:'cd_slim',        name:'Slim – Portada',    w:120, h:120 },
+                 { id:'cd_mini',        name:'Mini CD (8 cm)',    w:80,  h:80  }],
+  Vinilo:       [{ id:'lp12',           name:'LP 12"',            w:314, h:314 },
+                 { id:'single7',        name:'Single 7"',         w:180, h:180 }],
+  Casete:       [{ id:'cassette_jcard', name:'J-card',            w:108, h:70  }],
   Xbox:         [{ id:'xbox_front',     name:'Portada frontal',   w:130, h:184 },
                  { id:'xbox_wrap',      name:'Wrap completo',     w:274, h:184 }],
   'Xbox 360':   [{ id:'x360_front',     name:'Portada frontal',   w:126, h:183 },

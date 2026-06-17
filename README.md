@@ -30,7 +30,7 @@ Funciona **sin servidor**, **sin cuenta** y **sin conexión** una vez cargada.
 | Colección | Ejemplo |
 |-----------|---------|
 | 🎮 Videojuegos retro | Carátulas NES, SNES, Mega Drive, Neo Geo AES/MVS, Game Boy |
-| 💿 Música | Portadas de CD, inlays interiores, carátulas de vinilo |
+| 💿 Música | CD (jewel/slim/mini), inlay trasero, vinilo LP 12" y single 7", casete (J-card) |
 | 📀 Cine y series | Cubiertas de DVD, Blu-ray, VHS |
 | 📚 Libros y cómics | Sobrecubiertas, lomos, marcapáginas |
 | 🎲 Juegos de mesa | Cartas, tokens, reglamentos a medida |
