@@ -76,7 +76,13 @@ Los ajustes están organizados en cuatro pestañas — **Formato · Papel · Mod
 Sube **varias portadas a la vez** y se colocan en cuadrícula al tamaño y espaciado configurados, repartidas en las páginas necesarias. Miniaturas con borrado individual, navegador de páginas y exportación a un único **PDF multipágina** (o un PNG por página). Ideal para imprimir una colección entera de una tirada.
 
 ### Plantilla de caja (net / dieline)
-Genera el **desplegado recortable de una caja de 6 caras** a partir de ancho × alto × fondo. Incluye pestañas de pegado, líneas de plegado (discontinuas) y de corte (sólidas) con cada cara etiquetada. Cajas predefinidas (DVD, Blu-ray, 4K, CD jewel, VHS, Xbox, Switch) y la portada cargada se coloca en la cara frontal. Exporta a PDF/PNG.
+Genera el **desplegado recortable de una caja de 6 caras** a partir de ancho × alto × fondo. Incluye pestañas de pegado, líneas de plegado (discontinuas) y de corte (sólidas) con cada cara etiquetada. Cajas predefinidas (DVD, Blu-ray, 4K, CD jewel, VHS, Xbox, Switch) y la portada cargada se coloca en la cara frontal. Si el net no cabe en la hoja, actívalo en **varias páginas a tamaño real** (estilo NeoGeo A/B) con guías de ensamblaje. Exporta a PDF/PNG. Desde el catálogo de **Cajas Repro**, el botón "📦 Net de caja" genera el net con las medidas exactas de cada consola.
+
+### Stickers / pegatinas
+Pega **emojis o un PNG propio** sobre la etiqueta o cover ya editados. Paleta de emojis incluida o sube tu imagen; ajusta posición, tamaño y giro de cada sticker. Se imprimen junto al diseño.
+
+### Guardar y cargar proyectos
+Guarda todo el trabajo (imagen, textos, stickers, ajustes, modo de caja…) en un fichero **`.coverlabel`** y vuelve a cargarlo más tarde para seguir editando o reimprimir. Botón **Nuevo** para empezar un proyecto limpio.
 
 ### Etiquetas de lomo
 Crea una **hoja de tiras de lomo** con texto vertical para libros, juegos o DVDs: escribe un título por línea y cada uno genera una etiqueta. Ajusta grosor y longitud de la tira, color de acento y el sentido del texto (hacia arriba o abajo). Se reparten en las páginas necesarias y se exportan a PDF/PNG.
