@@ -66,6 +66,9 @@ Define el espacio **entre columnas** y **entre filas** por separado (mm) para ap
 - Opción para invertir imagen en espejo
 - **Retoque en vivo**: brillo, contraste, saturación y nitidez, aplicado en la vista previa y en todas las exportaciones
 
+### Etiqueta de disco circular (CD/DVD/Blu-ray)
+Activa el **Modo Disco** para componer etiquetas circulares para la cara del disco. Elige entre CD/DVD (ø 116 mm), Blu-ray (ø 116 mm) o Mini CD (ø 80 mm). La imagen se recorta automáticamente al anillo del disco con el agujero central recortado. Arrastra para reposicionar y usa la rueda del ratón para hacer zoom. Exporta como PDF (con guías de corte vectoriales) o PNG a alta resolución.
+
 ### Wrap de 3 imágenes con lomo ajustable
 Compón una carátula completa (caja DVD/Blu-ray/4K/CD/VHS/juegos) con **portada + contraportada + lomo por separado**. Ajusta el **ancho del lomo** (manual o por nº de discos), con **líneas de plegado** en los dobleces y marcas de corte. Cada zona se reposiciona y escala de forma independiente.
 

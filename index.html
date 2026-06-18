@@ -1065,6 +1065,29 @@
       </div>
     </div>
 
+    <!-- DISCO -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_disc">💿 Etiqueta de disco (circular)</div>
+      <label class="opt-row">
+        <input type="checkbox" id="disc-on" onchange="setDisc(this.checked)">
+        <span data-i18n="disc_enable">Modo disco CD/DVD/Blu-ray</span>
+      </label>
+      <div id="disc-ctrl" style="display:none;margin-top:8px">
+        <label class="ng-sub" style="display:block" data-i18n="disc_type">Tipo de disco</label>
+        <select id="disc-type" class="cat-select" style="margin-top:3px" onchange="setDiscType(this.value)">
+          <option value="CD / DVD">CD / DVD (ø 116 mm)</option>
+          <option value="Blu-ray">Blu-ray (ø 116 mm)</option>
+          <option value="Mini CD">Mini CD (ø 80 mm)</option>
+        </select>
+        <label class="opt-row" style="margin-top:8px">
+          <input type="checkbox" id="disc-hole" checked onchange="S.discHole=this.checked;schedRender()">
+          <span data-i18n="disc_hole">Agujero central visible</span>
+        </label>
+        <div class="ng-sub" style="margin-top:5px;color:var(--txt3)" data-i18n="disc_drag">Arrastra imagen · rueda = zoom</div>
+        <button class="auto-btn" style="margin-top:7px" onclick="resetDisc()" data-i18n="disc_reset">↺ Recentrar imagen</button>
+      </div>
+    </div>
+
     <!-- COMUNIDAD CTPL CTRL -->
     <div class="sec" id="ctpl-ctrl" style="display:none">
       <div class="sec-title">Plantilla comunidad</div>
@@ -1221,6 +1244,9 @@ const I18N = {
     wrap_case: 'Tipo de caja', wrap_spine: 'Ancho de lomo', wrap_slim: 'Slim',
     wrap_back: '⬆ Contraportada', wrap_spine_img: '⬆ Lomo', wrap_front: '⬆ Portada',
     wrap_foldlines: 'Líneas de plegado', wrap_drag: 'Arrastra cada zona · rueda = zoom', wrap_reset: '↺ Recentrar zonas',
+    sec_disc: '💿 Etiqueta de disco (circular)', disc_enable: 'Modo disco CD/DVD/Blu-ray',
+    disc_type: 'Tipo de disco', disc_hole: 'Agujero central visible',
+    disc_drag: 'Arrastra imagen · rueda = zoom', disc_reset: '↺ Recentrar imagen',
     sec_cal: 'Calibración de impresora', cal_info: 'Desplaza la impresión unos mm si tu impresora descentra el corte (afecta a etiquetas y wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lomo / nº)', btn_add_text: '+ Añadir texto',
@@ -1247,6 +1273,9 @@ const I18N = {
     wrap_case: 'Case type', wrap_spine: 'Spine width', wrap_slim: 'Slim',
     wrap_back: '⬆ Back', wrap_spine_img: '⬆ Spine', wrap_front: '⬆ Front',
     wrap_foldlines: 'Fold lines', wrap_drag: 'Drag each zone · wheel = zoom', wrap_reset: '↺ Recenter zones',
+    sec_disc: '💿 Disc label (circular)', disc_enable: 'Disc mode CD/DVD/Blu-ray',
+    disc_type: 'Disc type', disc_hole: 'Show center hole',
+    disc_drag: 'Drag image · wheel = zoom', disc_reset: '↺ Recenter image',
     sec_cal: 'Printer calibration', cal_info: 'Shift the print a few mm if your printer offsets the cut (affects labels and wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Text (title / spine / no.)', btn_add_text: '+ Add text',
@@ -1273,6 +1302,9 @@ const I18N = {
     wrap_case: 'Tipo de caixa', wrap_spine: 'Largura da lombada', wrap_slim: 'Slim',
     wrap_back: '⬆ Verso', wrap_spine_img: '⬆ Lombada', wrap_front: '⬆ Frente',
     wrap_foldlines: 'Linhas de dobra', wrap_drag: 'Arraste cada zona · roda = zoom', wrap_reset: '↺ Recentrar zonas',
+    sec_disc: '💿 Etiqueta de disco (circular)', disc_enable: 'Modo disco CD/DVD/Blu-ray',
+    disc_type: 'Tipo de disco', disc_hole: 'Mostrar furo central',
+    disc_drag: 'Arraste imagem · roda = zoom', disc_reset: '↺ Recentrar imagem',
     sec_cal: 'Calibração de impressora', cal_info: 'Desloque a impressão alguns mm se a impressora descentralizar o corte (afeta etiquetas e wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lombada / nº)', btn_add_text: '+ Adicionar texto',
@@ -1299,6 +1331,9 @@ const I18N = {
     wrap_case: 'Type de boîtier', wrap_spine: 'Largeur du dos', wrap_slim: 'Slim',
     wrap_back: '⬆ Verso', wrap_spine_img: '⬆ Dos', wrap_front: '⬆ Recto',
     wrap_foldlines: 'Lignes de pliage', wrap_drag: 'Glissez chaque zone · molette = zoom', wrap_reset: '↺ Recentrer zones',
+    sec_disc: '💿 Étiquette de disque (circulaire)', disc_enable: 'Mode disque CD/DVD/Blu-ray',
+    disc_type: 'Type de disque', disc_hole: 'Afficher le trou central',
+    disc_drag: 'Glissez l\'image · molette = zoom', disc_reset: '↺ Recentrer l\'image',
     sec_cal: 'Calibration imprimante', cal_info: 'Décalez l\'impression de quelques mm si votre imprimante décentre la coupe (étiquettes et wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texte (titre / tranche / nº)', btn_add_text: '+ Ajouter texte',
@@ -1485,6 +1520,13 @@ const S = {
   wrapImg:   { front:null, back:null, spine:null },   // imágenes por zona
   wrapOff:   { front:{x:0,y:0}, back:{x:0,y:0}, spine:{x:0,y:0} },
   wrapScale: { front:1, back:1, spine:1 },
+
+  // ── Disco (etiqueta circular CD/DVD) ──
+  discMode:  false,
+  discType:  'CD / DVD',
+  discHole:  true,
+  discOff:   { x: 0, y: 0 },
+  discScale: 1,
 
   // ── Calibración de impresora (offset global en mm) ──
   calX: 0,
@@ -2429,6 +2471,7 @@ function persistSession() {
       formatCat: S.formatCat, formatId: S.formatId, texts: S.texts,
       calX: S.calX, calY: S.calY,
       wrapType: S.wrapType, wrapSpine: S.wrapSpine, wrapFold: S.wrapFold,
+      discType: S.discType,
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(data));
   } catch {}
@@ -2452,6 +2495,7 @@ function restoreSession() {
   if (d.wrapType && WRAP_CASES[d.wrapType]) S.wrapType = d.wrapType;
   if (d.wrapSpine != null) S.wrapSpine = +d.wrapSpine;
   if (d.wrapFold != null) S.wrapFold = !!d.wrapFold;
+  if (d.discType) { S.discType = d.discType; const el = document.getElementById('disc-type'); if (el) el.value = d.discType; }
 
   // Reflect into the DOM controls
   document.querySelectorAll('#paper-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.v === S.paper));
@@ -2487,6 +2531,7 @@ function restoreSession() {
 }
 
 function render() {
+  if (S.discMode)     { renderDisc();   return; }
   if (S.wrapMode)     { renderWrap();   return; }
   if (S.ctplMode)     { renderCtpl();   return; }
   if (S.neogeoMode)   { renderNeoGeo(); return; }
@@ -2663,8 +2708,9 @@ document.getElementById('upload-preview').addEventListener('drop', e => {
 
 // ── PDF Export ────────────────────────────────────────
 async function exportPDF() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode) return;
-  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
+  if (S.discMode && !S.img) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-pdf');
   const orig = btn.innerHTML;
@@ -2678,7 +2724,23 @@ async function exportPDF() {
     const p   = pageMM();
     const ori = S.orient === 'portrait' ? 'portrait' : 'landscape';
 
-    if (S.wrapMode) {
+    if (S.discMode) {
+      // ─── Disco (etiqueta circular CD/DVD) ────────────
+      const PX = 200 / 25.4;
+      const { pc, d } = _composeDiscCanvas(PX);
+      const pageW = 210, pageH = 297;
+      const imgX = (pageW - d.outerMM) / 2, imgY = (pageH - d.outerMM) / 2;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pageW, pageH] });
+      pdf.addImage(pc.toDataURL('image/jpeg', 0.97), 'JPEG', imgX, imgY, d.outerMM, d.outerMM, undefined, 'FAST');
+      // Guías de corte vectoriales (trazo fino gris)
+      pdf.setDrawColor(160, 160, 160);
+      pdf.setLineWidth(0.1);
+      pdf.circle(pageW / 2, pageH / 2, d.outerMM / 2, 'S');
+      pdf.circle(pageW / 2, pageH / 2, d.holeMM  / 2, 'S');
+      const safe = S.discType.toLowerCase().replace(/[^a-z0-9]/g, '');
+      await downloadOrShare(pdf.output('blob'), `coverlabel-disc-${safe}.pdf`, 'application/pdf');
+
+    } else if (S.wrapMode) {
       // ─── Wrap (portada + lomo + contraportada) ───────
       const { pc, L } = _composeWrapCanvas(200 / 25.4);
       const pdf = new jsPDF({ orientation: L.orient, unit: 'mm', format: [L.pageW, L.pageH] });
@@ -2891,14 +2953,15 @@ async function exportPDF() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode);
   }
 }
 
 // ── PNG Export ────────────────────────────────────────
 async function exportPNG() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode) return;
-  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode) { const g = calcGrid(); if (!g) return; }
+  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
+  if (S.discMode && !S.img) return;
+  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-png');
   const orig = btn.innerHTML;
@@ -2912,7 +2975,12 @@ async function exportPNG() {
     const cat  = S.formatCat || 'etiqueta';
     const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
 
-    if (S.wrapMode) {
+    if (S.discMode) {
+      const { pc } = _composeDiscCanvas(150 / 25.4);
+      const discSafe = S.discType.toLowerCase().replace(/[^a-z0-9]/g, '');
+      await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-disc-${discSafe}.png`, 'image/png');
+
+    } else if (S.wrapMode) {
       const { pc } = _composeWrapCanvas(150 / 25.4);
       await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-wrap-${S.wrapType.toLowerCase().replace(/[^a-z0-9]/g,'')}.png`, 'image/png');
 
@@ -3085,7 +3153,7 @@ async function exportPNG() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode);
   }
 }
 
@@ -3940,6 +4008,163 @@ const WRAP_CASES = {
 // Ancho de lomo sugerido por nº de discos / tipo (mm)
 const SPINE_BY_DISCS = { '1':14, '2':14, '3':22, '4':27, 'slim':7, 'doble':14 };
 
+// ════════════════════════════════════════════════════════
+// ── Disco: etiqueta circular CD/DVD/Blu-ray ──────────
+// ════════════════════════════════════════════════════════
+// outerMM = diámetro exterior imprimible; holeMM = diámetro del agujero/hub
+const DISC_DEFS = {
+  'CD / DVD': { outerMM: 116, holeMM: 38 },
+  'Blu-ray':  { outerMM: 116, holeMM: 38 },
+  'Mini CD':  { outerMM: 80,  holeMM: 26 },
+};
+
+let _discSc = 1;
+
+function renderDisc() {
+  const canvas = document.getElementById('pvc');
+  const ctx    = canvas.getContext('2d');
+  const d      = DISC_DEFS[S.discType] || DISC_DEFS['CD / DVD'];
+  const ri     = getRotImg();
+
+  const wrap   = document.getElementById('cvbg');
+  const avail  = Math.min((wrap.clientWidth || 400) - 28, 420);
+  const sc     = avail / d.outerMM;
+  _discSc      = sc;
+
+  const canSz  = Math.round(d.outerMM * sc);
+  canvas.width  = canSz;
+  canvas.height = canSz;
+
+  const cx = canSz / 2, cy = canSz / 2;
+  const rOut  = d.outerMM / 2 * sc;
+  const rHole = d.holeMM  / 2 * sc;
+
+  ctx.clearRect(0, 0, canSz, canSz);
+
+  // Fondo blanco cuadrado
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canSz, canSz);
+
+  // Disco de fondo (sin imagen)
+  ctx.beginPath();
+  ctx.arc(cx, cy, rOut, 0, Math.PI * 2);
+  ctx.fillStyle = ri ? '#fff' : '#e8e8f0';
+  ctx.fill();
+
+  if (ri) {
+    // Imagen recortada al anillo del disco
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOut, 0, Math.PI * 2);
+    ctx.arc(cx, cy, rHole, 0, Math.PI * 2, true); // hueco interior
+    ctx.clip('evenodd');
+
+    const iW = ri.naturalWidth, iH = ri.naturalHeight;
+    const imgSc = Math.max((rOut * 2) / iW, (rOut * 2) / iH) * (S.discScale || 1);
+    const dw = iW * imgSc, dh = iH * imgSc;
+    ctx.drawImage(ri,
+      cx - dw / 2 + (S.discOff.x || 0) * sc,
+      cy - dh / 2 + (S.discOff.y || 0) * sc,
+      dw, dh);
+    ctx.restore();
+  }
+
+  // Relleno del agujero central
+  if (S.discHole) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, rHole, 0, Math.PI * 2);
+    ctx.fillStyle = '#ccc';
+    ctx.fill();
+  }
+
+  // Guías de corte (trazo punteado fino)
+  ctx.save();
+  ctx.setLineDash([3 * sc / 5, 3 * sc / 5]);
+  ctx.lineWidth = 0.6;
+  ctx.strokeStyle = '#888';
+  ctx.beginPath();
+  ctx.arc(cx, cy, rOut - 0.5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rHole + 0.5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Badge e info
+  document.getElementById('badge').textContent = `${S.discType} — ø ${d.outerMM} mm`;
+  setExp(!!ri);
+}
+
+// Compone un canvas de alta resolución para exportar (sin guías de pantalla)
+function _composeDiscCanvas(PX) {
+  const d   = DISC_DEFS[S.discType] || DISC_DEFS['CD / DVD'];
+  const ri  = getRotImg();
+  const dPX = Math.round(d.outerMM * PX);
+
+  const pc  = document.createElement('canvas');
+  pc.width  = dPX;
+  pc.height = dPX;
+  const ctx = pc.getContext('2d');
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, dPX, dPX);
+
+  const cx = dPX / 2, cy = dPX / 2;
+  const rOut  = d.outerMM / 2 * PX;
+  const rHole = d.holeMM  / 2 * PX;
+
+  if (ri) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOut, 0, Math.PI * 2);
+    ctx.arc(cx, cy, rHole, 0, Math.PI * 2, true);
+    ctx.clip('evenodd');
+
+    const iW = ri.naturalWidth, iH = ri.naturalHeight;
+    const imgSc = Math.max((rOut * 2) / iW, (rOut * 2) / iH) * (S.discScale || 1);
+    const dw = iW * imgSc, dh = iH * imgSc;
+    ctx.drawImage(ri,
+      cx - dw / 2 + (S.discOff.x || 0) * PX,
+      cy - dh / 2 + (S.discOff.y || 0) * PX,
+      dw, dh);
+    ctx.restore();
+  }
+
+  // Agujero central en blanco
+  ctx.beginPath();
+  ctx.arc(cx, cy, rHole, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+
+  return { pc, d };
+}
+
+function setDisc(on) {
+  S.discMode = on;
+  document.getElementById('disc-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display =
+    (on || S.neogeoMode || S.ctplMode || S.wrapMode) ? 'none' : 'block';
+  if (on) {
+    if (S.wrapMode)     { S.wrapMode=false;   const el=document.getElementById('wrap-on');    if(el) el.checked=false; document.getElementById('wrap-ctrl').style.display='none'; }
+    if (S.neogeoMode)   { S.neogeoMode=false;  const el=document.getElementById('neogeo-on'); if(el) el.checked=false; document.getElementById('neogeo-ctrl').style.display='none'; }
+    if (S.ctplMode)     { S.ctplMode=false; S.ctplData=null; document.getElementById('ctpl-ctrl').style.display='none'; }
+    if (S.posterActive) clearPoster();
+    if (S.split)        { S.split=false; const el=document.getElementById('split-on'); if(el) el.checked=false; document.getElementById('split-ctrl').style.display='none'; }
+  }
+  schedRender();
+}
+
+function setDiscType(type) {
+  S.discType = type;
+  schedRender();
+}
+
+function resetDisc() {
+  S.discOff   = { x: 0, y: 0 };
+  S.discScale = 1;
+  renderDisc();
+}
+
 let _wrapSc = 1;
 let _wrapLastZone = 'front';
 
@@ -4169,6 +4394,7 @@ let _ngDrag   = null;
 let _imgDrag  = null;
 let _ctplDrag = null;
 let _wrapDrag = null;
+let _discDrag = null;
 
 function _ngHitZone(clientX, clientY) {
   const canvas = document.getElementById('pvc');
@@ -4192,7 +4418,12 @@ function _ngHitZone(clientX, clientY) {
 
   function onStart(e) {
     const p = pos(e);
-    if (S.wrapMode) {
+    if (S.discMode && getRotImg()) {
+      e.preventDefault();
+      _discDrag = { startCX: p.x, startCY: p.y,
+                    startOffX: S.discOff.x, startOffY: S.discOff.y };
+      canvas.style.cursor = 'grabbing';
+    } else if (S.wrapMode) {
       const zone = _wrapHitZone(p.x, p.y);
       if (!zone || !S.wrapImg[zone]) return;
       e.preventDefault();
@@ -4217,7 +4448,7 @@ function _ngHitZone(clientX, clientY) {
       _ctplDrag = { key, startCX: p.x, startCY: p.y, startOffX: off.x, startOffY: off.y };
       _updateCtplScaleUI(key);
       canvas.style.cursor = 'grabbing';
-    } else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) {
+    } else if (!S.discMode && !S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) {
       e.preventDefault();
       _imgDrag = { startCX: p.x, startCY: p.y,
                    startOffX: S.imgOff.x, startOffY: S.imgOff.y };
@@ -4227,7 +4458,12 @@ function _ngHitZone(clientX, clientY) {
 
   function onMove(e) {
     const p = pos(e);
-    if (_wrapDrag) {
+    if (_discDrag) {
+      if (e.cancelable) e.preventDefault();
+      S.discOff.x = _discDrag.startOffX + (p.x - _discDrag.startCX) / _discSc;
+      S.discOff.y = _discDrag.startOffY + (p.y - _discDrag.startCY) / _discSc;
+      renderDisc();
+    } else if (_wrapDrag) {
       if (e.cancelable) e.preventDefault();
       const dxMM = (p.x - _wrapDrag.startCX) / _wrapSc;
       const dyMM = (p.y - _wrapDrag.startCY) / _wrapSc;
@@ -4254,6 +4490,8 @@ function _ngHitZone(clientX, clientY) {
       S.imgOff.y = _imgDrag.startOffY + dyMM;
       canvas.style.cursor = 'grabbing';
       render();
+    } else if (S.discMode && getRotImg()) {
+      canvas.style.cursor = 'grab';
     } else if (S.wrapMode) {
       const z = _wrapHitZone(p.x, p.y);
       canvas.style.cursor = (z && S.wrapImg[z]) ? 'grab' : '';
@@ -4267,8 +4505,9 @@ function _ngHitZone(clientX, clientY) {
   }
 
   function onEnd() {
-    _ngDrag = null; _ctplDrag = null; _imgDrag = null; _wrapDrag = null;
-    if      (S.wrapMode)                                          canvas.style.cursor = '';
+    _ngDrag = null; _ctplDrag = null; _imgDrag = null; _wrapDrag = null; _discDrag = null;
+    if      (S.discMode   && getRotImg())                        canvas.style.cursor = 'grab';
+    else if (S.wrapMode)                                          canvas.style.cursor = '';
     else if (S.neogeoMode && getRotImg())                        canvas.style.cursor = 'grab';
     else if (S.ctplMode   && getRotImg())                        canvas.style.cursor = 'grab';
     else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) canvas.style.cursor = 'grab';
@@ -4281,10 +4520,25 @@ function _ngHitZone(clientX, clientY) {
   document.addEventListener('mouseup',   onEnd);
   document.addEventListener('touchmove', (e) => { if (_ngDrag || _ctplDrag || _imgDrag || _wrapDrag) onMove(e); }, { passive: false });
   document.addEventListener('touchend',  onEnd);
-  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_ctplDrag && !_imgDrag && !_wrapDrag) canvas.style.cursor = ''; });
+  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_ctplDrag && !_imgDrag && !_wrapDrag && !_discDrag) canvas.style.cursor = ''; });
 
   // Wheel-to-zoom
   canvas.addEventListener('wheel', (e) => {
+    if (S.discMode && getRotImg()) {
+      e.preventDefault();
+      const oldZoom = S.discScale || 1;
+      const newZoom = Math.max(0.2, Math.min(4, oldZoom * (e.deltaY > 0 ? 0.92 : 1.08)));
+      const rect = canvas.getBoundingClientRect();
+      const cxPx = (e.clientX - rect.left) * (canvas.width  / rect.width);
+      const cyPx = (e.clientY - rect.top)  * (canvas.height / rect.height);
+      const cxMM = (cxPx / _discSc) - canvas.width  / _discSc / 2;
+      const cyMM = (cyPx / _discSc) - canvas.height / _discSc / 2;
+      S.discOff.x = cxMM - (cxMM - S.discOff.x) * newZoom / oldZoom;
+      S.discOff.y = cyMM - (cyMM - S.discOff.y) * newZoom / oldZoom;
+      S.discScale = newZoom;
+      renderDisc();
+      return;
+    }
     if (S.wrapMode) {
       const zone = _wrapHitZone(e.clientX, e.clientY);
       if (!zone || !S.wrapImg[zone]) return;
@@ -4364,7 +4618,7 @@ function _ngHitZone(clientX, clientY) {
 
 // ── SVG Export (modo cuadrícula estándar) ─────────────
 async function exportSVG() {
-  if (S.neogeoMode || S.ctplMode || S.posterActive || S.split || S.wrapMode) {
+  if (S.neogeoMode || S.ctplMode || S.posterActive || S.split || S.wrapMode || S.discMode) {
     showToast('✗ SVG solo en modo cuadrícula estándar — usa PDF o PNG');
     return;
   }
@@ -4473,7 +4727,7 @@ async function exportSVG() {
 
 // ── Print Direct ──────────────────────────────────────
 async function printDirect() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode) return;
+  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
   const btn = document.getElementById('btn-print');
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳ Preparando…'; btn.disabled = true;
@@ -4483,7 +4737,11 @@ async function printDirect() {
     const PX = 200 / 25.4;
     const pages = []; // { url, wmm, hmm }
 
-    if (S.wrapMode) {
+    if (S.discMode) {
+      const { pc, d } = _composeDiscCanvas(PX);
+      pages.push({ url: pc.toDataURL('image/jpeg', .97), w: d.outerMM, h: d.outerMM });
+
+    } else if (S.wrapMode) {
       const { pc, L } = _composeWrapCanvas(PX);
       pages.push({ url: pc.toDataURL('image/jpeg', .95), w: L.pageW, h: L.pageH });
 
@@ -4609,7 +4867,7 @@ async function printDirect() {
     win.document.close();
 
   } catch(e) { alert('Error al imprimir:\n' + e.message); }
-  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode); }
+  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode); }
 }
 
 // ── Info Modal ────────────────────────────────────────
