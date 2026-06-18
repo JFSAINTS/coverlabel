@@ -1,5 +1,5 @@
 // CoverLabel Service Worker — offline cache
-const CACHE = 'coverlabel-v1.5.0';
+const CACHE = 'coverlabel-v1.7.0';
 const ASSETS = [
   './',
   './index.html',
