@@ -354,6 +354,39 @@
     .batch-thumb .bt-del:hover { background: var(--dng, #ef4444); }
     .batch-nav { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 
+    /* ── Stickers ── */
+    .emoji-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+    .emoji-palette button {
+      border: 1px solid var(--brd); background: var(--sfc2); border-radius: var(--rs);
+      font-size: 1.05rem; line-height: 1; padding: 5px 0; cursor: pointer; transition: background .12s;
+    }
+    .emoji-palette button:hover { background: var(--sfc3, var(--brd)); }
+    .sticker-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px; margin-top: 6px;
+      border: 1px solid var(--brd); border-radius: var(--rs); background: var(--sfc2);
+    }
+    .sticker-item .st-preview {
+      width: 34px; height: 34px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; background: var(--sfc); border-radius: var(--rs); overflow: hidden;
+    }
+    .sticker-item .st-preview img { width: 100%; height: 100%; object-fit: contain; }
+    .sticker-item .st-ctrls { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .sticker-item .st-ctrls label { font-size: .64rem; color: var(--txt2); display: flex; align-items: center; gap: 4px; }
+    .sticker-item .st-ctrls input[type=range] { flex: 1; }
+    .sticker-item .st-del {
+      flex: 0 0 auto; border: none; background: transparent; color: var(--txt3);
+      cursor: pointer; font-size: .9rem; align-self: flex-start;
+    }
+    .sticker-item .st-del:hover { color: var(--dng, #ef4444); }
+
+    /* ── Project row ── */
+    .project-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-proj {
+      flex: 1; min-width: 120px; background: var(--sfc2); border: 1px solid var(--brd);
+      color: var(--txt); font-weight: 600;
+    }
+    .btn-proj:hover { border-color: var(--ac); color: var(--ac); }
+
     /* ── Wrap uploads ── */
     .wrap-uploads { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
     .wrap-up {
@@ -577,10 +610,14 @@
 
     .modal-intro {
       padding: 12px 22px 0; font-size: .78rem; color: var(--txt2);
-      line-height: 1.55;
+      line-height: 1.55; flex-shrink: 0;
     }
     .modal-intro a { color: var(--ac); }
-    .modal-body { overflow-y: auto; padding: 14px 22px 22px; }
+    .modal-body { overflow-y: auto; padding: 14px 22px 22px; flex: 1 1 auto; min-height: 0; }
+
+    /* Repro panes: ocupan el alto restante del modal y permiten scroll interno */
+    .repro-pane { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+    .repro-pane.hidden { display: none; }
 
     .repro-group { margin-bottom: 18px; }
     .repro-group-title {
@@ -621,6 +658,12 @@
       font-family: inherit; font-weight: 600; transition: opacity .12s;
     }
     .repro-apply:hover { opacity: .85; }
+    .repro-net {
+      width: 100%; margin-top: 5px; font-size: .68rem; padding: 4px 0; border-radius: 6px;
+      background: var(--bg3); color: var(--txt2); border: 1px solid var(--brd); cursor: pointer;
+      font-family: inherit; font-weight: 600; transition: color .12s, border-color .12s;
+    }
+    .repro-net:hover { color: var(--ac); border-color: var(--ac); }
 
     /* ── Repro modal tabs ───────────────────────────────── */
     .repro-tabs { display:flex; gap:5px; padding:10px 20px 0; border-bottom:1px solid var(--brd); }
@@ -1211,6 +1254,15 @@
           <input type="checkbox" id="die-front" checked onchange="S.dieFront=this.checked;schedRender()">
           <span data-i18n="die_front">Imagen cargada en la cara frontal</span>
         </label>
+        <label class="opt-row" style="margin-top:8px">
+          <input type="checkbox" id="die-split" onchange="setDieSplit(this.checked)">
+          <span data-i18n="die_split">Dividir en páginas a tamaño real</span>
+        </label>
+        <div id="die-nav" class="batch-nav" style="display:none">
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="dieNav(-1)">◀</button>
+          <span id="die-page-lbl" class="ng-sub" style="flex:1;text-align:center"></span>
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="dieNav(1)">▶</button>
+        </div>
       </div>
     </div>
 
@@ -1282,6 +1334,16 @@
       <button class="auto-btn" style="margin-top:6px" onclick="addText()" data-i18n="btn_add_text">+ Añadir texto</button>
     </div>
 
+    <!-- STICKERS / PEGATINAS -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_stickers">😀 Stickers / pegatinas</div>
+      <div class="ng-sub" data-i18n="sticker_info" style="margin-bottom:6px">Pulsa un emoji o sube un PNG para pegarlo sobre la etiqueta. Ajusta posición, tamaño y giro de cada uno.</div>
+      <div id="emoji-palette" class="emoji-palette"></div>
+      <button class="auto-btn" style="margin-top:8px" onclick="document.getElementById('sticker-file').click()" data-i18n="sticker_png">🖼️ Subir PNG como sticker</button>
+      <input type="file" id="sticker-file" accept="image/png,image/*" style="display:none" onchange="onStickerFile(event)">
+      <div id="sticker-list" style="margin-top:8px"></div>
+    </div>
+
     </div><!-- /tab-modes -->
 
     <!-- ═══ TAB 4: OPCIONES ═══ -->
@@ -1341,6 +1403,12 @@
         <span>Selecciona un formato o sube una imagen para comenzar</span>
       </div>
     </div>
+    <div class="card project-row">
+      <button class="btn btn-proj" onclick="newProject()" data-i18n="btn_new">🗑️ Nuevo</button>
+      <button class="btn btn-proj" onclick="saveProject()" data-i18n="btn_save">💾 Guardar proyecto</button>
+      <button class="btn btn-proj" onclick="document.getElementById('project-file').click()" data-i18n="btn_load">📂 Cargar proyecto</button>
+      <input type="file" id="project-file" accept=".coverlabel,.json,application/json" style="display:none" onchange="loadProject(event)">
+    </div>
     <div class="card export-row">
       <button class="btn btn-pdf" id="btn-pdf" onclick="exportPDF()" disabled data-i18n="btn_pdf">📄 Exportar PDF</button>
       <button class="btn btn-png" id="btn-png" onclick="exportPNG()" disabled data-i18n="btn_png">🖼️ Exportar PNG</button>
@@ -1364,7 +1432,7 @@
       <button class="repro-tab"    id="tab-comunidad" onclick="switchReproTab('comunidad')">🌐 Comunidad</button>
     </div>
     <!-- Pestaña: Incluidas -->
-    <div id="repro-tab-incluidas">
+    <div id="repro-tab-incluidas" class="repro-pane">
       <p class="modal-intro">
         Descarga la plantilla PSD, personalízala en Photoshop / GIMP /
         <a href="https://www.photopea.com" target="_blank">Photopea</a> (online gratis),
@@ -1375,7 +1443,7 @@
       <div class="modal-body" id="repro-body"></div>
     </div>
     <!-- Pestaña: Comunidad -->
-    <div id="repro-tab-comunidad" style="display:none">
+    <div id="repro-tab-comunidad" class="repro-pane hidden">
       <div class="modal-body" style="padding-top:4px">
         <div class="ctpl-toolbar">
           <button class="ctpl-upload-btn" onclick="openUploadModal()">⬆ Subir plantilla</button>
@@ -1425,11 +1493,16 @@ const I18N = {
     sec_die: '📦 Plantilla de caja (net)', die_enable: 'Generar net de caja recortable',
     die_info: 'Despliega una caja de 6 caras con pestañas de pegado, líneas de plegado y de corte. Introduce ancho × alto × fondo.',
     die_preset: 'Caja predefinida', die_w: 'Ancho (mm)', die_h: 'Alto (mm)', die_d: 'Fondo (mm)', die_tab: 'Pestaña (mm)',
-    die_front: 'Imagen cargada en la cara frontal',
+    die_front: 'Imagen cargada en la cara frontal', die_split: 'Dividir en páginas a tamaño real',
     sec_spine: '🏷️ Etiquetas de lomo', spine_enable: 'Hoja de tiras de lomo',
     spine_info: 'Tiras estrechas con texto vertical para lomos de libros, juegos o DVDs. Escribe un título por línea: cada uno genera una etiqueta y se reparten en las páginas necesarias.',
     spine_w: 'Grosor (mm)', spine_h: 'Longitud (mm)', spine_titles: 'Títulos (uno por línea)',
     spine_color: 'Color de acento', spine_dir: 'Sentido', spine_up: '↑ Hacia arriba', spine_down: '↓ Hacia abajo',
+    sec_stickers: '😀 Stickers / pegatinas', sticker_info: 'Pulsa un emoji o sube un PNG para pegarlo sobre la etiqueta. Ajusta posición, tamaño y giro de cada uno.',
+    sticker_png: '🖼️ Subir PNG como sticker',
+    btn_new: '🗑️ Nuevo', btn_save: '💾 Guardar proyecto', btn_load: '📂 Cargar proyecto',
+    confirm_new: '¿Empezar un proyecto nuevo? Se perderá lo no guardado.', err_load: 'Archivo de proyecto no válido',
+    toast_new: '🗑️ Proyecto nuevo', toast_saved: '💾 Proyecto guardado', toast_loaded: '📂 Proyecto cargado',
     sec_cal: 'Calibración de impresora', cal_info: 'Desplaza la impresión unos mm si tu impresora descentra el corte (afecta a etiquetas y wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lomo / nº)', btn_add_text: '+ Añadir texto',
@@ -1465,11 +1538,16 @@ const I18N = {
     sec_die: '📦 Box template (net)', die_enable: 'Generate cut-out box net',
     die_info: 'Unfolds a 6-face box with glue tabs, fold lines and cut lines. Enter width × height × depth.',
     die_preset: 'Preset box', die_w: 'Width (mm)', die_h: 'Height (mm)', die_d: 'Depth (mm)', die_tab: 'Glue tab (mm)',
-    die_front: 'Loaded image on the front face',
+    die_front: 'Loaded image on the front face', die_split: 'Split across real-size pages',
     sec_spine: '🏷️ Spine labels', spine_enable: 'Sheet of spine strips',
     spine_info: 'Narrow strips with vertical text for book, game or DVD spines. Type one title per line: each one becomes a label, spread across as many pages as needed.',
     spine_w: 'Thickness (mm)', spine_h: 'Length (mm)', spine_titles: 'Titles (one per line)',
     spine_color: 'Accent colour', spine_dir: 'Direction', spine_up: '↑ Upward', spine_down: '↓ Downward',
+    sec_stickers: '😀 Stickers', sticker_info: 'Tap an emoji or upload a PNG to stick it onto the label. Adjust each one\'s position, size and rotation.',
+    sticker_png: '🖼️ Upload PNG as sticker',
+    btn_new: '🗑️ New', btn_save: '💾 Save project', btn_load: '📂 Load project',
+    confirm_new: 'Start a new project? Unsaved work will be lost.', err_load: 'Invalid project file',
+    toast_new: '🗑️ New project', toast_saved: '💾 Project saved', toast_loaded: '📂 Project loaded',
     sec_cal: 'Printer calibration', cal_info: 'Shift the print a few mm if your printer offsets the cut (affects labels and wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Text (title / spine / no.)', btn_add_text: '+ Add text',
@@ -1505,11 +1583,16 @@ const I18N = {
     sec_die: '📦 Modelo de caixa (net)', die_enable: 'Gerar net de caixa recortável',
     die_info: 'Desdobra uma caixa de 6 faces com abas de colagem, linhas de dobra e de corte. Introduza largura × altura × profundidade.',
     die_preset: 'Caixa predefinida', die_w: 'Largura (mm)', die_h: 'Altura (mm)', die_d: 'Profundidade (mm)', die_tab: 'Aba (mm)',
-    die_front: 'Imagem carregada na face frontal',
+    die_front: 'Imagem carregada na face frontal', die_split: 'Dividir em páginas a tamanho real',
     sec_spine: '🏷️ Etiquetas de lombada', spine_enable: 'Folha de tiras de lombada',
     spine_info: 'Tiras estreitas com texto vertical para lombadas de livros, jogos ou DVDs. Escreva um título por linha: cada um gera uma etiqueta e divide-se pelas páginas necessárias.',
     spine_w: 'Espessura (mm)', spine_h: 'Comprimento (mm)', spine_titles: 'Títulos (um por linha)',
     spine_color: 'Cor de destaque', spine_dir: 'Sentido', spine_up: '↑ Para cima', spine_down: '↓ Para baixo',
+    sec_stickers: '😀 Stickers / autocolantes', sticker_info: 'Toque num emoji ou carregue um PNG para colá-lo na etiqueta. Ajuste posição, tamanho e rotação de cada um.',
+    sticker_png: '🖼️ Carregar PNG como sticker',
+    btn_new: '🗑️ Novo', btn_save: '💾 Guardar projeto', btn_load: '📂 Carregar projeto',
+    confirm_new: 'Começar um projeto novo? Perde-se o que não foi guardado.', err_load: 'Ficheiro de projeto inválido',
+    toast_new: '🗑️ Projeto novo', toast_saved: '💾 Projeto guardado', toast_loaded: '📂 Projeto carregado',
     sec_cal: 'Calibração de impressora', cal_info: 'Desloque a impressão alguns mm se a impressora descentralizar o corte (afeta etiquetas e wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lombada / nº)', btn_add_text: '+ Adicionar texto',
@@ -1545,11 +1628,16 @@ const I18N = {
     sec_die: '📦 Gabarit de boîte (net)', die_enable: 'Générer un net de boîte à découper',
     die_info: 'Déplie une boîte de 6 faces avec languettes de collage, lignes de pliage et de coupe. Saisissez largeur × hauteur × profondeur.',
     die_preset: 'Boîte prédéfinie', die_w: 'Largeur (mm)', die_h: 'Hauteur (mm)', die_d: 'Profondeur (mm)', die_tab: 'Languette (mm)',
-    die_front: 'Image chargée sur la face avant',
+    die_front: 'Image chargée sur la face avant', die_split: 'Diviser en pages à taille réelle',
     sec_spine: '🏷️ Étiquettes de dos', spine_enable: 'Feuille de bandes de dos',
     spine_info: 'Bandes étroites avec texte vertical pour les dos de livres, jeux ou DVD. Saisissez un titre par ligne : chacun devient une étiquette, réparties sur autant de pages que nécessaire.',
     spine_w: 'Épaisseur (mm)', spine_h: 'Longueur (mm)', spine_titles: 'Titres (un par ligne)',
     spine_color: 'Couleur d\'accent', spine_dir: 'Sens', spine_up: '↑ Vers le haut', spine_down: '↓ Vers le bas',
+    sec_stickers: '😀 Stickers / autocollants', sticker_info: 'Touchez un emoji ou importez un PNG pour le coller sur l\'étiquette. Réglez position, taille et rotation de chacun.',
+    sticker_png: '🖼️ Importer un PNG comme sticker',
+    btn_new: '🗑️ Nouveau', btn_save: '💾 Enregistrer le projet', btn_load: '📂 Charger un projet',
+    confirm_new: 'Démarrer un nouveau projet ? Le travail non enregistré sera perdu.', err_load: 'Fichier de projet invalide',
+    toast_new: '🗑️ Nouveau projet', toast_saved: '💾 Projet enregistré', toast_loaded: '📂 Projet chargé',
     sec_cal: 'Calibration imprimante', cal_info: 'Décalez l\'impression de quelques mm si votre imprimante décentre la coupe (étiquettes et wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texte (titre / tranche / nº)', btn_add_text: '+ Ajouter texte',
@@ -1727,6 +1815,7 @@ const S = {
   regMarks: false,
   bleed: false,
   texts: [],   // [{id, content, xPct, yPct, sizePct, color, bold, rotation, align}]
+  stickers: [], // [{id, type:'emoji'|'img', content|src, xPct, yPct, sizePct, rotation}]
 
   // ── Wrap (portada + lomo + contraportada con imágenes separadas) ──
   wrapMode: false,
@@ -1754,6 +1843,8 @@ const S = {
   dieW: 130, dieH: 184, dieD: 14,   // mm: ancho, alto, fondo
   dieTab: 10,                        // mm: pestaña de pegado
   dieFront: true,                    // colocar imagen cargada en la cara frontal
+  dieSplit: false,                   // dividir el net en varias páginas a tamaño real
+  diePage: 0,                        // página visible (modo dividido)
 
   // ── Etiquetas de lomo (spine labels) ──
   spineMode: false,
@@ -1950,6 +2041,301 @@ function renderTextList() {
       </div>
     </div>`).join('');
   applyLang(getLang());
+}
+
+// ── Stickers / pegatinas ──────────────────────────────
+const EMOJI_PALETTE = ['⭐','🔥','💎','👑','🏆','❤️','✨','💀','👾','🤖','🎮','🎬',
+  '🎵','📀','🚀','⚡','🎯','💥','🌟','🆕','🔞','✅','🇪🇸','😀'];
+
+function _initEmojiPalette() {
+  const box = document.getElementById('emoji-palette');
+  if (!box) return;
+  box.innerHTML = EMOJI_PALETTE.map(e =>
+    `<button type="button" onclick="addSticker('emoji','${e}')" title="${e}">${e}</button>`
+  ).join('');
+}
+
+function addSticker(type, content) {
+  const st = {
+    id: 's' + Date.now() + Math.random().toString(36).slice(2,5),
+    type, xPct: 50, yPct: 50, sizePct: 22, rotation: 0,
+  };
+  if (type === 'emoji') st.content = content;
+  else { st.src = content; st._img = new Image(); st._img.onload = schedRender; st._img.src = content; }
+  S.stickers.push(st);
+  renderStickerList();
+  schedRender();
+}
+
+function onStickerFile(e) {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f || !f.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    // Reduce el PNG a máx. 600px para mantener el proyecto/sesión ligeros
+    const img = new Image();
+    img.onload = () => {
+      const max = 600, m = Math.max(img.naturalWidth, img.naturalHeight);
+      let src = ev.target.result;
+      if (m > max) {
+        const r = max/m, oc = document.createElement('canvas');
+        oc.width = Math.round(img.naturalWidth*r); oc.height = Math.round(img.naturalHeight*r);
+        oc.getContext('2d').drawImage(img, 0, 0, oc.width, oc.height);
+        src = oc.toDataURL('image/png');
+      }
+      addSticker('img', src);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+function removeSticker(id) {
+  S.stickers = S.stickers.filter(s => s.id !== id);
+  renderStickerList();
+  schedRender();
+}
+
+function updateSticker(id, key, val) {
+  const s = S.stickers.find(x => x.id === id);
+  if (!s) return;
+  s[key] = +val;
+  const lbl = document.getElementById(`stk-${id}-${key}-val`);
+  if (lbl) lbl.textContent = key === 'rotation' ? `${val}°` : `${val}%`;
+  schedRender();
+}
+
+function renderStickerList() {
+  const wrap = document.getElementById('sticker-list');
+  if (!wrap) return;
+  wrap.innerHTML = (S.stickers || []).map(s => `
+    <div class="sticker-item">
+      <div class="st-preview">${s.type === 'emoji' ? s.content : `<img src="${s.src}" alt="">`}</div>
+      <div class="st-ctrls">
+        <label>X <span id="stk-${s.id}-xPct-val">${s.xPct}%</span>
+          <input type="range" min="0" max="100" value="${s.xPct}" oninput="updateSticker('${s.id}','xPct',this.value)"></label>
+        <label>Y <span id="stk-${s.id}-yPct-val">${s.yPct}%</span>
+          <input type="range" min="0" max="100" value="${s.yPct}" oninput="updateSticker('${s.id}','yPct',this.value)"></label>
+        <label>⤢ <span id="stk-${s.id}-sizePct-val">${s.sizePct}%</span>
+          <input type="range" min="3" max="100" value="${s.sizePct}" oninput="updateSticker('${s.id}','sizePct',this.value)"></label>
+        <label>↻ <span id="stk-${s.id}-rotation-val">${s.rotation}°</span>
+          <input type="range" min="-180" max="180" value="${s.rotation}" oninput="updateSticker('${s.id}','rotation',this.value)"></label>
+      </div>
+      <button class="st-del" onclick="removeSticker('${s.id}')" title="Eliminar">✕</button>
+    </div>`).join('');
+}
+
+// Rehidrata los objetos Image de los stickers tipo imagen (tras cargar proyecto/sesión)
+function _rehydrateStickers() {
+  (S.stickers || []).forEach(s => {
+    if (s.type === 'img' && s.src && !s._img) {
+      s._img = new Image(); s._img.onload = schedRender; s._img.src = s.src;
+    }
+  });
+}
+
+// ── Nuevo / Guardar / Cargar proyecto ─────────────────
+function newProject() {
+  if (!confirm(t('confirm_new') || '¿Empezar un proyecto nuevo? Se perderá lo no guardado.')) return;
+  // desactiva todos los modos
+  _batchOff(); _dieOff(); _spineOff();
+  if (S.wrapMode)   setWrap(false);
+  if (S.discMode)   setDisc(false);
+  if (S.neogeoMode) setNeoGeo(false);
+  if (S.ctplMode)   setCtpl(false);
+  if (S.posterActive) clearPoster();
+  if (S.split) setSplit(false);
+  // limpia el diseño
+  S.img = null; _rotCache = null; S.imgRot = 0;
+  S.imgOff = { x:0, y:0 }; S.imgScale = 1;
+  S.imgAdj = { brightness:100, contrast:100, saturation:100, sharpen:0 };
+  S.texts = []; S.stickers = [];
+  S.batchImgs = []; S.spineList = [];
+  S.wrapImg = { front:null, back:null, spine:null };
+  // refresca UI
+  document.getElementById('upload-drop').style.display = '';
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('adj-sec').style.display = 'none';
+  document.getElementById('rot-ccw').disabled = true;
+  document.getElementById('rot-cw').disabled = true;
+  const ta = document.getElementById('spine-text'); if (ta) ta.value = '';
+  const bt = document.getElementById('batch-thumbs'); if (bt) bt.innerHTML = '';
+  resetImgAdj();
+  renderTextList(); renderStickerList();
+  _updateImgScaleUI();
+  schedRender();
+  showToast(t('toast_new') || '🗑️ Proyecto nuevo');
+}
+
+function saveProject() {
+  const proj = {
+    _coverlabel: '1.7.0', savedAt: new Date().toISOString(),
+    paper: S.paper, orient: S.orient, lW: S.lW, lH: S.lH, fit: S.fit,
+    spacingX: S.spacingX, spacingY: S.spacingY, margin: S.margin,
+    guides: S.guides, regMarks: S.regMarks, bleed: S.bleed,
+    gridManual: S.gridManual, gridCols: S.gridCols, gridRows: S.gridRows,
+    formatCat: S.formatCat, formatId: S.formatId,
+    calX: S.calX, calY: S.calY,
+    texts: S.texts,
+    stickers: (S.stickers || []).map(({ _img, ...rest }) => rest),
+    img: S.img ? _imgToDataURL(S.img) : null,
+    imgRot: S.imgRot, imgOff: S.imgOff, imgScale: S.imgScale, imgAdj: S.imgAdj,
+    // wrap
+    wrapMode: S.wrapMode, wrapType: S.wrapType, wrapSpine: S.wrapSpine, wrapFold: S.wrapFold,
+    wrapOff: S.wrapOff, wrapScale: S.wrapScale,
+    wrapImg: {
+      front: S.wrapImg?.front ? _imgToDataURL(S.wrapImg.front) : null,
+      back:  S.wrapImg?.back  ? _imgToDataURL(S.wrapImg.back)  : null,
+      spine: S.wrapImg?.spine ? _imgToDataURL(S.wrapImg.spine) : null,
+    },
+    // disco
+    discMode: S.discMode, discType: S.discType, discHole: S.discHole, discOff: S.discOff, discScale: S.discScale,
+    // spine labels
+    spineMode: S.spineMode, spineW: S.spineW, spineH: S.spineH, spineList: S.spineList,
+    spineColor: S.spineColor, spineDir: S.spineDir,
+    // dieline
+    dieMode: S.dieMode, dieW: S.dieW, dieH: S.dieH, dieD: S.dieD, dieTab: S.dieTab, dieFront: S.dieFront, dieSplit: S.dieSplit,
+  };
+  const cat = (S.formatCat || 'proyecto').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const blob = new Blob([JSON.stringify(proj)], { type: 'application/json' });
+  downloadOrShare(blob, `coverlabel-${cat}-${Date.now().toString(36)}.coverlabel`, 'application/json');
+  showToast(t('toast_saved') || '💾 Proyecto guardado');
+}
+
+function _imgToDataURL(im) {
+  if (im.toDataURL) return im.toDataURL('image/png');   // canvas
+  const oc = document.createElement('canvas');
+  oc.width = im.naturalWidth; oc.height = im.naturalHeight;
+  oc.getContext('2d').drawImage(im, 0, 0);
+  return oc.toDataURL('image/png');
+}
+
+function loadProject(e) {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    let d;
+    try { d = JSON.parse(ev.target.result); } catch { alert(t('err_load') || 'Archivo de proyecto no válido'); return; }
+    if (!d || !d._coverlabel) { alert(t('err_load') || 'Archivo de proyecto no válido'); return; }
+    _applyProject(d);
+  };
+  reader.readAsText(f);
+}
+
+function _applyProject(d) {
+  // reset modos primero
+  _batchOff(); _dieOff(); _spineOff();
+  if (S.wrapMode)   setWrap(false);
+  if (S.discMode)   setDisc(false);
+  if (S.neogeoMode) setNeoGeo(false);
+  if (S.ctplMode)   setCtpl(false);
+  if (S.posterActive) clearPoster();
+  if (S.split) setSplit(false);
+
+  // ajustes simples
+  ['paper','orient','fit'].forEach(k => { if (d[k] != null) S[k] = d[k]; });
+  ['lW','lH','margin','gridCols','gridRows','spacingX','spacingY','calX','calY'].forEach(k => { if (d[k] != null) S[k] = +d[k]; });
+  ['guides','regMarks','bleed','gridManual'].forEach(k => { if (d[k] != null) S[k] = !!d[k]; });
+  S.formatCat = d.formatCat ?? null; S.formatId = d.formatId ?? null;
+  S.texts = Array.isArray(d.texts) ? d.texts : [];
+  S.stickers = Array.isArray(d.stickers) ? d.stickers : [];
+  S.imgRot = +d.imgRot || 0;
+  S.imgOff = d.imgOff || { x:0, y:0 }; S.imgScale = +d.imgScale || 1;
+  S.imgAdj = d.imgAdj || { brightness:100, contrast:100, saturation:100, sharpen:0 };
+  // spine / die
+  if (d.spineW != null) S.spineW = +d.spineW;
+  if (d.spineH != null) S.spineH = +d.spineH;
+  if (Array.isArray(d.spineList)) S.spineList = d.spineList;
+  if (d.spineColor) S.spineColor = d.spineColor;
+  if (d.spineDir) S.spineDir = d.spineDir;
+  ['dieW','dieH','dieD','dieTab'].forEach(k => { if (d[k] != null) S[k] = +d[k]; });
+  if (d.dieFront != null) S.dieFront = !!d.dieFront;
+  if (d.dieSplit != null) S.dieSplit = !!d.dieSplit;
+  if (d.wrapType) S.wrapType = d.wrapType;
+  if (d.wrapSpine != null) S.wrapSpine = +d.wrapSpine;
+  if (d.wrapFold != null) S.wrapFold = !!d.wrapFold;
+  if (d.wrapOff) S.wrapOff = d.wrapOff;
+  if (d.wrapScale) S.wrapScale = d.wrapScale;
+  if (d.discType) S.discType = d.discType;
+  if (d.discHole != null) S.discHole = !!d.discHole;
+  if (d.discOff) S.discOff = d.discOff;
+  if (d.discScale != null) S.discScale = +d.discScale;
+
+  _rehydrateStickers();
+  _syncControlsFromState();
+
+  // imagen principal
+  const finish = () => {
+    // reactivar modo guardado (si lo había)
+    if (d.wrapMode) { document.getElementById('wrap-on').checked = true; setWrap(true); }
+    else if (d.discMode) { document.getElementById('disc-on').checked = true; setDisc(true); }
+    else if (d.spineMode) { const ta=document.getElementById('spine-text'); if(ta) ta.value=S.spineList.join('\n'); document.getElementById('spine-on').checked = true; setSpine(true); }
+    else if (d.dieMode) { document.getElementById('die-on').checked = true; setDie(true); }
+    else schedRender();
+    showToast(t('toast_loaded') || '📂 Proyecto cargado');
+  };
+
+  let pending = 0;
+  const loadInto = (dataURL, assign) => {
+    if (!dataURL) return;
+    pending++;
+    const im = new Image();
+    im.onload = () => { assign(im); if (--pending === 0) finish(); };
+    im.onerror = () => { if (--pending === 0) finish(); };
+    im.src = dataURL;
+  };
+
+  if (d.img) {
+    loadInto(d.img, im => {
+      S.img = im; _rotCache = null;
+      document.getElementById('thumb').src = d.img;
+      document.getElementById('upload-drop').style.display = 'none';
+      document.getElementById('upload-preview').style.display = 'block';
+      document.getElementById('adj-sec').style.display = 'block';
+      document.getElementById('rot-ccw').disabled = false;
+      document.getElementById('rot-cw').disabled = false;
+    });
+  } else {
+    S.img = null; _rotCache = null;
+    document.getElementById('upload-drop').style.display = '';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('adj-sec').style.display = 'none';
+  }
+  if (d.wrapImg) {
+    S.wrapImg = { front:null, back:null, spine:null };
+    loadInto(d.wrapImg.front, im => { S.wrapImg.front = im; });
+    loadInto(d.wrapImg.back,  im => { S.wrapImg.back  = im; });
+    loadInto(d.wrapImg.spine, im => { S.wrapImg.spine = im; });
+  }
+  if (pending === 0) finish();
+}
+
+// Refleja S en los controles del DOM (reutilizable)
+function _syncControlsFromState() {
+  document.querySelectorAll('#paper-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.v === S.paper));
+  document.getElementById('oc-p').classList.toggle('on', S.orient === 'portrait');
+  document.getElementById('oc-l').classList.toggle('on', S.orient === 'landscape');
+  document.querySelectorAll('.fi').forEach(el => el.classList.toggle('on', el.dataset.fit === S.fit));
+  const sv = (id, v) => { const el = document.getElementById(id); if (el != null && v != null) el.value = v; };
+  sv('lw', S.lW); sv('lh', S.lH); sv('mg', S.margin);
+  sv('sp-x', S.spacingX); sv('sp-y', S.spacingY);
+  sv('grid-cols', S.gridCols); sv('grid-rows', S.gridRows);
+  sv('cal-x', S.calX); sv('cal-y', S.calY);
+  sv('wrap-type', S.wrapType); sv('wrap-spine', S.wrapSpine);
+  sv('disc-type', S.discType);
+  sv('spine-w', S.spineW); sv('spine-h', S.spineH); sv('spine-color', S.spineColor); sv('spine-dir', S.spineDir);
+  sv('die-w', S.dieW); sv('die-h', S.dieH); sv('die-d', S.dieD); sv('die-tab', S.dieTab);
+  const gd = document.getElementById('guides');     if (gd) gd.checked = S.guides;
+  const rm = document.getElementById('reg-marks');  if (rm) rm.checked = S.regMarks;
+  const bl = document.getElementById('bleed-on');   if (bl) bl.checked = S.bleed;
+  const df = document.getElementById('die-front');  if (df) df.checked = S.dieFront;
+  const ds = document.getElementById('die-split');  if (ds) ds.checked = S.dieSplit;
+  if (typeof updateWrapSpineLabel === 'function') updateWrapSpineLabel();
+  if (S.formatCat && FORMATS[S.formatCat]) { const sel = document.getElementById('cat-sel'); if (sel) { sel.value = S.formatCat; } }
+  renderTextList(); renderStickerList(); _updateImgScaleUI();
 }
 
 // ── Suggest best paper for dimensions (mm) ────────────
@@ -2228,8 +2614,7 @@ function drawLabel(ctx, x, y, w, h, img, offX=0, offY=0, zoom=1) {
 
 // Text overlays (título, lomo, nº cartucho…). Positions/size are % of label.
 function _drawTextOverlays(ctx, x, y, w, h) {
-  if (!S.texts || !S.texts.length) return;
-  S.texts.forEach(t => {
+  if (S.texts && S.texts.length) S.texts.forEach(t => {
     if (!t.content) return;
     ctx.save();
     const px = x + w * (t.xPct / 100);
@@ -2248,6 +2633,29 @@ function _drawTextOverlays(ctx, x, y, w, h) {
     }
     ctx.fillStyle = t.color || '#000000';
     ctx.fillText(t.content, 0, 0);
+    ctx.restore();
+  });
+  _drawStickerOverlays(ctx, x, y, w, h);
+}
+
+// Sticker overlays (emojis o PNG locales) sobre la etiqueta/cover.
+function _drawStickerOverlays(ctx, x, y, w, h) {
+  if (!S.stickers || !S.stickers.length) return;
+  S.stickers.forEach(s => {
+    ctx.save();
+    const px = x + w * (s.xPct / 100), py = y + h * (s.yPct / 100);
+    const targetH = Math.max(1, h * (s.sizePct / 100));
+    ctx.translate(px, py);
+    if (s.rotation) ctx.rotate(s.rotation * Math.PI / 180);
+    if (s.type === 'emoji') {
+      ctx.font = `${targetH}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(s.content, 0, 0);
+    } else if (s._img && s._img.complete && s._img.naturalWidth) {
+      const ar = s._img.naturalWidth / s._img.naturalHeight;
+      const dh = targetH, dw = targetH * ar;
+      ctx.drawImage(s._img, -dw/2, -dh/2, dw, dh);
+    }
     ctx.restore();
   });
 }
@@ -2707,6 +3115,7 @@ function persistSession() {
       guides: S.guides, regMarks: S.regMarks, bleed: S.bleed,
       gridManual: S.gridManual, gridCols: S.gridCols, gridRows: S.gridRows,
       formatCat: S.formatCat, formatId: S.formatId, texts: S.texts,
+      stickers: (S.stickers || []).map(({ _img, ...rest }) => rest),
       calX: S.calX, calY: S.calY,
       wrapType: S.wrapType, wrapSpine: S.wrapSpine, wrapFold: S.wrapFold,
       discType: S.discType,
@@ -2728,6 +3137,7 @@ function restoreSession() {
   else if (d.spacing != null) S.spacingY = +d.spacing;
   ['guides','regMarks','bleed','gridManual'].forEach(k => { if (d[k] != null) S[k] = !!d[k]; });
   if (Array.isArray(d.texts)) S.texts = d.texts;
+  if (Array.isArray(d.stickers)) { S.stickers = d.stickers; _rehydrateStickers(); }
   if (d.calX != null) S.calX = +d.calX;
   if (d.calY != null) S.calY = +d.calY;
   if (d.wrapType && WRAP_CASES[d.wrapType]) S.wrapType = d.wrapType;
@@ -3014,10 +3424,22 @@ async function exportPDF() {
 
     } else if (S.dieMode) {
       // ─── Dieline / net de caja ───────────────────────
-      const { pc, pageW, pageH } = _composeDieCanvas(200 / 25.4);
-      const pdf = new jsPDF({ orientation: pageW > pageH ? 'landscape' : 'portrait', unit: 'mm', format: [pageW, pageH] });
-      pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
-      await downloadOrShare(pdf.output('blob'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.pdf`, 'application/pdf');
+      const PXd = 200 / 25.4;
+      if (S.dieSplit) {
+        const g0 = _dieSplitGrid();
+        const pdf = new jsPDF({ orientation: g0.p.w > g0.p.h ? 'landscape' : 'portrait', unit: 'mm', format: [g0.p.w, g0.p.h] });
+        for (let i = 0; i < g0.pages; i++) {
+          if (i > 0) pdf.addPage([g0.p.w, g0.p.h], g0.p.w > g0.p.h ? 'landscape' : 'portrait');
+          const { pc } = _composeDiePage(PXd, i);
+          pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, g0.p.w, g0.p.h, undefined, 'FAST');
+        }
+        await downloadOrShare(pdf.output('blob'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}-${g0.pages}pag.pdf`, 'application/pdf');
+      } else {
+        const { pc, pageW, pageH } = _composeDieCanvas(PXd);
+        const pdf = new jsPDF({ orientation: pageW > pageH ? 'landscape' : 'portrait', unit: 'mm', format: [pageW, pageH] });
+        pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
+        await downloadOrShare(pdf.output('blob'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.pdf`, 'application/pdf');
+      }
 
     } else if (S.batchMode) {
       // ─── Lote: varias imágenes en cuadrícula, multipágina ──
@@ -3353,8 +3775,18 @@ async function exportPNG() {
 
     } else if (S.dieMode) {
       // ─── Dieline PNG ─────────────────────────────────
-      const { pc } = _composeDieCanvas(150 / 25.4);
-      await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.png`, 'image/png');
+      const PXd = 150 / 25.4;
+      if (S.dieSplit) {
+        const g0 = _dieSplitGrid();
+        for (let i = 0; i < g0.pages; i++) {
+          const { pc } = _composeDiePage(PXd, i);
+          await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}-pag${String(i+1).padStart(2,'0')}.png`, 'image/png');
+          if (i < g0.pages-1) await new Promise(r => setTimeout(r, 100));
+        }
+      } else {
+        const { pc } = _composeDieCanvas(PXd);
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.png`, 'image/png');
+      }
 
     } else if (S.batchMode) {
       // ─── Lote PNG: una página por archivo ────────────
@@ -3674,6 +4106,7 @@ function buildReproModal() {
             ${dlBtn}
             <button class="repro-apply" onclick="applyReproFormat('${item.cat}')">✓ Aplicar</button>
           </div>
+          <button class="repro-net" onclick="applyReproNet('${item.cat}')" title="Generar net de caja recortable">📦 Net de caja</button>
         </div>`;
     }).join('');
     return `<div class="repro-group">
@@ -3691,11 +4124,58 @@ function closeReproModal() {
   document.getElementById('repro-modal').style.display = 'none';
 }
 
+// Desactiva todos los modos especiales para volver a la cuadrícula estándar
+function _allModesOff() {
+  _batchOff(); _dieOff(); _spineOff();
+  if (S.wrapMode)     setWrap(false);
+  if (S.discMode)     setDisc(false);
+  if (S.neogeoMode)   setNeoGeo(false);
+  if (S.ctplMode)     setCtpl(false);
+  if (S.posterActive) clearPoster();
+  if (S.split)        setSplit(false);
+}
+
 function applyReproFormat(cat) {
-  document.getElementById('cat-sel').value = cat;
+  _allModesOff();                       // sal de wrap/disco/net/etc. para ver la etiqueta plana
+  const sel = document.getElementById('cat-sel');
+  if (sel) sel.value = cat;
   onCatChange(cat);
+  switchTab('tab-format');              // muestra el formato aplicado
   closeReproModal();
+  schedRender();
   showToast(`✓ Formato aplicado: ${cat}`);
+}
+
+// Deriva ancho × alto × fondo de la caja a partir de los formatos (fondo = wrap − 2×portada)
+function _reproBoxDims(cat) {
+  const fmts = FORMATS[cat] || [];
+  if (!fmts.length) return null;
+  const front = fmts[0];
+  const wrap  = fmts.find(f => /wrap/i.test(f.id) || /wrap|completo/i.test(f.name || ''));
+  let D = wrap ? Math.round(wrap.w - 2 * front.w) : 16;
+  if (!(D >= 3)) D = 16;                 // fallback si el cálculo no es válido
+  return { W: front.w, H: front.h, D };
+}
+
+function applyReproNet(cat) {
+  const d = _reproBoxDims(cat);
+  if (!d) { showToast('✗ Sin dimensiones para ' + cat); return; }
+  _allModesOff();
+  S.dieW = d.W; S.dieH = d.H; S.dieD = d.D;
+  const sw = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  sw('die-w', d.W); sw('die-h', d.H); sw('die-d', d.D);
+  sw('die-preset', 'custom');
+  // Si el net no cabe en la hoja actual, activa automáticamente el reparto en páginas
+  const L = _dieLayout(), p = pageMM(), mg = +S.margin;
+  const fits = L.totalW <= p.w - 2*mg && L.totalH <= p.h - 2*mg;
+  S.dieSplit = !fits; S.diePage = 0;
+  const spt = document.getElementById('die-split'); if (spt) spt.checked = !fits;
+  const on = document.getElementById('die-on'); if (on) on.checked = true;
+  setDie(true);                          // activa modo net + salta a pestaña Modos + render
+  closeReproModal();
+  showToast(!fits
+    ? `📦 Net ${cat} (${d.W}×${d.H}×${d.D} mm) — repartido en páginas`
+    : `📦 Net de caja: ${cat} (${d.W}×${d.H}×${d.D} mm)`);
 }
 
 function showToast(msg) {
@@ -3708,8 +4188,8 @@ function showToast(msg) {
 
 // ── Community template tab ────────────────────────────
 function switchReproTab(tab) {
-  document.getElementById('repro-tab-incluidas').style.display = tab === 'incluidas' ? '' : 'none';
-  document.getElementById('repro-tab-comunidad').style.display = tab === 'comunidad' ? '' : 'none';
+  document.getElementById('repro-tab-incluidas').classList.toggle('hidden', tab !== 'incluidas');
+  document.getElementById('repro-tab-comunidad').classList.toggle('hidden', tab !== 'comunidad');
   document.getElementById('tab-incluidas').classList.toggle('on', tab === 'incluidas');
   document.getElementById('tab-comunidad').classList.toggle('on', tab === 'comunidad');
   if (tab === 'comunidad' && !_ctplLoaded) loadCtplGallery();
@@ -4880,6 +5360,62 @@ function _composeDieCanvas(PX) {
   return { pc, L, pageW: p.w, pageH: p.h, scaled, scale };
 }
 
+function setDieSplit(on) {
+  S.dieSplit = on;
+  S.diePage = 0;
+  schedRender();
+}
+
+function dieNav(dir) {
+  const g = _dieSplitGrid();
+  S.diePage = Math.min(g.pages - 1, Math.max(0, S.diePage + dir));
+  render();
+}
+
+// Rejilla de páginas para imprimir el net a tamaño real repartido en hojas
+function _dieSplitGrid() {
+  const L = _dieLayout();
+  const p = pageMM();
+  const mg = +S.margin;
+  const usableW = Math.max(10, p.w - 2*mg), usableH = Math.max(10, p.h - 2*mg);
+  const cols = Math.max(1, Math.ceil(L.totalW / usableW - 1e-4));
+  const rows = Math.max(1, Math.ceil(L.totalH / usableH - 1e-4));
+  // net centrado horizontalmente en el bloque, alineado arriba (estilo neogeo)
+  const netOffX = (cols*usableW - L.totalW) / 2;
+  const netOffY = 0;
+  return { L, p, mg, usableW, usableH, cols, rows, pages: cols*rows, netOffX, netOffY };
+}
+
+// Dibuja una página (tile) del net a tamaño real. k = px/mm. ox/oy = origen del net en mm de página
+function _drawDiePageInto(ctx, g, pageIdx, k) {
+  const c = pageIdx % g.cols, r = Math.floor(pageIdx / g.cols);
+  const ox = g.mg + g.netOffX - c*g.usableW;
+  const oy = g.mg + g.netOffY - r*g.usableH;
+  ctx.save();
+  ctx.translate((S.calX+ox)*k, (S.calY+oy)*k);
+  _drawDie(ctx, g.L, k);
+  ctx.restore();
+  // Guía del área útil (recorte/ensamblaje) discontinua
+  ctx.save();
+  ctx.strokeStyle = 'rgba(120,120,120,.6)';
+  ctx.setLineDash([Math.max(3,1.2*k), Math.max(3,1.2*k)]);
+  ctx.lineWidth = Math.max(0.7, 0.2*k);
+  ctx.strokeRect(g.mg*k, g.mg*k, g.usableW*k, g.usableH*k);
+  ctx.setLineDash([]);
+  ctx.restore();
+  return { c, r };
+}
+
+function _composeDiePage(PX, pageIdx) {
+  const g = _dieSplitGrid();
+  const pc = document.createElement('canvas');
+  pc.width = Math.round(g.p.w*PX); pc.height = Math.round(g.p.h*PX);
+  const cx = pc.getContext('2d');
+  cx.fillStyle = '#fff'; cx.fillRect(0, 0, pc.width, pc.height);
+  _drawDiePageInto(cx, g, pageIdx, PX);
+  return { pc, pageW: g.p.w, pageH: g.p.h, pages: g.pages };
+}
+
 function renderDie() {
   const canvas = document.getElementById('pvc');
   const ctx = canvas.getContext('2d');
@@ -4898,6 +5434,34 @@ function renderDie() {
   ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const mg = +S.margin;
+  const nav = document.getElementById('die-nav');
+  const lbl = document.getElementById('die-page-lbl');
+
+  if (S.dieSplit) {
+    // ─── Tamaño real repartido en páginas ───
+    const g = _dieSplitGrid();
+    if (S.diePage > g.pages - 1) S.diePage = g.pages - 1;
+    if (S.diePage < 0) S.diePage = 0;
+    _drawDiePageInto(ctx, g, S.diePage, sc);
+
+    ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.lineWidth = 1;
+    ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+    const c = S.diePage % g.cols, r = Math.floor(S.diePage / g.cols);
+    badge.textContent = `📦 Caja ${L.W}×${L.H}×${L.D} mm — tamaño real · página ${S.diePage+1}/${g.pages} (${g.cols}×${g.rows})`;
+    badge.className = '';
+    if (nav) nav.style.display = g.pages > 1 ? 'flex' : 'none';
+    if (lbl) lbl.textContent = `Página ${S.diePage+1} / ${g.pages} · fila ${r+1}, col ${c+1}`;
+
+    info.innerHTML =
+      `<span>📐 ${p.w}×${p.h} mm/hoja</span>` +
+      `<span>📦 ${L.W}×${L.H}×${L.D} mm</span>` +
+      `<span>✂️ Net: ${L.totalW.toFixed(0)}×${L.totalH.toFixed(0)} mm en ${g.pages} hoja(s)</span>`;
+    setExp(true);
+    return;
+  }
+
+  if (nav) nav.style.display = 'none';
   const availW = p.w - 2*mg, availH = p.h - 2*mg;
   let scale = 1, scaled = false;
   if (L.totalW > availW || L.totalH > availH) {
@@ -4923,7 +5487,7 @@ function renderDie() {
     `<span>📐 ${p.w}×${p.h} mm</span>` +
     `<span>📦 ${L.W}×${L.H}×${L.D} mm</span>` +
     `<span>✂️ Net: ${L.totalW.toFixed(0)}×${L.totalH.toFixed(0)} mm</span>` +
-    (scaled ? `<span style="color:var(--warn,#f59e0b)">⚠️ Net mayor que la hoja — prueba A3</span>` : '');
+    (scaled ? `<span style="color:var(--warn,#f59e0b)">⚠️ Net mayor que la hoja — activa "Dividir" o usa A3</span>` : '');
 
   setExp(true);
 }
@@ -5684,8 +6248,16 @@ async function printDirect() {
       }
 
     } else if (S.dieMode) {
-      const { pc, pageW, pageH } = _composeDieCanvas(PX);
-      pages.push({ url: pc.toDataURL('image/jpeg', .95), w: pageW, h: pageH });
+      if (S.dieSplit) {
+        const g0 = _dieSplitGrid();
+        for (let i = 0; i < g0.pages; i++) {
+          const { pc } = _composeDiePage(PX, i);
+          pages.push({ url: pc.toDataURL('image/jpeg', .95), w: g0.p.w, h: g0.p.h });
+        }
+      } else {
+        const { pc, pageW, pageH } = _composeDieCanvas(PX);
+        pages.push({ url: pc.toDataURL('image/jpeg', .95), w: pageW, h: pageH });
+      }
 
     } else if (S.batchMode) {
       const g = calcGrid(); if (!g) throw new Error('No cabe en el papel');
@@ -5873,8 +6445,10 @@ window.addEventListener('resize', () => {
 updateThemeIcon();
 _populateCustomOptgroup();
 renderCustomTplChips();
+_initEmojiPalette();
 applyLang(getLang());
 restoreSession();
+renderStickerList();
 render();
 
 // ── PWA service worker (solo http/https; ignora file:// de Electron) ──
