@@ -69,6 +69,18 @@ Define el espacio **entre columnas** y **entre filas** por separado (mm) para ap
 ### Etiqueta de disco circular (CD/DVD/Blu-ray)
 Activa el **Modo Disco** para componer etiquetas circulares para la cara del disco. Elige entre CD/DVD (ø 116 mm), Blu-ray (ø 116 mm) o Mini CD (ø 80 mm). La imagen se recorta automáticamente al anillo del disco con el agujero central recortado. Arrastra para reposicionar y usa la rueda del ratón para hacer zoom. Exporta como PDF (con guías de corte vectoriales) o PNG a alta resolución.
 
+### Interfaz por pestañas
+Los ajustes están organizados en cuatro pestañas — **Formato · Papel · Modos · Opciones** — para encontrar todo de un vistazo. Al activar un modo (disco, wrap, lote…) la app salta automáticamente a la pestaña correspondiente y recuerda la última pestaña abierta.
+
+### Modo lote (varias imágenes)
+Sube **varias portadas a la vez** y se colocan en cuadrícula al tamaño y espaciado configurados, repartidas en las páginas necesarias. Miniaturas con borrado individual, navegador de páginas y exportación a un único **PDF multipágina** (o un PNG por página). Ideal para imprimir una colección entera de una tirada.
+
+### Plantilla de caja (net / dieline)
+Genera el **desplegado recortable de una caja de 6 caras** a partir de ancho × alto × fondo. Incluye pestañas de pegado, líneas de plegado (discontinuas) y de corte (sólidas) con cada cara etiquetada. Cajas predefinidas (DVD, Blu-ray, 4K, CD jewel, VHS, Xbox, Switch) y la portada cargada se coloca en la cara frontal. Exporta a PDF/PNG.
+
+### Etiquetas de lomo
+Crea una **hoja de tiras de lomo** con texto vertical para libros, juegos o DVDs: escribe un título por línea y cada uno genera una etiqueta. Ajusta grosor y longitud de la tira, color de acento y el sentido del texto (hacia arriba o abajo). Se reparten en las páginas necesarias y se exportan a PDF/PNG.
+
 ### Wrap de 3 imágenes con lomo ajustable
 Compón una carátula completa (caja DVD/Blu-ray/4K/CD/VHS/juegos) con **portada + contraportada + lomo por separado**. Ajusta el **ancho del lomo** (manual o por nº de discos), con **líneas de plegado** en los dobleces y marcas de corte. Cada zona se reposiciona y escala de forma independiente.
 

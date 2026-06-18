@@ -318,6 +318,42 @@
 
     input[type=range] { width: 100%; accent-color: var(--ac); margin: 2px 0; cursor: pointer; }
 
+    /* ── Tab navigation ── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--brd);
+      background: var(--sfc);
+    }
+    .tab-btn {
+      flex: 1; border: none; background: none; cursor: pointer;
+      color: var(--txt3); font-size: .66rem; font-family: inherit;
+      padding: 7px 2px 6px; display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      border-bottom: 2px solid transparent;
+      transition: color .12s, border-color .12s;
+    }
+    .tab-btn .tab-ico { font-size: .95rem; line-height: 1; }
+    .tab-btn:hover { color: var(--txt2); }
+    .tab-btn.on { color: var(--ac); border-bottom-color: var(--ac); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.on { display: block; }
+
+    /* ── Batch (modo lote) ── */
+    .batch-thumbs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .batch-thumbs:empty { display: none; }
+    .batch-thumb {
+      position: relative; width: 46px; height: 46px; border-radius: var(--rs);
+      overflow: hidden; border: 1.5px solid var(--brd); background: var(--sfc2);
+    }
+    .batch-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .batch-thumb .bt-del {
+      position: absolute; top: 1px; right: 1px; width: 16px; height: 16px;
+      border: none; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff;
+      font-size: .62rem; line-height: 16px; padding: 0; cursor: pointer; text-align: center;
+    }
+    .batch-thumb .bt-del:hover { background: var(--dng, #ef4444); }
+    .batch-nav { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+
     /* ── Wrap uploads ── */
     .wrap-uploads { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
     .wrap-up {
@@ -695,6 +731,24 @@
 <main>
   <aside class="settings">
 
+    <nav class="tab-bar">
+      <button class="tab-btn on" data-tab="tab-format" onclick="switchTab('tab-format')">
+        <span class="tab-ico">📐</span>Formato
+      </button>
+      <button class="tab-btn" data-tab="tab-paper" onclick="switchTab('tab-paper')">
+        <span class="tab-ico">📄</span>Papel
+      </button>
+      <button class="tab-btn" data-tab="tab-modes" onclick="switchTab('tab-modes')">
+        <span class="tab-ico">🎨</span>Modos
+      </button>
+      <button class="tab-btn" data-tab="tab-options" onclick="switchTab('tab-options')">
+        <span class="tab-ico">⚙️</span>Opciones
+      </button>
+    </nav>
+
+    <!-- ═══ TAB 1: FORMATO ═══ -->
+    <div class="tab-panel on" id="tab-format">
+
     <!-- FORMATO -->
     <div class="sec">
       <div class="sec-title" data-i18n="sec_format">Formato / Categoría</div>
@@ -814,6 +868,11 @@
       <button class="auto-btn" onclick="resetImgAdj()" data-i18n="btn_reset">↺ Restablecer</button>
     </div>
 
+    </div><!-- /tab-format -->
+
+    <!-- ═══ TAB 2: PAPEL ═══ -->
+    <div class="tab-panel" id="tab-paper">
+
     <!-- PAPEL -->
     <div class="sec">
       <div class="sec-title" data-i18n="sec_paper">Tamaño de papel</div>
@@ -887,6 +946,11 @@
         <div class="ng-sub" style="margin-top:5px;color:var(--txt3)">Arrastra en el preview · rueda = zoom</div>
       </div>
     </div>
+
+    </div><!-- /tab-paper -->
+
+    <!-- ═══ TAB 3: MODOS ═══ -->
+    <div class="tab-panel" id="tab-modes">
 
     <!-- ESPACIADO -->
     <div class="sec">
@@ -1088,6 +1152,107 @@
       </div>
     </div>
 
+    <!-- LOTE -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_batch">🗂️ Modo lote (varias imágenes)</div>
+      <label class="opt-row">
+        <input type="checkbox" id="batch-on" onchange="setBatch(this.checked)">
+        <span data-i18n="batch_enable">Imprimir varias portadas en un PDF</span>
+      </label>
+      <div id="batch-ctrl" style="display:none;margin-top:8px">
+        <div class="ng-info" data-i18n="batch_info">Sube varias imágenes: se colocan en cuadrícula al tamaño actual y se reparten en las páginas necesarias. Usa el tamaño y el espaciado de las pestañas Papel.</div>
+        <button class="auto-btn" style="margin-top:8px" onclick="document.getElementById('batch-input').click()" data-i18n="batch_add">＋ Añadir imágenes</button>
+        <input type="file" id="batch-input" accept="image/*" multiple style="display:none" onchange="onBatchFiles(event)">
+        <div id="batch-thumbs" class="batch-thumbs"></div>
+        <div id="batch-nav" class="batch-nav" style="display:none">
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="batchNav(-1)">◀</button>
+          <span id="batch-page-lbl" class="ng-sub" style="flex:1;text-align:center"></span>
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="batchNav(1)">▶</button>
+        </div>
+        <button class="auto-btn" style="margin-top:7px;color:var(--txt3);font-size:.67rem" onclick="clearBatch()" data-i18n="batch_clear">✕ Vaciar lote</button>
+      </div>
+    </div>
+
+    <!-- DIELINE / NET DE CAJA -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_die">📦 Plantilla de caja (net)</div>
+      <label class="opt-row">
+        <input type="checkbox" id="die-on" onchange="setDie(this.checked)">
+        <span data-i18n="die_enable">Generar net de caja recortable</span>
+      </label>
+      <div id="die-ctrl" style="display:none;margin-top:8px">
+        <div class="ng-info" data-i18n="die_info">Despliega una caja de 6 caras con pestañas de pegado, líneas de plegado y de corte. Introduce ancho × alto × fondo.</div>
+        <label class="ng-sub" style="display:block;margin-top:8px" data-i18n="die_preset">Caja predefinida</label>
+        <select id="die-preset" class="cat-select" style="margin-top:3px" onchange="setDiePreset(this.value)">
+          <option value="custom">✏️ Personalizada</option>
+          <option value="130,184,14">DVD (130×184×14)</option>
+          <option value="129,173,12">Blu-ray (129×173×12)</option>
+          <option value="129,173,14">4K UHD (129×173×14)</option>
+          <option value="142,125,10">CD jewel (142×125×10)</option>
+          <option value="130,193,25">VHS (130×193×25)</option>
+          <option value="130,184,14">Xbox (130×184×14)</option>
+          <option value="102,166,11">Switch (102×166×11)</option>
+        </select>
+        <div class="dim-row" style="margin-top:8px">
+          <div class="field"><label data-i18n="die_w">Ancho (mm)</label>
+            <input type="number" id="die-w" value="130" min="10" max="400" step="1" oninput="S.dieW=+this.value||10;document.getElementById('die-preset').value='custom';schedRender()"></div>
+          <span class="sep">×</span>
+          <div class="field"><label data-i18n="die_h">Alto (mm)</label>
+            <input type="number" id="die-h" value="184" min="10" max="400" step="1" oninput="S.dieH=+this.value||10;document.getElementById('die-preset').value='custom';schedRender()"></div>
+        </div>
+        <div class="dim-row" style="margin-top:7px">
+          <div class="field"><label data-i18n="die_d">Fondo (mm)</label>
+            <input type="number" id="die-d" value="14" min="3" max="200" step="1" oninput="S.dieD=+this.value||3;document.getElementById('die-preset').value='custom';schedRender()"></div>
+          <span class="sep">×</span>
+          <div class="field"><label data-i18n="die_tab">Pestaña (mm)</label>
+            <input type="number" id="die-tab" value="10" min="0" max="40" step="1" oninput="S.dieTab=+this.value||0;schedRender()"></div>
+        </div>
+        <label class="opt-row" style="margin-top:8px">
+          <input type="checkbox" id="die-front" checked onchange="S.dieFront=this.checked;schedRender()">
+          <span data-i18n="die_front">Imagen cargada en la cara frontal</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ETIQUETAS DE LOMO -->
+    <div class="sec">
+      <div class="sec-title" data-i18n="sec_spine">🏷️ Etiquetas de lomo</div>
+      <label class="opt-row">
+        <input type="checkbox" id="spine-on" onchange="setSpine(this.checked)">
+        <span data-i18n="spine_enable">Hoja de tiras de lomo</span>
+      </label>
+      <div id="spine-ctrl" style="display:none;margin-top:8px">
+        <div class="ng-info" data-i18n="spine_info">Tiras estrechas con texto vertical para lomos de libros, juegos o DVDs. Escribe un título por línea: cada uno genera una etiqueta y se reparten en las páginas necesarias.</div>
+        <div class="dim-row" style="margin-top:8px">
+          <div class="field"><label data-i18n="spine_w">Grosor (mm)</label>
+            <input type="number" id="spine-w" value="10" min="3" max="60" step="0.5" oninput="S.spineW=+this.value||3;schedRender()"></div>
+          <span class="sep">×</span>
+          <div class="field"><label data-i18n="spine_h">Longitud (mm)</label>
+            <input type="number" id="spine-h" value="150" min="20" max="400" step="1" oninput="S.spineH=+this.value||20;schedRender()"></div>
+        </div>
+        <label class="ng-sub" style="display:block;margin-top:8px" data-i18n="spine_titles">Títulos (uno por línea)</label>
+        <textarea id="spine-text" rows="4" oninput="onSpineText(this.value)"
+          style="width:100%;margin-top:3px;padding:7px 9px;border:1.5px solid var(--brd);border-radius:var(--rs);background:var(--sfc2);color:var(--txt);font-family:inherit;font-size:.78rem;outline:none;resize:vertical"
+          placeholder="The Last of Us&#10;Bloodborne&#10;Elden Ring"></textarea>
+        <div class="dim-row" style="margin-top:8px">
+          <div class="field"><label data-i18n="spine_color">Color de acento</label>
+            <input type="color" id="spine-color" value="#7c6af7" oninput="S.spineColor=this.value;schedRender()"
+              style="width:100%;height:32px;padding:2px;border:1.5px solid var(--brd);border-radius:var(--rs);background:var(--sfc2);cursor:pointer"></div>
+          <span class="sep"></span>
+          <div class="field"><label data-i18n="spine_dir">Sentido</label>
+            <select id="spine-dir" class="cat-select" onchange="S.spineDir=this.value;schedRender()">
+              <option value="up" data-i18n="spine_up">↑ Hacia arriba</option>
+              <option value="down" data-i18n="spine_down">↓ Hacia abajo</option>
+            </select></div>
+        </div>
+        <div id="spine-nav" class="batch-nav" style="display:none">
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="spineNav(-1)">◀</button>
+          <span id="spine-page-lbl" class="ng-sub" style="flex:1;text-align:center"></span>
+          <button class="auto-btn" style="margin:0;flex:0 0 auto;width:auto;padding:6px 10px" onclick="spineNav(1)">▶</button>
+        </div>
+      </div>
+    </div>
+
     <!-- COMUNIDAD CTPL CTRL -->
     <div class="sec" id="ctpl-ctrl" style="display:none">
       <div class="sec-title">Plantilla comunidad</div>
@@ -1116,6 +1281,11 @@
       <div id="text-list"></div>
       <button class="auto-btn" style="margin-top:6px" onclick="addText()" data-i18n="btn_add_text">+ Añadir texto</button>
     </div>
+
+    </div><!-- /tab-modes -->
+
+    <!-- ═══ TAB 4: OPCIONES ═══ -->
+    <div class="tab-panel" id="tab-options">
 
     <!-- OPCIONES -->
     <div class="sec">
@@ -1152,6 +1322,8 @@
         </div>
       </div>
     </div>
+
+    </div><!-- /tab-options -->
 
   </aside>
 
@@ -1247,6 +1419,17 @@ const I18N = {
     sec_disc: '💿 Etiqueta de disco (circular)', disc_enable: 'Modo disco CD/DVD/Blu-ray',
     disc_type: 'Tipo de disco', disc_hole: 'Agujero central visible',
     disc_drag: 'Arrastra imagen · rueda = zoom', disc_reset: '↺ Recentrar imagen',
+    sec_batch: '🗂️ Modo lote (varias imágenes)', batch_enable: 'Imprimir varias portadas en un PDF',
+    batch_info: 'Sube varias imágenes: se colocan en cuadrícula al tamaño actual y se reparten en las páginas necesarias. Usa el tamaño y el espaciado de las pestañas Papel.',
+    batch_add: '＋ Añadir imágenes', batch_clear: '✕ Vaciar lote',
+    sec_die: '📦 Plantilla de caja (net)', die_enable: 'Generar net de caja recortable',
+    die_info: 'Despliega una caja de 6 caras con pestañas de pegado, líneas de plegado y de corte. Introduce ancho × alto × fondo.',
+    die_preset: 'Caja predefinida', die_w: 'Ancho (mm)', die_h: 'Alto (mm)', die_d: 'Fondo (mm)', die_tab: 'Pestaña (mm)',
+    die_front: 'Imagen cargada en la cara frontal',
+    sec_spine: '🏷️ Etiquetas de lomo', spine_enable: 'Hoja de tiras de lomo',
+    spine_info: 'Tiras estrechas con texto vertical para lomos de libros, juegos o DVDs. Escribe un título por línea: cada uno genera una etiqueta y se reparten en las páginas necesarias.',
+    spine_w: 'Grosor (mm)', spine_h: 'Longitud (mm)', spine_titles: 'Títulos (uno por línea)',
+    spine_color: 'Color de acento', spine_dir: 'Sentido', spine_up: '↑ Hacia arriba', spine_down: '↓ Hacia abajo',
     sec_cal: 'Calibración de impresora', cal_info: 'Desplaza la impresión unos mm si tu impresora descentra el corte (afecta a etiquetas y wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lomo / nº)', btn_add_text: '+ Añadir texto',
@@ -1276,6 +1459,17 @@ const I18N = {
     sec_disc: '💿 Disc label (circular)', disc_enable: 'Disc mode CD/DVD/Blu-ray',
     disc_type: 'Disc type', disc_hole: 'Show center hole',
     disc_drag: 'Drag image · wheel = zoom', disc_reset: '↺ Recenter image',
+    sec_batch: '🗂️ Batch mode (multiple images)', batch_enable: 'Print several covers in one PDF',
+    batch_info: 'Add several images: they are laid out in a grid at the current size and spread across as many pages as needed. Uses the size and spacing from the Paper tab.',
+    batch_add: '＋ Add images', batch_clear: '✕ Clear batch',
+    sec_die: '📦 Box template (net)', die_enable: 'Generate cut-out box net',
+    die_info: 'Unfolds a 6-face box with glue tabs, fold lines and cut lines. Enter width × height × depth.',
+    die_preset: 'Preset box', die_w: 'Width (mm)', die_h: 'Height (mm)', die_d: 'Depth (mm)', die_tab: 'Glue tab (mm)',
+    die_front: 'Loaded image on the front face',
+    sec_spine: '🏷️ Spine labels', spine_enable: 'Sheet of spine strips',
+    spine_info: 'Narrow strips with vertical text for book, game or DVD spines. Type one title per line: each one becomes a label, spread across as many pages as needed.',
+    spine_w: 'Thickness (mm)', spine_h: 'Length (mm)', spine_titles: 'Titles (one per line)',
+    spine_color: 'Accent colour', spine_dir: 'Direction', spine_up: '↑ Upward', spine_down: '↓ Downward',
     sec_cal: 'Printer calibration', cal_info: 'Shift the print a few mm if your printer offsets the cut (affects labels and wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Text (title / spine / no.)', btn_add_text: '+ Add text',
@@ -1305,6 +1499,17 @@ const I18N = {
     sec_disc: '💿 Etiqueta de disco (circular)', disc_enable: 'Modo disco CD/DVD/Blu-ray',
     disc_type: 'Tipo de disco', disc_hole: 'Mostrar furo central',
     disc_drag: 'Arraste imagem · roda = zoom', disc_reset: '↺ Recentrar imagem',
+    sec_batch: '🗂️ Modo lote (várias imagens)', batch_enable: 'Imprimir várias capas num PDF',
+    batch_info: 'Adicione várias imagens: são dispostas em grelha no tamanho atual e divididas pelas páginas necessárias. Usa o tamanho e o espaçamento do separador Papel.',
+    batch_add: '＋ Adicionar imagens', batch_clear: '✕ Esvaziar lote',
+    sec_die: '📦 Modelo de caixa (net)', die_enable: 'Gerar net de caixa recortável',
+    die_info: 'Desdobra uma caixa de 6 faces com abas de colagem, linhas de dobra e de corte. Introduza largura × altura × profundidade.',
+    die_preset: 'Caixa predefinida', die_w: 'Largura (mm)', die_h: 'Altura (mm)', die_d: 'Profundidade (mm)', die_tab: 'Aba (mm)',
+    die_front: 'Imagem carregada na face frontal',
+    sec_spine: '🏷️ Etiquetas de lombada', spine_enable: 'Folha de tiras de lombada',
+    spine_info: 'Tiras estreitas com texto vertical para lombadas de livros, jogos ou DVDs. Escreva um título por linha: cada um gera uma etiqueta e divide-se pelas páginas necessárias.',
+    spine_w: 'Espessura (mm)', spine_h: 'Comprimento (mm)', spine_titles: 'Títulos (um por linha)',
+    spine_color: 'Cor de destaque', spine_dir: 'Sentido', spine_up: '↑ Para cima', spine_down: '↓ Para baixo',
     sec_cal: 'Calibração de impressora', cal_info: 'Desloque a impressão alguns mm se a impressora descentralizar o corte (afeta etiquetas e wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texto (título / lombada / nº)', btn_add_text: '+ Adicionar texto',
@@ -1334,6 +1539,17 @@ const I18N = {
     sec_disc: '💿 Étiquette de disque (circulaire)', disc_enable: 'Mode disque CD/DVD/Blu-ray',
     disc_type: 'Type de disque', disc_hole: 'Afficher le trou central',
     disc_drag: 'Glissez l\'image · molette = zoom', disc_reset: '↺ Recentrer l\'image',
+    sec_batch: '🗂️ Mode lot (plusieurs images)', batch_enable: 'Imprimer plusieurs jaquettes en un PDF',
+    batch_info: 'Ajoutez plusieurs images : elles sont disposées en grille à la taille actuelle et réparties sur autant de pages que nécessaire. Utilise la taille et l\'espacement de l\'onglet Papier.',
+    batch_add: '＋ Ajouter des images', batch_clear: '✕ Vider le lot',
+    sec_die: '📦 Gabarit de boîte (net)', die_enable: 'Générer un net de boîte à découper',
+    die_info: 'Déplie une boîte de 6 faces avec languettes de collage, lignes de pliage et de coupe. Saisissez largeur × hauteur × profondeur.',
+    die_preset: 'Boîte prédéfinie', die_w: 'Largeur (mm)', die_h: 'Hauteur (mm)', die_d: 'Profondeur (mm)', die_tab: 'Languette (mm)',
+    die_front: 'Image chargée sur la face avant',
+    sec_spine: '🏷️ Étiquettes de dos', spine_enable: 'Feuille de bandes de dos',
+    spine_info: 'Bandes étroites avec texte vertical pour les dos de livres, jeux ou DVD. Saisissez un titre par ligne : chacun devient une étiquette, réparties sur autant de pages que nécessaire.',
+    spine_w: 'Épaisseur (mm)', spine_h: 'Longueur (mm)', spine_titles: 'Titres (un par ligne)',
+    spine_color: 'Couleur d\'accent', spine_dir: 'Sens', spine_up: '↑ Vers le haut', spine_down: '↓ Vers le bas',
     sec_cal: 'Calibration imprimante', cal_info: 'Décalez l\'impression de quelques mm si votre imprimante décentre la coupe (étiquettes et wrap).',
     cal_x: 'Offset X (mm)', cal_y: 'Offset Y (mm)',
     sec_text: 'Texte (titre / tranche / nº)', btn_add_text: '+ Ajouter texte',
@@ -1527,6 +1743,26 @@ const S = {
   discHole:  true,
   discOff:   { x: 0, y: 0 },
   discScale: 1,
+
+  // ── Lote (varias imágenes → PDF multipágina) ──
+  batchMode: false,
+  batchImgs: [],     // [{ img, name }]
+  batchPage: 0,      // página visible en la vista previa
+
+  // ── Dieline / net de caja ──
+  dieMode:  false,
+  dieW: 130, dieH: 184, dieD: 14,   // mm: ancho, alto, fondo
+  dieTab: 10,                        // mm: pestaña de pegado
+  dieFront: true,                    // colocar imagen cargada en la cara frontal
+
+  // ── Etiquetas de lomo (spine labels) ──
+  spineMode: false,
+  spineW: 10, spineH: 150,           // mm: grosor × longitud del lomo
+  spineList: ['Título de ejemplo'],  // un texto por etiqueta
+  spineColor: '#7c6af7',             // color de banda/acento
+  spineFont: 'sans-serif',
+  spineDir: 'up',                    // 'up' o 'down' (sentido del texto vertical)
+  spinePage: 0,
 
   // ── Calibración de impresora (offset global en mm) ──
   calX: 0,
@@ -2089,6 +2325,7 @@ function setGridManual(on) {
 
 function setSplit(enabled) {
   S.split = enabled;
+  if (enabled) { _batchOff(); _dieOff(); _spineOff(); }
   if (enabled && S.neogeoMode) {
     S.neogeoMode = false;
     document.getElementById('neogeo-on').checked = false;
@@ -2254,6 +2491,7 @@ function renderSplit() {
 function setPoster(type) {
   S.posterActive = true;
   S.posterType   = type;
+  _batchOff(); _dieOff(); _spineOff();
   if (S.split) {
     S.split = false;
     document.getElementById('split-on').checked = false;
@@ -2528,6 +2766,22 @@ function restoreSession() {
     }
   }
   renderTextList();
+  // Restore last active tab
+  const savedTab = localStorage.getItem('coverlabel_tab') || 'tab-format';
+  switchTab(savedTab);
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('on', p.id === id));
+  const tb = document.querySelector('.tab-bar');
+  if (tb) {
+    const hdr = document.querySelector('header');
+    const hdrH = hdr ? hdr.offsetHeight : 0;
+    const y = tb.getBoundingClientRect().top + window.scrollY - hdrH;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  try { localStorage.setItem('coverlabel_tab', id); } catch {}
 }
 
 function render() {
@@ -2537,6 +2791,9 @@ function render() {
   if (S.neogeoMode)   { renderNeoGeo(); return; }
   if (S.posterActive) { renderPoster(); return; }
   if (S.split)        { renderSplit();  return; }
+  if (S.batchMode)    { renderBatch();  return; }
+  if (S.dieMode)      { renderDie();    return; }
+  if (S.spineMode)    { renderSpine();  return; }
   const canvas = document.getElementById('pvc');
   const ctx = canvas.getContext('2d');
   const p = pageMM();
@@ -2708,9 +2965,11 @@ document.getElementById('upload-preview').addEventListener('drop', e => {
 
 // ── PDF Export ────────────────────────────────────────
 async function exportPDF() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
+  if (S.batchMode && !S.batchImgs.length) return;
+  if (S.spineMode && !S.spineList.length) return;
+  if (!S.batchMode && !S.dieMode && !S.spineMode && !S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
   if (S.discMode && !S.img) return;
-  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
+  if (!S.batchMode && !S.dieMode && !S.spineMode && !S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-pdf');
   const orig = btn.innerHTML;
@@ -2724,7 +2983,96 @@ async function exportPDF() {
     const p   = pageMM();
     const ori = S.orient === 'portrait' ? 'portrait' : 'landscape';
 
-    if (S.discMode) {
+    if (S.spineMode) {
+      // ─── Etiquetas de lomo: tiras multipágina ────────
+      const g = _spineGrid();
+      const perPage = g.cols * g.rows;
+      const n = S.spineList.length;
+      const pages = Math.max(1, Math.ceil(n / perPage));
+      const PX_MM = 200 / 25.4;
+      const cX = +S.calX, cY = +S.calY;
+      const pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [p.w, p.h] });
+      for (let pg = 0; pg < pages; pg++) {
+        if (pg > 0) pdf.addPage([p.w, p.h], ori);
+        const start = pg * perPage;
+        const pc = document.createElement('canvas');
+        pc.width = Math.round(p.w*PX_MM); pc.height = Math.round(p.h*PX_MM);
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, pc.width, pc.height);
+        cx.save(); cx.translate(cX*PX_MM, cY*PX_MM);
+        for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+          const idx = start + r*g.cols + c;
+          if (idx >= n) continue;
+          drawSpineLabel(cx, (g.ox+c*(g.lW+g.spX))*PX_MM, (g.oy+r*(g.lH+g.spY))*PX_MM,
+                         g.lW*PX_MM, g.lH*PX_MM, S.spineList[idx], PX_MM);
+        }
+        if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX_MM);
+        cx.restore();
+        pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, p.w, p.h, undefined, 'FAST');
+      }
+      await downloadOrShare(pdf.output('blob'), `coverlabel-lomos-${n}.pdf`, 'application/pdf');
+
+    } else if (S.dieMode) {
+      // ─── Dieline / net de caja ───────────────────────
+      const { pc, pageW, pageH } = _composeDieCanvas(200 / 25.4);
+      const pdf = new jsPDF({ orientation: pageW > pageH ? 'landscape' : 'portrait', unit: 'mm', format: [pageW, pageH] });
+      pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
+      await downloadOrShare(pdf.output('blob'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.pdf`, 'application/pdf');
+
+    } else if (S.batchMode) {
+      // ─── Lote: varias imágenes en cuadrícula, multipágina ──
+      const g = calcGrid();
+      if (!g) throw new Error('No cabe en el papel');
+      const perPage = g.cols * g.rows;
+      const n = S.batchImgs.length;
+      const pages = Math.max(1, Math.ceil(n / perPage));
+      const PX_MM = 200 / 25.4;
+      const cX = +S.calX, cY = +S.calY;
+      const pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [p.w, p.h] });
+
+      for (let pg = 0; pg < pages; pg++) {
+        if (pg > 0) pdf.addPage([p.w, p.h], ori);
+        const start = pg * perPage;
+        const filled = [];
+        for (let r = 0; r < g.rows; r++) {
+          for (let c = 0; c < g.cols; c++) {
+            const entry = S.batchImgs[start + r*g.cols + c];
+            if (!entry) continue;
+            const lc = document.createElement('canvas');
+            lc.width = Math.round(g.lW*PX_MM); lc.height = Math.round(g.lH*PX_MM);
+            const lctx = lc.getContext('2d');
+            lctx.fillStyle = '#fff'; lctx.fillRect(0, 0, lc.width, lc.height);
+            drawLabel(lctx, 0, 0, lc.width, lc.height, entry.img, 0, 0, 1);
+            drawSafeZone(lctx, 0, 0, lc.width, lc.height, g.lW, g.lH);
+            const x = cX + g.ox + c*(g.lW+g.spX), y = cY + g.oy + r*(g.lH+g.spY);
+            pdf.addImage(lc.toDataURL('image/jpeg', 0.93), 'JPEG', x, y, g.lW, g.lH, undefined, 'FAST');
+            filled.push({ x, y });
+          }
+        }
+        if (S.guides && filled.length) {
+          pdf.setDrawColor(160,160,160); pdf.setLineWidth(0.1);
+          const GL = Math.min(g.sp > 0 ? g.sp*.45 : 2, 3);
+          filled.forEach(({x,y}) => {
+            const w = g.lW, h = g.lH;
+            pdf.line(x-GL,y,x,y);   pdf.line(x,y-GL,x,y);
+            pdf.line(x+w,y,x+w+GL,y); pdf.line(x+w,y-GL,x+w,y);
+            pdf.line(x-GL,y+h,x,y+h); pdf.line(x,y+h,x,y+h+GL);
+            pdf.line(x+w,y+h,x+w+GL,y+h); pdf.line(x+w,y+h,x+w,y+h+GL);
+          });
+        }
+        if (S.regMarks) {
+          pdf.setDrawColor(90,90,90); pdf.setLineWidth(0.12);
+          const off = 7, rr = 2.2;
+          [[off,off],[p.w-off,off],[off,p.h-off],[p.w-off,p.h-off]].forEach(([cx,cy]) => {
+            pdf.line(cX+cx-rr*1.6, cY+cy, cX+cx+rr*1.6, cY+cy);
+            pdf.line(cX+cx, cY+cy-rr*1.6, cX+cx, cY+cy+rr*1.6);
+            pdf.circle(cX+cx, cY+cy, rr, 'S');
+          });
+        }
+      }
+      await downloadOrShare(pdf.output('blob'), `coverlabel-lote-${n}img-${pages}pag.pdf`, 'application/pdf');
+
+    } else if (S.discMode) {
       // ─── Disco (etiqueta circular CD/DVD) ────────────
       const PX = 200 / 25.4;
       const { pc, d } = _composeDiscCanvas(PX);
@@ -2953,15 +3301,17 @@ async function exportPDF() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode || (S.batchMode && S.batchImgs.length>0) || S.dieMode || (S.spineMode && S.spineList.length>0));
   }
 }
 
 // ── PNG Export ────────────────────────────────────────
 async function exportPNG() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
+  if (S.batchMode && !S.batchImgs.length) return;
+  if (S.spineMode && !S.spineList.length) return;
+  if (!S.batchMode && !S.dieMode && !S.spineMode && !S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
   if (S.discMode && !S.img) return;
-  if (!S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
+  if (!S.batchMode && !S.dieMode && !S.spineMode && !S.posterActive && !S.split && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) { const g = calcGrid(); if (!g) return; }
 
   const btn = document.getElementById('btn-png');
   const orig = btn.innerHTML;
@@ -2975,7 +3325,73 @@ async function exportPNG() {
     const cat  = S.formatCat || 'etiqueta';
     const safe = cat.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
 
-    if (S.discMode) {
+    if (S.spineMode) {
+      // ─── Etiquetas de lomo PNG: una por página ───────
+      const g = _spineGrid();
+      const perPage = g.cols * g.rows;
+      const n = S.spineList.length;
+      const pages = Math.max(1, Math.ceil(n / perPage));
+      const pW = Math.round(p.w * PX_MM), pH = Math.round(p.h * PX_MM);
+      for (let pg = 0; pg < pages; pg++) {
+        const start = pg * perPage;
+        const pc = document.createElement('canvas');
+        pc.width = pW; pc.height = pH;
+        const cx = pc.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, pW, pH);
+        cx.save(); cx.translate(S.calX*PX_MM, S.calY*PX_MM);
+        for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+          const idx = start + r*g.cols + c;
+          if (idx >= n) continue;
+          drawSpineLabel(cx, (g.ox+c*(g.lW+g.spX))*PX_MM, (g.oy+r*(g.lH+g.spY))*PX_MM,
+                         g.lW*PX_MM, g.lH*PX_MM, S.spineList[idx], PX_MM);
+        }
+        if (S.regMarks) drawRegMarks(cx, pW, pH, PX_MM);
+        cx.restore();
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-lomos-pag${String(pg+1).padStart(2,'0')}.png`, 'image/png');
+        if (pg < pages-1) await new Promise(r => setTimeout(r, 100));
+      }
+
+    } else if (S.dieMode) {
+      // ─── Dieline PNG ─────────────────────────────────
+      const { pc } = _composeDieCanvas(150 / 25.4);
+      await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-caja-${S.dieW}x${S.dieH}x${S.dieD}.png`, 'image/png');
+
+    } else if (S.batchMode) {
+      // ─── Lote PNG: una página por archivo ────────────
+      const g = calcGrid();
+      if (!g) return;
+      const perPage = g.cols * g.rows;
+      const n = S.batchImgs.length;
+      const pages = Math.max(1, Math.ceil(n / perPage));
+      const pW = Math.round(p.w * PX_MM), pH = Math.round(p.h * PX_MM);
+      for (let pg = 0; pg < pages; pg++) {
+        const start = pg * perPage;
+        const pc = document.createElement('canvas');
+        pc.width = pW; pc.height = pH;
+        const pctx = pc.getContext('2d');
+        pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pW, pH);
+        pctx.save();
+        pctx.translate(S.calX*PX_MM, S.calY*PX_MM);
+        const gLenPx = Math.round(Math.min(g.sp > 0 ? g.sp*PX_MM*.45 : 2*PX_MM, 3*PX_MM));
+        for (let r = 0; r < g.rows; r++) {
+          for (let c = 0; c < g.cols; c++) {
+            const entry = S.batchImgs[start + r*g.cols + c];
+            if (!entry) continue;
+            const x = Math.round((g.ox + c*(g.lW+g.spX)) * PX_MM);
+            const y = Math.round((g.oy + r*(g.lH+g.spY)) * PX_MM);
+            const w = Math.round(g.lW * PX_MM), h = Math.round(g.lH * PX_MM);
+            drawLabel(pctx, x, y, w, h, entry.img, 0, 0, 1);
+            drawSafeZone(pctx, x, y, w, h, g.lW, g.lH);
+            if (S.guides) drawGuides(pctx, x, y, w, h, gLenPx);
+          }
+        }
+        if (S.regMarks) drawRegMarks(pctx, pW, pH, PX_MM);
+        pctx.restore();
+        await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-lote-pag${String(pg+1).padStart(2,'0')}.png`, 'image/png');
+        if (pg < pages-1) await new Promise(r => setTimeout(r, 100));
+      }
+
+    } else if (S.discMode) {
       const { pc } = _composeDiscCanvas(150 / 25.4);
       const discSafe = S.discType.toLowerCase().replace(/[^a-z0-9]/g, '');
       await downloadOrShare(pc.toDataURL('image/png'), `coverlabel-disc-${discSafe}.png`, 'image/png');
@@ -3153,7 +3569,7 @@ async function exportPNG() {
   } finally {
     btn.innerHTML = orig;
     btn.disabled = false;
-    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode);
+    setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode || (S.batchMode && S.batchImgs.length>0) || S.dieMode || (S.spineMode && S.spineList.length>0));
   }
 }
 
@@ -3599,6 +4015,7 @@ function setCtplPage(i) {
 
 function setCtpl(on) {
   S.ctplMode = on;
+  if (on) switchTab('tab-modes');
   document.getElementById('ctpl-ctrl').style.display = on ? 'block' : 'none';
   document.getElementById('img-pos-ctrl').style.display = on ? 'none' : 'block';
   if (!on) {
@@ -3621,6 +4038,7 @@ function setCtpl(on) {
     document.getElementById('split-on').checked = false;
     document.getElementById('split-ctrl').style.display = 'none';
   }
+  _batchOff(); _dieOff(); _spineOff();
   schedRender();
 }
 
@@ -3874,6 +4292,7 @@ function resetNgOffsets() {
 
 function setNeoGeo(on) {
   S.neogeoMode = on;
+  if (on) switchTab('tab-modes');
   document.getElementById('neogeo-ctrl').style.display = on ? 'block' : 'none';
   document.getElementById('img-pos-ctrl').style.display = on ? 'none' : 'block';
   if (on) {
@@ -3884,6 +4303,7 @@ function setNeoGeo(on) {
       document.getElementById('split-on').checked = false;
       document.getElementById('split-ctrl').style.display = 'none';
     }
+    _batchOff(); _dieOff(); _spineOff();
     S.neogeoPage = 'A';
     document.querySelectorAll('#ng-page-chips .chip').forEach(b =>
       b.classList.toggle('on', b.dataset.ngp === 'A'));
@@ -4141,6 +4561,7 @@ function _composeDiscCanvas(PX) {
 
 function setDisc(on) {
   S.discMode = on;
+  if (on) switchTab('tab-modes');
   document.getElementById('disc-ctrl').style.display = on ? 'block' : 'none';
   document.getElementById('img-pos-ctrl').style.display =
     (on || S.neogeoMode || S.ctplMode || S.wrapMode) ? 'none' : 'block';
@@ -4150,6 +4571,7 @@ function setDisc(on) {
     if (S.ctplMode)     { S.ctplMode=false; S.ctplData=null; document.getElementById('ctpl-ctrl').style.display='none'; }
     if (S.posterActive) clearPoster();
     if (S.split)        { S.split=false; const el=document.getElementById('split-on'); if(el) el.checked=false; document.getElementById('split-ctrl').style.display='none'; }
+    _batchOff(); _dieOff(); _spineOff();
   }
   schedRender();
 }
@@ -4157,6 +4579,503 @@ function setDisc(on) {
 function setDiscType(type) {
   S.discType = type;
   schedRender();
+}
+
+// ── Modo lote (varias imágenes → PDF multipágina) ──────
+function _batchOff() {
+  if (!S.batchMode) return;
+  S.batchMode = false;
+  const b = document.getElementById('batch-on'); if (b) b.checked = false;
+  const c = document.getElementById('batch-ctrl'); if (c) c.style.display = 'none';
+}
+
+function setBatch(on) {
+  S.batchMode = on;
+  if (on) {
+    switchTab('tab-modes');
+    // desactivar modos en conflicto (todos comparten la imagen/grid)
+    if (S.wrapMode)     setWrap(false);
+    if (S.neogeoMode)   setNeoGeo(false);
+    if (S.discMode)     setDisc(false);
+    if (S.ctplMode)     setCtpl(false);
+    if (S.posterActive) clearPoster();
+    if (S.split)        { S.split=false; const e=document.getElementById('split-on'); if(e) e.checked=false; document.getElementById('split-ctrl').style.display='none'; }
+    _dieOff(); _spineOff();
+  }
+  document.getElementById('batch-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display =
+    (on || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode) ? 'none' : 'block';
+  S.batchPage = 0;
+  render();
+}
+
+function onBatchFiles(e) {
+  const files = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
+  e.target.value = '';
+  if (!files.length) return;
+  let pending = files.length;
+  files.forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        S.batchImgs.push({ img: _downscaleIfHuge(img), name: f.name });
+        if (--pending === 0) { renderBatchThumbs(); render(); }
+      };
+      img.onerror = () => { if (--pending === 0) { renderBatchThumbs(); render(); } };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function removeBatchImg(i) {
+  S.batchImgs.splice(i, 1);
+  renderBatchThumbs();
+  render();
+}
+
+function clearBatch() {
+  S.batchImgs = [];
+  S.batchPage = 0;
+  renderBatchThumbs();
+  render();
+}
+
+function batchNav(dir) {
+  const g = calcGrid();
+  if (!g) return;
+  const perPage = g.cols * g.rows;
+  const pages = Math.max(1, Math.ceil(S.batchImgs.length / perPage));
+  S.batchPage = Math.min(pages - 1, Math.max(0, S.batchPage + dir));
+  render();
+}
+
+function renderBatchThumbs() {
+  const box = document.getElementById('batch-thumbs');
+  if (!box) return;
+  box.innerHTML = S.batchImgs.map((b, i) =>
+    `<div class="batch-thumb"><img src="${b.img.src || b.img.toDataURL?.() || ''}" alt="">` +
+    `<button class="bt-del" onclick="removeBatchImg(${i})" title="Quitar">✕</button></div>`
+  ).join('');
+}
+
+function renderBatch() {
+  const canvas = document.getElementById('pvc');
+  const ctx = canvas.getContext('2d');
+  const p = pageMM();
+  const g = calcGrid();
+  const badge = document.getElementById('badge');
+  const info  = document.getElementById('info-bar');
+
+  const wrap = document.getElementById('cvbg');
+  const maxW = wrap.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc = Math.min(maxW / p.w, maxH / p.h);
+  _mainSc = sc;
+  canvas.width  = Math.round(p.w * sc);
+  canvas.height = Math.round(p.h * sc);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (!g) {
+    badge.textContent = 'No cabe en el papel'; badge.className = 'err';
+    setExp(false); info.innerHTML = ''; document.getElementById('batch-nav').style.display = 'none';
+    return;
+  }
+
+  const perPage = g.cols * g.rows;
+  const n = S.batchImgs.length;
+  const pages = Math.max(1, Math.ceil(n / perPage));
+  if (S.batchPage > pages - 1) S.batchPage = pages - 1;
+  const start = S.batchPage * perPage;
+
+  ctx.save();
+  ctx.translate(S.calX*sc, S.calY*sc);
+  const gLenPx = Math.min(g.sp > 0 ? g.sp*sc*.45 : 5*sc*.4, 9);
+  for (let r = 0; r < g.rows; r++) {
+    for (let c = 0; c < g.cols; c++) {
+      const idx = start + r*g.cols + c;
+      const x = (g.ox + c*(g.lW+g.spX)) * sc;
+      const y = (g.oy + r*(g.lH+g.spY)) * sc;
+      const w = g.lW * sc, h = g.lH * sc;
+      const entry = S.batchImgs[idx];
+      drawLabel(ctx, x, y, w, h, entry ? entry.img : null, 0, 0, 1);
+      drawSafeZone(ctx, x, y, w, h, g.lW, g.lH);
+      if (S.guides && entry) drawGuides(ctx, x, y, w, h, gLenPx);
+    }
+  }
+  if (g.mg > 0) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(239,68,68,.22)'; ctx.lineWidth = .7; ctx.setLineDash([3,4]);
+    ctx.strokeRect(g.mg*sc, g.mg*sc, (p.w-2*g.mg)*sc, (p.h-2*g.mg)*sc);
+    ctx.setLineDash([]); ctx.restore();
+  }
+  if (S.regMarks) drawRegMarks(ctx, canvas.width, canvas.height, sc);
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = n
+    ? `🗂️ ${n} ${n===1?'imagen':'imágenes'} · ${pages} ${pages===1?'página':'páginas'} (${g.cols}×${g.rows})`
+    : '🗂️ Modo lote — añade imágenes';
+  badge.className = '';
+
+  // Page navigator
+  const nav = document.getElementById('batch-nav');
+  const lbl = document.getElementById('batch-page-lbl');
+  if (nav) nav.style.display = pages > 1 ? 'flex' : 'none';
+  if (lbl) lbl.textContent = `Página ${S.batchPage+1} / ${pages}`;
+
+  info.innerHTML =
+    `<span>📐 ${p.w}×${p.h} mm</span>` +
+    `<span>📏 ${S.lW}×${S.lH} cm</span>` +
+    `<span>🗂️ ${n} ${n===1?'imagen':'imágenes'} · ${pages} ${pages===1?'pág.':'págs.'}</span>` +
+    (!n ? `<span style="color:var(--ac)">⬆ Añade imágenes para exportar</span>` : '');
+
+  setExp(n > 0);
+}
+
+// ── Dieline / net de caja ──────────────────────────────
+function _dieOff() {
+  if (!S.dieMode) return;
+  S.dieMode = false;
+  const e = document.getElementById('die-on'); if (e) e.checked = false;
+  const c = document.getElementById('die-ctrl'); if (c) c.style.display = 'none';
+}
+
+function setDie(on) {
+  S.dieMode = on;
+  if (on) {
+    switchTab('tab-modes');
+    if (S.wrapMode)     setWrap(false);
+    if (S.neogeoMode)   setNeoGeo(false);
+    if (S.discMode)     setDisc(false);
+    if (S.ctplMode)     setCtpl(false);
+    if (S.posterActive) clearPoster();
+    if (S.split)        { S.split=false; const e=document.getElementById('split-on'); if(e) e.checked=false; document.getElementById('split-ctrl').style.display='none'; }
+    _batchOff(); _spineOff();
+  }
+  document.getElementById('die-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display =
+    (on || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode || S.batchMode) ? 'none' : 'block';
+  render();
+}
+
+function setDiePreset(v) {
+  if (v === 'custom') return;
+  const [w,h,d] = v.split(',').map(Number);
+  S.dieW = w; S.dieH = h; S.dieD = d;
+  document.getElementById('die-w').value = w;
+  document.getElementById('die-h').value = h;
+  document.getElementById('die-d').value = d;
+  schedRender();
+}
+
+// Geometría del net (cruz de 6 caras + 4 pestañas), en mm desde (0,0)
+function _dieLayout() {
+  const W = Math.max(10, S.dieW), H = Math.max(10, S.dieH), D = Math.max(3, S.dieD);
+  const t = Math.max(0, S.dieTab);
+  const x0 = t + D, y0 = t + D;           // origen de la columna frontal
+  const totalW = W + 2*D + 2*t;
+  const totalH = 2*H + 2*D + 2*t;
+  const faces = [
+    { name:'top',    x:x0,   y:t,         w:W, h:D, label:'Tapa'   },
+    { name:'front',  x:x0,   y:y0,        w:W, h:H, label:'Frente' },
+    { name:'bottom', x:x0,   y:y0+H,      w:W, h:D, label:'Fondo'  },
+    { name:'back',   x:x0,   y:y0+H+D,    w:W, h:H, label:'Atrás'  },
+    { name:'left',   x:t,    y:y0,        w:D, h:H, label:'Izq'    },
+    { name:'right',  x:x0+W, y:y0,        w:D, h:H, label:'Der'    },
+  ];
+  const tabs = [
+    { x:0,        y:y0,         w:t, h:H, side:'l' },
+    { x:x0+W+D,   y:y0,         w:t, h:H, side:'r' },
+    { x:x0,       y:0,          w:W, h:t, side:'t' },
+    { x:x0,       y:y0+H+D+H,   w:W, h:t, side:'b' },
+  ];
+  const folds = [
+    [x0, y0, x0+W, y0],                 // tapa-frente
+    [x0, y0+H, x0+W, y0+H],             // frente-fondo
+    [x0, y0+H+D, x0+W, y0+H+D],         // fondo-atrás
+    [x0, y0, x0, y0+H],                 // izq-frente
+    [x0+W, y0, x0+W, y0+H],             // der-frente
+    [t, y0, t, y0+H],                   // pestaña izq
+    [x0+W+D, y0, x0+W+D, y0+H],         // pestaña der
+    [x0, t, x0+W, t],                   // pestaña tapa
+    [x0, y0+H+D+H, x0+W, y0+H+D+H],     // pestaña atrás
+  ];
+  return { W, H, D, t, totalW, totalH, faces, tabs, folds, front: faces[1] };
+}
+
+function _dieTab(cx, tb, k) {
+  const c = Math.min(tb.w, tb.h) * 0.35 * k;
+  cx.beginPath();
+  if (tb.side === 'l' || tb.side === 'r') {
+    const xf = (tb.side==='l' ? tb.x+tb.w : tb.x) * k;  // arista de plegado
+    const xo = (tb.side==='l' ? tb.x : tb.x+tb.w) * k;  // arista exterior
+    const y1 = tb.y*k, y2 = (tb.y+tb.h)*k;
+    cx.moveTo(xf, y1); cx.lineTo(xo, y1+c); cx.lineTo(xo, y2-c); cx.lineTo(xf, y2);
+  } else {
+    const yf = (tb.side==='t' ? tb.y+tb.h : tb.y) * k;
+    const yo = (tb.side==='t' ? tb.y : tb.y+tb.h) * k;
+    const x1 = tb.x*k, x2 = (tb.x+tb.w)*k;
+    cx.moveTo(x1, yf); cx.lineTo(x1+c, yo); cx.lineTo(x2-c, yo); cx.lineTo(x2, yf);
+  }
+  cx.stroke();
+}
+
+// Dibuja el net a escala k (px/mm), origen en (0,0)
+function _drawDie(cx, L, k) {
+  const cut = '#222', fold = '#9aa', lab = 'rgba(124,106,247,.55)';
+  // Imagen en la cara frontal
+  if (S.dieFront && S.img) {
+    const ri = getRotImg(), f = L.front;
+    cx.save();
+    cx.beginPath(); cx.rect(f.x*k, f.y*k, f.w*k, f.h*k); cx.clip();
+    const s = Math.max(f.w*k/ri.naturalWidth, f.h*k/ri.naturalHeight);
+    cx.drawImage(ri, f.x*k + (f.w*k-ri.naturalWidth*s)/2, f.y*k + (f.h*k-ri.naturalHeight*s)/2,
+                 ri.naturalWidth*s, ri.naturalHeight*s);
+    cx.restore();
+  }
+  // Etiquetas de cara
+  cx.fillStyle = lab; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  L.faces.forEach(f => {
+    if (f.name === 'front' && S.dieFront && S.img) return;
+    cx.font = `${Math.max(7, Math.min(f.w, f.h)*k*0.18)}px sans-serif`;
+    cx.fillText(f.label, (f.x+f.w/2)*k, (f.y+f.h/2)*k);
+  });
+  // Pestañas (corte, trapecio abierto)
+  cx.strokeStyle = cut; cx.lineWidth = Math.max(1, 0.3*k); cx.lineJoin = 'round'; cx.setLineDash([]);
+  L.tabs.forEach(tb => _dieTab(cx, tb, k));
+  // Caras (corte) — el perímetro queda sólido; los pliegues internos se tapan con la línea discontinua
+  L.faces.forEach(f => cx.strokeRect(f.x*k, f.y*k, f.w*k, f.h*k));
+  // Líneas de plegado (discontinuas)
+  cx.strokeStyle = fold; cx.lineWidth = Math.max(0.8, 0.25*k);
+  cx.setLineDash([Math.max(3, 1.5*k), Math.max(3, 1.5*k)]);
+  L.folds.forEach(([x1,y1,x2,y2]) => { cx.beginPath(); cx.moveTo(x1*k,y1*k); cx.lineTo(x2*k,y2*k); cx.stroke(); });
+  cx.setLineDash([]);
+}
+
+// Canvas página completa con el net centrado (para exportar)
+function _composeDieCanvas(PX) {
+  const L = _dieLayout();
+  const p = pageMM();
+  const mg = +S.margin;
+  const availW = p.w - 2*mg, availH = p.h - 2*mg;
+  let scale = 1, scaled = false;
+  if (L.totalW > availW || L.totalH > availH) {
+    scale = Math.min(availW/L.totalW, availH/L.totalH); scaled = true;
+  }
+  const netW = L.totalW*scale, netH = L.totalH*scale;
+  const offX = (p.w - netW)/2, offY = (p.h - netH)/2;
+  const pc = document.createElement('canvas');
+  pc.width = Math.round(p.w*PX); pc.height = Math.round(p.h*PX);
+  const cx = pc.getContext('2d');
+  cx.fillStyle = '#fff'; cx.fillRect(0,0,pc.width,pc.height);
+  cx.save();
+  cx.translate((S.calX+offX)*PX, (S.calY+offY)*PX);
+  _drawDie(cx, L, PX*scale);
+  cx.restore();
+  return { pc, L, pageW: p.w, pageH: p.h, scaled, scale };
+}
+
+function renderDie() {
+  const canvas = document.getElementById('pvc');
+  const ctx = canvas.getContext('2d');
+  const p = pageMM();
+  const L = _dieLayout();
+  const badge = document.getElementById('badge');
+  const info  = document.getElementById('info-bar');
+
+  const wrapEl = document.getElementById('cvbg');
+  const maxW = wrapEl.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc = Math.min(maxW / p.w, maxH / p.h);
+  _mainSc = sc;
+  canvas.width  = Math.round(p.w * sc);
+  canvas.height = Math.round(p.h * sc);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const mg = +S.margin;
+  const availW = p.w - 2*mg, availH = p.h - 2*mg;
+  let scale = 1, scaled = false;
+  if (L.totalW > availW || L.totalH > availH) {
+    scale = Math.min(availW/L.totalW, availH/L.totalH); scaled = true;
+  }
+  const netW = L.totalW*scale, netH = L.totalH*scale;
+  const offX = (p.w - netW)/2, offY = (p.h - netH)/2;
+
+  ctx.save();
+  ctx.translate((S.calX+offX)*sc, (S.calY+offY)*sc);
+  _drawDie(ctx, L, sc*scale);
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = scaled
+    ? `⚠️ Caja ${L.W}×${L.H}×${L.D} mm — net ${L.totalW.toFixed(0)}×${L.totalH.toFixed(0)} mm (ajustado)`
+    : `📦 Caja ${L.W}×${L.H}×${L.D} mm — net ${L.totalW.toFixed(0)}×${L.totalH.toFixed(0)} mm`;
+  badge.className = scaled ? 'warn' : '';
+
+  info.innerHTML =
+    `<span>📐 ${p.w}×${p.h} mm</span>` +
+    `<span>📦 ${L.W}×${L.H}×${L.D} mm</span>` +
+    `<span>✂️ Net: ${L.totalW.toFixed(0)}×${L.totalH.toFixed(0)} mm</span>` +
+    (scaled ? `<span style="color:var(--warn,#f59e0b)">⚠️ Net mayor que la hoja — prueba A3</span>` : '');
+
+  setExp(true);
+}
+
+// ── Etiquetas de lomo (spine labels) ───────────────────
+function _spineOff() {
+  if (!S.spineMode) return;
+  S.spineMode = false;
+  const e = document.getElementById('spine-on'); if (e) e.checked = false;
+  const c = document.getElementById('spine-ctrl'); if (c) c.style.display = 'none';
+}
+
+function setSpine(on) {
+  S.spineMode = on;
+  if (on) {
+    switchTab('tab-modes');
+    if (S.wrapMode)     setWrap(false);
+    if (S.neogeoMode)   setNeoGeo(false);
+    if (S.discMode)     setDisc(false);
+    if (S.ctplMode)     setCtpl(false);
+    if (S.posterActive) clearPoster();
+    if (S.split)        { S.split=false; const e=document.getElementById('split-on'); if(e) e.checked=false; document.getElementById('split-ctrl').style.display='none'; }
+    _batchOff(); _dieOff();
+    // sincroniza el textarea con el estado actual
+    const ta = document.getElementById('spine-text');
+    if (ta && !ta.value) ta.value = S.spineList.join('\n');
+  }
+  document.getElementById('spine-ctrl').style.display = on ? 'block' : 'none';
+  document.getElementById('img-pos-ctrl').style.display =
+    (on || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode || S.batchMode || S.dieMode) ? 'none' : 'block';
+  S.spinePage = 0;
+  render();
+}
+
+function onSpineText(v) {
+  S.spineList = v.split('\n').map(s => s.trim()).filter(s => s.length);
+  S.spinePage = 0;
+  schedRender();
+}
+
+function spineNav(dir) {
+  const g = _spineGrid();
+  const perPage = g.cols * g.rows;
+  const pages = Math.max(1, Math.ceil(S.spineList.length / perPage));
+  S.spinePage = Math.min(pages - 1, Math.max(0, S.spinePage + dir));
+  render();
+}
+
+// Cuadrícula de tiras de lomo a partir de spineW × spineH
+function _spineGrid() {
+  const p = pageMM(), mg = +S.margin;
+  const lW = Math.max(3, S.spineW), lH = Math.max(10, S.spineH);
+  const spX = +S.spacingX, spY = +S.spacingY;
+  const usW = p.w - 2*mg, usH = p.h - 2*mg;
+  const cols = Math.max(1, Math.floor((usW + spX) / (lW + spX)));
+  const rows = Math.max(1, Math.floor((usH + spY) / (lH + spY)));
+  const gridW = cols*lW + (cols-1)*spX, gridH = rows*lH + (rows-1)*spY;
+  const ox = (p.w - gridW) / 2, oy = (p.h - gridH) / 2;
+  return { cols, rows, lW, lH, spX, spY, ox, oy };
+}
+
+// Dibuja una tira de lomo con texto vertical. k = px/mm
+function drawSpineLabel(ctx, x, y, w, h, text, k) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = '#fff'; ctx.fillRect(x, y, w, h);
+  // Banda de acento en ambos extremos
+  const band = Math.min(w * 0.55, h * 0.06);
+  ctx.fillStyle = S.spineColor;
+  ctx.fillRect(x, y, w, band);
+  ctx.fillRect(x, y + h - band, w, band);
+  // Texto vertical centrado, auto-ajustado
+  if (text) {
+    ctx.translate(x + w/2, y + h/2);
+    ctx.rotate(S.spineDir === 'down' ? Math.PI/2 : -Math.PI/2);
+    const avail = h - band*2 - 4*k;      // longitud disponible (eje del texto)
+    const cross = w * 0.78;              // ancho del lomo disponible
+    let fs = Math.min(cross, 9*k);
+    ctx.font = `700 ${fs}px ${S.spineFont}`;
+    let tw = ctx.measureText(text).width;
+    if (tw > avail) { fs *= avail / tw; ctx.font = `700 ${fs}px ${S.spineFont}`; }
+    ctx.fillStyle = S.spineColor;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 0);
+  }
+  // Borde fino de corte
+  ctx.setTransform(1,0,0,1,0,0);   // reset para borde en coords sin rotar
+  ctx.restore();
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,0,0,.25)';
+  ctx.lineWidth = Math.max(0.5, 0.2*k);
+  ctx.strokeRect(x, y, w, h);
+  ctx.restore();
+}
+
+function renderSpine() {
+  const canvas = document.getElementById('pvc');
+  const ctx = canvas.getContext('2d');
+  const p = pageMM();
+  const g = _spineGrid();
+  const badge = document.getElementById('badge');
+  const info  = document.getElementById('info-bar');
+
+  const wrapEl = document.getElementById('cvbg');
+  const maxW = wrapEl.clientWidth - 28;
+  const maxH = Math.max(300, window.innerHeight - 290);
+  const sc = Math.min(maxW / p.w, maxH / p.h);
+  _mainSc = sc;
+  canvas.width  = Math.round(p.w * sc);
+  canvas.height = Math.round(p.h * sc);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const perPage = g.cols * g.rows;
+  const n = S.spineList.length;
+  const pages = Math.max(1, Math.ceil(n / perPage));
+  if (S.spinePage > pages - 1) S.spinePage = pages - 1;
+  const start = S.spinePage * perPage;
+
+  ctx.save();
+  ctx.translate(S.calX*sc, S.calY*sc);
+  for (let r = 0; r < g.rows; r++) {
+    for (let c = 0; c < g.cols; c++) {
+      const idx = start + r*g.cols + c;
+      if (idx >= n && n > 0) continue;
+      const x = (g.ox + c*(g.lW+g.spX)) * sc;
+      const y = (g.oy + r*(g.lH+g.spY)) * sc;
+      drawSpineLabel(ctx, x, y, g.lW*sc, g.lH*sc, S.spineList[idx] || '', sc);
+    }
+  }
+  if (S.regMarks) drawRegMarks(ctx, canvas.width, canvas.height, sc);
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.lineWidth = 1;
+  ctx.strokeRect(.5, .5, canvas.width-1, canvas.height-1);
+
+  badge.textContent = n
+    ? `🏷️ ${n} ${n===1?'lomo':'lomos'} · ${pages} ${pages===1?'página':'páginas'} (${g.cols}×${g.rows}/pág)`
+    : '🏷️ Etiquetas de lomo — escribe títulos';
+  badge.className = '';
+
+  const nav = document.getElementById('spine-nav');
+  const lbl = document.getElementById('spine-page-lbl');
+  if (nav) nav.style.display = pages > 1 ? 'flex' : 'none';
+  if (lbl) lbl.textContent = `Página ${S.spinePage+1} / ${pages}`;
+
+  info.innerHTML =
+    `<span>📐 ${p.w}×${p.h} mm</span>` +
+    `<span>🏷️ ${S.spineW}×${S.spineH} mm</span>` +
+    `<span>${n} ${n===1?'lomo':'lomos'} · ${pages} ${pages===1?'pág.':'págs.'}</span>` +
+    (!n ? `<span style="color:var(--ac)">⬆ Escribe títulos para exportar</span>` : '');
+
+  setExp(n > 0);
 }
 
 function resetDisc() {
@@ -4321,6 +5240,7 @@ function _composeWrapCanvas(PX) {
 
 function setWrap(on) {
   S.wrapMode = on;
+  if (on) switchTab('tab-modes');
   document.getElementById('wrap-ctrl').style.display = on ? 'block' : 'none';
   document.getElementById('img-pos-ctrl').style.display = (on || S.neogeoMode || S.ctplMode) ? 'none' : 'block';
   if (on) {
@@ -4329,6 +5249,7 @@ function setWrap(on) {
     if (S.ctplMode)   { S.ctplMode=false; S.ctplData=null; document.getElementById('ctpl-ctrl').style.display='none'; }
     if (S.posterActive) clearPoster();
     if (S.split) { S.split=false; document.getElementById('split-on').checked=false; document.getElementById('split-ctrl').style.display='none'; }
+    _batchOff(); _dieOff(); _spineOff();
   }
   schedRender();
 }
@@ -4618,7 +5539,7 @@ function _ngHitZone(clientX, clientY) {
 
 // ── SVG Export (modo cuadrícula estándar) ─────────────
 async function exportSVG() {
-  if (S.neogeoMode || S.ctplMode || S.posterActive || S.split || S.wrapMode || S.discMode) {
+  if (S.neogeoMode || S.ctplMode || S.posterActive || S.split || S.wrapMode || S.discMode || S.batchMode || S.dieMode || S.spineMode) {
     showToast('✗ SVG solo en modo cuadrícula estándar — usa PDF o PNG');
     return;
   }
@@ -4727,7 +5648,9 @@ async function exportSVG() {
 
 // ── Print Direct ──────────────────────────────────────
 async function printDirect() {
-  if (!S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
+  if (S.batchMode && !S.batchImgs.length) return;
+  if (S.spineMode && !S.spineList.length) return;
+  if (!S.batchMode && !S.dieMode && !S.spineMode && !S.img && !S.neogeoMode && !S.ctplMode && !S.wrapMode && !S.discMode) return;
   const btn = document.getElementById('btn-print');
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳ Preparando…'; btn.disabled = true;
@@ -4737,7 +5660,59 @@ async function printDirect() {
     const PX = 200 / 25.4;
     const pages = []; // { url, wmm, hmm }
 
-    if (S.discMode) {
+    if (S.spineMode) {
+      const g = _spineGrid();
+      const p = pageMM();
+      const perPage = g.cols * g.rows;
+      const n = S.spineList.length;
+      const pagesN = Math.max(1, Math.ceil(n / perPage));
+      for (let pg = 0; pg < pagesN; pg++) {
+        const start = pg * perPage;
+        const pc = document.createElement('canvas');
+        pc.width = Math.round(p.w*PX); pc.height = Math.round(p.h*PX);
+        const cx = pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.save(); cx.translate(S.calX*PX, S.calY*PX);
+        for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
+          const idx = start + r*g.cols + c;
+          if (idx >= n) continue;
+          drawSpineLabel(cx, (g.ox+c*(g.lW+g.spX))*PX, (g.oy+r*(g.lH+g.spY))*PX,
+                         g.lW*PX, g.lH*PX, S.spineList[idx], PX);
+        }
+        if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX);
+        cx.restore();
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+      }
+
+    } else if (S.dieMode) {
+      const { pc, pageW, pageH } = _composeDieCanvas(PX);
+      pages.push({ url: pc.toDataURL('image/jpeg', .95), w: pageW, h: pageH });
+
+    } else if (S.batchMode) {
+      const g = calcGrid(); if (!g) throw new Error('No cabe en el papel');
+      const p = pageMM();
+      const perPage = g.cols * g.rows;
+      const pagesN = Math.max(1, Math.ceil(S.batchImgs.length / perPage));
+      for (let pg = 0; pg < pagesN; pg++) {
+        const start = pg * perPage;
+        const pc = document.createElement('canvas');
+        pc.width = Math.round(p.w*PX); pc.height = Math.round(p.h*PX);
+        const cx = pc.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,pc.width,pc.height);
+        cx.save(); cx.translate(S.calX*PX, S.calY*PX);
+        for (let r=0; r<g.rows; r++) for (let c=0; c<g.cols; c++) {
+          const entry = S.batchImgs[start + r*g.cols + c];
+          if (!entry) continue;
+          const x=Math.round((g.ox+c*(g.lW+g.spX))*PX), y=Math.round((g.oy+r*(g.lH+g.spY))*PX);
+          const w=Math.round(g.lW*PX), h=Math.round(g.lH*PX);
+          drawLabel(cx, x, y, w, h, entry.img, 0, 0, 1);
+          drawSafeZone(cx, x, y, w, h, g.lW, g.lH);
+          if (S.guides) drawGuides(cx, x, y, w, h, Math.round(2*PX));
+        }
+        if (S.regMarks) drawRegMarks(cx, pc.width, pc.height, PX);
+        cx.restore();
+        pages.push({ url: pc.toDataURL('image/jpeg',.95), w: p.w, h: p.h });
+      }
+
+    } else if (S.discMode) {
       const { pc, d } = _composeDiscCanvas(PX);
       pages.push({ url: pc.toDataURL('image/jpeg', .97), w: d.outerMM, h: d.outerMM });
 
@@ -4867,7 +5842,7 @@ async function printDirect() {
     win.document.close();
 
   } catch(e) { alert('Error al imprimir:\n' + e.message); }
-  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode); }
+  finally { btn.innerHTML=orig; btn.disabled=false; setExp(!!S.img || S.neogeoMode || S.ctplMode || S.wrapMode || S.discMode || (S.batchMode && S.batchImgs.length>0) || S.dieMode || (S.spineMode && S.spineList.length>0)); }
 }
 
 // ── Info Modal ────────────────────────────────────────
