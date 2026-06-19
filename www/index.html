@@ -1338,6 +1338,7 @@
     <div class="sec">
       <div class="sec-title" data-i18n="sec_stickers">😀 Stickers / pegatinas</div>
       <div class="ng-sub" data-i18n="sticker_info" style="margin-bottom:6px">Pulsa un emoji o sube un PNG para pegarlo sobre la etiqueta. Ajusta posición, tamaño y giro de cada uno.</div>
+      <div class="ng-sub" data-i18n="overlay_hint" style="margin-bottom:6px;color:var(--ac)">✋ Arrastra texto y stickers sobre la etiqueta · rueda = escalar · Shift+rueda = girar</div>
       <div id="emoji-palette" class="emoji-palette"></div>
       <button class="auto-btn" style="margin-top:8px" onclick="document.getElementById('sticker-file').click()" data-i18n="sticker_png">🖼️ Subir PNG como sticker</button>
       <input type="file" id="sticker-file" accept="image/png,image/*" style="display:none" onchange="onStickerFile(event)">
@@ -1500,6 +1501,7 @@ const I18N = {
     spine_color: 'Color de acento', spine_dir: 'Sentido', spine_up: '↑ Hacia arriba', spine_down: '↓ Hacia abajo',
     sec_stickers: '😀 Stickers / pegatinas', sticker_info: 'Pulsa un emoji o sube un PNG para pegarlo sobre la etiqueta. Ajusta posición, tamaño y giro de cada uno.',
     sticker_png: '🖼️ Subir PNG como sticker',
+    overlay_hint: '✋ Arrastra texto y stickers sobre la etiqueta · rueda = escalar · Shift+rueda = girar',
     btn_new: '🗑️ Nuevo', btn_save: '💾 Guardar proyecto', btn_load: '📂 Cargar proyecto',
     confirm_new: '¿Empezar un proyecto nuevo? Se perderá lo no guardado.', err_load: 'Archivo de proyecto no válido',
     toast_new: '🗑️ Proyecto nuevo', toast_saved: '💾 Proyecto guardado', toast_loaded: '📂 Proyecto cargado',
@@ -1545,6 +1547,7 @@ const I18N = {
     spine_color: 'Accent colour', spine_dir: 'Direction', spine_up: '↑ Upward', spine_down: '↓ Downward',
     sec_stickers: '😀 Stickers', sticker_info: 'Tap an emoji or upload a PNG to stick it onto the label. Adjust each one\'s position, size and rotation.',
     sticker_png: '🖼️ Upload PNG as sticker',
+    overlay_hint: '✋ Drag text and stickers on the label · wheel = scale · Shift+wheel = rotate',
     btn_new: '🗑️ New', btn_save: '💾 Save project', btn_load: '📂 Load project',
     confirm_new: 'Start a new project? Unsaved work will be lost.', err_load: 'Invalid project file',
     toast_new: '🗑️ New project', toast_saved: '💾 Project saved', toast_loaded: '📂 Project loaded',
@@ -1590,6 +1593,7 @@ const I18N = {
     spine_color: 'Cor de destaque', spine_dir: 'Sentido', spine_up: '↑ Para cima', spine_down: '↓ Para baixo',
     sec_stickers: '😀 Stickers / autocolantes', sticker_info: 'Toque num emoji ou carregue um PNG para colá-lo na etiqueta. Ajuste posição, tamanho e rotação de cada um.',
     sticker_png: '🖼️ Carregar PNG como sticker',
+    overlay_hint: '✋ Arrasta texto e stickers sobre a etiqueta · roda = escalar · Shift+roda = girar',
     btn_new: '🗑️ Novo', btn_save: '💾 Guardar projeto', btn_load: '📂 Carregar projeto',
     confirm_new: 'Começar um projeto novo? Perde-se o que não foi guardado.', err_load: 'Ficheiro de projeto inválido',
     toast_new: '🗑️ Projeto novo', toast_saved: '💾 Projeto guardado', toast_loaded: '📂 Projeto carregado',
@@ -1635,6 +1639,7 @@ const I18N = {
     spine_color: 'Couleur d\'accent', spine_dir: 'Sens', spine_up: '↑ Vers le haut', spine_down: '↓ Vers le bas',
     sec_stickers: '😀 Stickers / autocollants', sticker_info: 'Touchez un emoji ou importez un PNG pour le coller sur l\'étiquette. Réglez position, taille et rotation de chacun.',
     sticker_png: '🖼️ Importer un PNG comme sticker',
+    overlay_hint: '✋ Glissez texte et stickers sur l\'étiquette · molette = redimensionner · Maj+molette = pivoter',
     btn_new: '🗑️ Nouveau', btn_save: '💾 Enregistrer le projet', btn_load: '📂 Charger un projet',
     confirm_new: 'Démarrer un nouveau projet ? Le travail non enregistré sera perdu.', err_load: 'Fichier de projet invalide',
     toast_new: '🗑️ Nouveau projet', toast_saved: '💾 Projet enregistré', toast_loaded: '📂 Projet chargé',
@@ -2023,10 +2028,10 @@ function renderTextList() {
           <input type="range" min="0" max="100" value="${tx.xPct}" oninput="updateText('${tx.id}','xPct',this.value)"></label>
         <label>Y <span id="txt-${tx.id}-yPct-val">${tx.yPct}%</span>
           <input type="range" min="0" max="100" value="${tx.yPct}" oninput="updateText('${tx.id}','yPct',this.value)"></label>
-        <label data-i18n="text_size">Tamaño <span id="txt-${tx.id}-sizePct-val">${tx.sizePct}%</span>
+        <label><span data-i18n="text_size">Tamaño</span> <span id="txt-${tx.id}-sizePct-val">${tx.sizePct}%</span>
           <input type="range" min="2" max="40" value="${tx.sizePct}" oninput="updateText('${tx.id}','sizePct',this.value)"></label>
-        <label data-i18n="text_rot">Giro <span id="txt-${tx.id}-rotation-val">${tx.rotation}°</span>
-          <input type="range" min="-90" max="90" value="${tx.rotation}" oninput="updateText('${tx.id}','rotation',this.value)"></label>
+        <label><span data-i18n="text_rot">Giro</span> <span id="txt-${tx.id}-rotation-val">${tx.rotation}°</span>
+          <input type="range" min="-180" max="180" value="${tx.rotation}" oninput="updateText('${tx.id}','rotation',this.value)"></label>
       </div>
       <div class="text-item-row">
         <label class="text-color">A<input type="color" value="${tx.color}" oninput="updateText('${tx.id}','color',this.value)"></label>
@@ -5880,6 +5885,65 @@ let _imgDrag  = null;
 let _ctplDrag = null;
 let _wrapDrag = null;
 let _discDrag = null;
+let _ovDrag   = null;   // arrastre de overlay (texto / sticker) en modo normal
+
+function _isNormalMode() {
+  return !S.discMode && !S.wrapMode && !S.neogeoMode && !S.ctplMode &&
+         !S.split && !S.posterActive && !S.batchMode && !S.dieMode && !S.spineMode;
+}
+
+// Detecta el overlay (sticker o texto) bajo el cursor en modo cuadrícula normal.
+// Devuelve { kind, obj, lwpx, lhpx } del más alto, o null.
+function _overlayHit(clientX, clientY) {
+  if (!_isNormalMode()) return null;
+  if ((!S.stickers || !S.stickers.length) && (!S.texts || !S.texts.length)) return null;
+  const g = calcGrid(); if (!g) return null;
+  const canvas = document.getElementById('pvc');
+  const rect = canvas.getBoundingClientRect();
+  const sc = _mainSc;
+  const cx = (clientX - rect.left) * (canvas.width  / rect.width);
+  const cy = (clientY - rect.top)  * (canvas.height / rect.height);
+  const lwpx = g.lW * sc, lhpx = g.lH * sc;
+  // localizar la celda bajo el cursor
+  let lx0 = null, ly0 = null;
+  for (let r = 0; r < g.rows && lx0 === null; r++)
+    for (let c = 0; c < g.cols; c++) {
+      const x = (S.calX + g.ox + c*(g.lW+g.spX)) * sc;
+      const y = (S.calY + g.oy + r*(g.lH+g.spY)) * sc;
+      if (cx >= x && cx <= x+lwpx && cy >= y && cy <= y+lhpx) { lx0 = x; ly0 = y; break; }
+    }
+  if (lx0 === null) return null;
+  const mctx = canvas.getContext('2d');
+  // stickers (último dibujado = encima)
+  for (let i = (S.stickers||[]).length - 1; i >= 0; i--) {
+    const s = S.stickers[i];
+    const hPx = lhpx * (s.sizePct/100);
+    let wPx = hPx;
+    if (s.type === 'img' && s._img && s._img.naturalWidth) wPx = hPx * (s._img.naturalWidth / s._img.naturalHeight);
+    const ccx = lx0 + lwpx*(s.xPct/100), ccy = ly0 + lhpx*(s.yPct/100);
+    if (Math.abs(cx-ccx) <= wPx/2*1.15 && Math.abs(cy-ccy) <= hPx/2*1.15)
+      return { kind: 'sticker', obj: s, lwpx, lhpx };
+  }
+  // textos
+  for (let i = (S.texts||[]).length - 1; i >= 0; i--) {
+    const t = S.texts[i]; if (!t.content) continue;
+    const fontPx = lhpx * (t.sizePct/100);
+    mctx.save(); mctx.font = `${t.bold?'700 ':''}${fontPx}px ${t.font||'sans-serif'}`;
+    const wPx = mctx.measureText(t.content).width; mctx.restore();
+    const ccx = lx0 + lwpx*(t.xPct/100), ccy = ly0 + lhpx*(t.yPct/100);
+    let left = ccx - wPx/2, right = ccx + wPx/2;
+    if (t.align === 'left')  { left = ccx; right = ccx + wPx; }
+    if (t.align === 'right') { left = ccx - wPx; right = ccx; }
+    if (cx >= left-5 && cx <= right+5 && Math.abs(cy-ccy) <= fontPx/2*1.3)
+      return { kind: 'text', obj: t, lwpx, lhpx };
+  }
+  return null;
+}
+
+function _refreshOverlayLists() {
+  renderTextList(); renderStickerList();
+  if (typeof schedPersist === 'function') schedPersist();
+}
 
 function _ngHitZone(clientX, clientY) {
   const canvas = document.getElementById('pvc');
@@ -5903,6 +5967,14 @@ function _ngHitZone(clientX, clientY) {
 
   function onStart(e) {
     const p = pos(e);
+    const ovh = _overlayHit(p.x, p.y);
+    if (ovh) {
+      e.preventDefault();
+      _ovDrag = { obj: ovh.obj, lwpx: ovh.lwpx, lhpx: ovh.lhpx,
+                  startCX: p.x, startCY: p.y, startX: ovh.obj.xPct, startY: ovh.obj.yPct };
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
     if (S.discMode && getRotImg()) {
       e.preventDefault();
       _discDrag = { startCX: p.x, startCY: p.y,
@@ -5943,6 +6015,17 @@ function _ngHitZone(clientX, clientY) {
 
   function onMove(e) {
     const p = pos(e);
+    if (_ovDrag) {
+      if (e.cancelable) e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const dxPct = (p.x - _ovDrag.startCX) * (canvas.width  / rect.width)  / _ovDrag.lwpx * 100;
+      const dyPct = (p.y - _ovDrag.startCY) * (canvas.height / rect.height) / _ovDrag.lhpx * 100;
+      _ovDrag.obj.xPct = Math.max(0, Math.min(100, _ovDrag.startX + dxPct));
+      _ovDrag.obj.yPct = Math.max(0, Math.min(100, _ovDrag.startY + dyPct));
+      canvas.style.cursor = 'grabbing';
+      render();
+      return;
+    }
     if (_discDrag) {
       if (e.cancelable) e.preventDefault();
       S.discOff.x = _discDrag.startOffX + (p.x - _discDrag.startCX) / _discSc;
@@ -5984,12 +6067,15 @@ function _ngHitZone(clientX, clientY) {
       canvas.style.cursor = _ngHitZone(p.x, p.y) ? 'grab' : '';
     } else if (S.ctplMode && getRotImg()) {
       canvas.style.cursor = _ctplHitZone(p.x, p.y) !== null ? 'grab' : '';
+    } else if (_overlayHit(p.x, p.y)) {
+      canvas.style.cursor = 'move';
     } else if (!S.neogeoMode && !S.ctplMode && !S.split && getRotImg()) {
       canvas.style.cursor = 'grab';
     }
   }
 
   function onEnd() {
+    if (_ovDrag) { _ovDrag = null; _refreshOverlayLists(); }
     _ngDrag = null; _ctplDrag = null; _imgDrag = null; _wrapDrag = null; _discDrag = null;
     if      (S.discMode   && getRotImg())                        canvas.style.cursor = 'grab';
     else if (S.wrapMode)                                          canvas.style.cursor = '';
@@ -6003,9 +6089,9 @@ function _ngHitZone(clientX, clientY) {
   canvas.addEventListener('touchstart', onStart, { passive: false });
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup',   onEnd);
-  document.addEventListener('touchmove', (e) => { if (_ngDrag || _ctplDrag || _imgDrag || _wrapDrag) onMove(e); }, { passive: false });
+  document.addEventListener('touchmove', (e) => { if (_ngDrag || _ctplDrag || _imgDrag || _wrapDrag || _ovDrag) onMove(e); }, { passive: false });
   document.addEventListener('touchend',  onEnd);
-  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_ctplDrag && !_imgDrag && !_wrapDrag && !_discDrag) canvas.style.cursor = ''; });
+  canvas.addEventListener('mouseleave', () => { if (!_ngDrag && !_ctplDrag && !_imgDrag && !_wrapDrag && !_discDrag && !_ovDrag) canvas.style.cursor = ''; });
 
   // Wheel-to-zoom
   canvas.addEventListener('wheel', (e) => {
@@ -6083,6 +6169,19 @@ function _ngHitZone(clientX, clientY) {
       S.ctplScale[key] = newZoom;
       _updateCtplScaleUI(key);
       renderCtpl();
+    } else if (_overlayHit(e.clientX, e.clientY)) {
+      // Sobre un sticker/texto: rueda = escalar · Shift+rueda = girar
+      e.preventDefault();
+      const o = _overlayHit(e.clientX, e.clientY).obj;
+      if (e.shiftKey) {
+        let rot = (o.rotation || 0) + (e.deltaY > 0 ? -5 : 5);
+        if (rot > 180) rot -= 360; if (rot < -180) rot += 360;
+        o.rotation = rot;
+      } else {
+        o.sizePct = Math.max(3, Math.min(100, (o.sizePct || 10) + (e.deltaY > 0 ? -1.5 : 1.5)));
+      }
+      render();
+      _refreshOverlayLists();
     } else if (!S.split && getRotImg()) {
       e.preventDefault();
       const oldZoom = S.imgScale;
